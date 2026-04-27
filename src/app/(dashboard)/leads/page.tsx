@@ -1,13 +1,16 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import type { Prisma } from '@prisma/client'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, CLIENT_TYPE_LABELS, EVENT_TYPE_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 import IncomingLeadCards from '@/components/leads/IncomingLeadCards'
 
 export const dynamic = 'force-dynamic'
 
+type LeadWithRelations = Prisma.LeadGetPayload<{ include: { location: true; quote: true } }>
+
 export default async function LeadsPage() {
-  let leads: Awaited<ReturnType<typeof db.lead.findMany>> = []
+  let leads: LeadWithRelations[] = []
   try {
     leads = await db.lead.findMany({
       include: { location: true, quote: true },
