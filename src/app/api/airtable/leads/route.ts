@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getAirtableLeads, getAllAirtableLeads } from '@/lib/airtable'
+import { getAirtableLeads, getAirtableLeadsByPhones } from '@/lib/airtable'
+import { db } from '@/lib/db'
 
 export async function GET() {
   const session = await getSession()
@@ -12,7 +13,13 @@ export async function GET() {
 
   try {
     if (session.role === 'admin') {
-      const leads = await getAllAirtableLeads()
+      // Fetch leads for all employees who have a phone number set
+      const users = await db.user.findMany({
+        where: { phoneNumber: { not: null } },
+        select: { phoneNumber: true },
+      })
+      const phones = users.map((u) => u.phoneNumber!)
+      const leads = await getAirtableLeadsByPhones(phones)
       return NextResponse.json(leads)
     }
 

@@ -2,14 +2,21 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, CLIENT_TYPE_LABELS, EVENT_TYPE_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import { getSession } from '@/lib/session'
+import IncomingLeadsSection from '@/components/leads/IncomingLeadsSection'
+
+export const dynamic = 'force-dynamic'
 
 export default async function LeadsPage() {
+  const session = await getSession()
   const leads = await db.lead.findMany({
     include: { location: true, quote: true },
     orderBy: { eventDate: 'asc' },
   })
 
   const statuses = ['lead', 'quote_sent', 'closed', 'done', 'canceled']
+
+  const showIncoming = !!process.env.AIRTABLE_API_KEY && (session?.role === 'admin' || !!session?.phoneNumber)
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -22,6 +29,8 @@ export default async function LeadsPage() {
           + ליד חדש
         </Link>
       </div>
+
+      {showIncoming && <IncomingLeadsSection isAdmin={session?.role === 'admin'} />}
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {statuses.map((status) => {

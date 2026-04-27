@@ -13,7 +13,6 @@ interface SidebarProps {
 const navItems = [
   { href: '/dashboard', label: 'לוח בקרה', icon: '📊' },
   { href: '/leads', label: 'לידים', icon: '📋' },
-  { href: '/airtable-leads', label: 'לידים חיצוניים', icon: '📞' },
   { href: '/calendar', label: 'לוח שנה', icon: '📅' },
   { href: '/flavors', label: 'טעמים', icon: '🍦' },
   { href: '/locations', label: 'מיקומים', icon: '📍' },

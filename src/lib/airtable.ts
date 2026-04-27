@@ -32,8 +32,13 @@ export async function getAirtableLeads(phoneMyUser: string): Promise<AirtableLea
   return data.records ?? []
 }
 
-export async function getAllAirtableLeads(): Promise<AirtableLead[]> {
-  const data = await airtableFetch(`${TABLE_ID}?maxRecords=500`)
+export async function getAirtableLeadsByPhones(phones: string[]): Promise<AirtableLead[]> {
+  if (phones.length === 0) return []
+  const formula =
+    phones.length === 1
+      ? `{phone_my_user}="${phones[0]}"`
+      : `OR(${phones.map((p) => `{phone_my_user}="${p}"`).join(',')})`
+  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=500`)
   return data.records ?? []
 }
 
