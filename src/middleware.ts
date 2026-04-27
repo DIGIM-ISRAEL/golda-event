@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/login', '/approve', '/api/auth', '/api/approve']
+  const publicPaths = ['/login', '/approve', '/api/auth', '/api/approve', '/api/setup']
   const isPublic = publicPaths.some((p) => pathname.startsWith(p))
 
   const token = request.cookies.get('session')?.value
