@@ -104,6 +104,7 @@ model Lead {
   clientApprovedAt       DateTime?  @map("client_approved_at")
   clientApprovedName     String?    @map("client_approved_name")
   googleEventId          String?    @map("google_event_id")
+  airtableRecordId       String?    @unique @map("airtable_record_id")
   createdAt              DateTime   @default(now()) @map("created_at")
   updatedAt              DateTime   @updatedAt @map("updated_at")
 

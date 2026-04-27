@@ -46,6 +46,39 @@ export async function getAirtableLeadsByPhones(phones: string[]): Promise<Airtab
   return data.records ?? []
 }
 
+export async function syncAirtableLeadsToDb(
+  phones: string[],
+  db: import('@prisma/client').PrismaClient,
+): Promise<void> {
+  if (phones.length === 0) return
+  const leads = await getAirtableLeadsByPhones(phones)
+  const today = new Date().toISOString().split('T')[0]
+
+  for (const lead of leads) {
+    const f = lead.fields
+    const name = String(f['שם מלא'] || f.phone_number || 'ליד ממתין')
+    const phone = String(f.phone_number || '')
+
+    await db.lead.upsert({
+      where: { airtableRecordId: lead.id },
+      create: {
+        airtableRecordId: lead.id,
+        clientName: name,
+        clientPhone: phone,
+        clientType: 'institutional',
+        eventType: 'dairy',
+        eventDate: today,
+        startTime: '18:00',
+        endTime: '20:00',
+        participants: 100,
+        status: 'lead',
+        notes: f['Call Summary'] ? String(f['Call Summary']) : null,
+      },
+      update: {},
+    })
+  }
+}
+
 export async function getAirtableLead(recordId: string): Promise<AirtableLead | null> {
   try {
     const data = await airtableFetch(`${TABLE_ID}/${recordId}`)

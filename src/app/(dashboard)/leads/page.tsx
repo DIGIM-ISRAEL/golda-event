@@ -1,10 +1,34 @@
 import Link from 'next/link'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
+import { syncAirtableLeadsToDb } from '@/lib/airtable'
 import KanbanBoard from '@/components/leads/KanbanBoard'
 
 export const dynamic = 'force-dynamic'
 
 export default async function LeadsPage() {
+  // Sync Airtable leads into DB (non-blocking — errors are silently ignored)
+  if (process.env.AIRTABLE_API_KEY) {
+    try {
+      const session = await getSession()
+      if (session) {
+        let phones: string[] = []
+        if (session.role === 'admin') {
+          const users = await db.user.findMany({
+            where: { phoneNumber: { not: null } },
+            select: { phoneNumber: true },
+          })
+          phones = users.map((u) => u.phoneNumber!)
+        } else if (session.phoneNumber) {
+          phones = [session.phoneNumber]
+        }
+        if (phones.length > 0) await syncAirtableLeadsToDb(phones, db)
+      }
+    } catch {
+      // Airtable errors must not break the page
+    }
+  }
+
   let leads: {
     id: string
     clientName: string
@@ -13,6 +37,7 @@ export default async function LeadsPage() {
     status: string
     clientType: string
     eventType: string
+    airtableRecordId: string | null
     location: { cityName: string } | null
     quote: { totalPrice: number } | null
   }[] = []
@@ -27,6 +52,7 @@ export default async function LeadsPage() {
         status: true,
         clientType: true,
         eventType: true,
+        airtableRecordId: true,
         location: { select: { cityName: true } },
         quote: { select: { totalPrice: true } },
       },
@@ -42,8 +68,6 @@ export default async function LeadsPage() {
     // DB error — render empty board
   }
 
-  const hasAirtable = !!process.env.AIRTABLE_API_KEY
-
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -56,7 +80,7 @@ export default async function LeadsPage() {
         </Link>
       </div>
 
-      <KanbanBoard initialLeads={leads} hasAirtable={hasAirtable} />
+      <KanbanBoard initialLeads={leads} />
     </div>
   )
 }
