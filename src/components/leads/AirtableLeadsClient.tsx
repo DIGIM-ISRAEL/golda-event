@@ -17,31 +17,31 @@ interface AirtableLead {
 }
 
 interface Props {
+  isAdmin: boolean
   hasPhone: boolean
 }
 
 function QualityStars({ score }: { score?: number }) {
   if (!score) return <span className="text-gray-400 text-xs">לא דורג</span>
-  const max = 10
-  const filled = Math.round((score / max) * 5)
+  const filled = Math.round((score / 10) * 5)
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={i <= filled ? 'text-yellow-400' : 'text-gray-200'}>
-          ★
-        </span>
+        <span key={i} className={i <= filled ? 'text-yellow-400' : 'text-gray-200'}>★</span>
       ))}
       <span className="text-xs text-gray-500 mr-1">{score}/10</span>
     </div>
   )
 }
 
-export default function AirtableLeadsClient({ hasPhone }: Props) {
+export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
   const [leads, setLeads] = useState<AirtableLead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [callingId, setCallingId] = useState<string | null>(null)
   const [callResults, setCallResults] = useState<Record<string, { success: boolean; error?: string }>>({})
+
+  const canLoad = isAdmin || hasPhone
 
   const fetchLeads = useCallback(async () => {
     setLoading(true)
@@ -62,16 +62,13 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
   }, [])
 
   useEffect(() => {
-    if (hasPhone) fetchLeads()
+    if (canLoad) fetchLeads()
     else setLoading(false)
-  }, [hasPhone, fetchLeads])
+  }, [canLoad, fetchLeads])
 
   async function handleCall(lead: AirtableLead) {
     const phone = lead.fields.phone_number
-    if (!phone) {
-      alert('אין מספר טלפון לליד זה')
-      return
-    }
+    if (!phone) { alert('אין מספר טלפון לליד זה'); return }
 
     setCallingId(lead.id)
     try {
@@ -88,7 +85,6 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
       setCallResults((prev) => ({ ...prev, [lead.id]: data }))
 
       if (data.success) {
-        // Refresh this lead after a short delay to get updated quality score + summary
         setTimeout(async () => {
           try {
             const r = await fetch(`/api/airtable/leads/${lead.id}`)
@@ -96,9 +92,7 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
               const updated: AirtableLead = await r.json()
               setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
             }
-          } catch {
-            // silent — lead data will refresh on next manual reload
-          }
+          } catch { /* silent */ }
         }, 5000)
       }
     } catch {
@@ -108,13 +102,13 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
     }
   }
 
-  if (!hasPhone) {
+  if (!canLoad) {
     return (
       <div className="p-6 max-w-3xl mx-auto" dir="rtl">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">לידים חיצוניים</h1>
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-amber-800">
           <p className="font-semibold mb-1">לא הוגדר מספר טלפון בפרופיל שלך</p>
-          <p className="text-sm">בקש ממנהל המערכת להגדיר מספר טלפון לחשבונך תחת ניהול &gt; משתמשים.</p>
+          <p className="text-sm">בקש ממנהל המערכת להגדיר מספר טלפון לחשבונך תחת ניהול → משתמשים.</p>
         </div>
       </div>
     )
@@ -123,7 +117,10 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
   return (
     <div className="p-6 max-w-5xl mx-auto" dir="rtl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">לידים חיצוניים</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">לידים חיצוניים</h1>
+          {isAdmin && <p className="text-sm text-gray-500 mt-0.5">מציג את כל הלידים (מנהל)</p>}
+        </div>
         <button
           onClick={fetchLeads}
           disabled={loading}
@@ -137,9 +134,7 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm mb-4">{error}</div>
       )}
 
-      {loading && (
-        <div className="text-center text-gray-400 py-16">טוען לידים מ-Airtable...</div>
-      )}
+      {loading && <div className="text-center text-gray-400 py-16">טוען לידים מ-Airtable...</div>}
 
       {!loading && !error && leads.length === 0 && (
         <div className="text-center text-gray-400 py-16">אין לידים להצגה</div>
@@ -158,9 +153,10 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
                   <div className="text-sm font-semibold text-gray-800 mb-1" dir="ltr">
                     {f.phone_number ?? '—'}
                   </div>
-                  {f['Lead Quality Score'] !== undefined && (
-                    <QualityStars score={f['Lead Quality Score']} />
+                  {isAdmin && f.phone_my_user && (
+                    <div className="text-xs text-gray-400" dir="ltr">נציג: {f.phone_my_user}</div>
                   )}
+                  <QualityStars score={f['Lead Quality Score']} />
                 </div>
 
                 {f['Call Summary'] && (
@@ -170,13 +166,7 @@ export default function AirtableLeadsClient({ hasPhone }: Props) {
                 )}
 
                 {callResult && (
-                  <div
-                    className={`text-xs rounded-lg px-3 py-2 ${
-                      callResult.success
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-red-50 text-red-700'
-                    }`}
-                  >
+                  <div className={`text-xs rounded-lg px-3 py-2 ${callResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                     {callResult.success ? '✓ חיוג יצא בהצלחה' : `✗ ${callResult.error}`}
                   </div>
                 )}

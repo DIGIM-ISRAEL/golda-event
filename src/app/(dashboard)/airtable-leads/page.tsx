@@ -8,5 +8,10 @@ export default async function AirtableLeadsPage() {
   const session = await getSession()
   if (!session) redirect('/login')
 
-  return <AirtableLeadsClient hasPhone={!!session.phoneNumber} />
+  return (
+    <AirtableLeadsClient
+      isAdmin={session.role === 'admin'}
+      hasPhone={!!session.phoneNumber}
+    />
+  )
 }

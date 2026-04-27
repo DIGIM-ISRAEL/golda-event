@@ -28,7 +28,12 @@ async function airtableFetch(path: string) {
 
 export async function getAirtableLeads(phoneMyUser: string): Promise<AirtableLead[]> {
   const formula = encodeURIComponent(`{phone_my_user}="${phoneMyUser}"`)
-  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${formula}&maxRecords=200`)
+  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${formula}&maxRecords=500`)
+  return data.records ?? []
+}
+
+export async function getAllAirtableLeads(): Promise<AirtableLead[]> {
+  const data = await airtableFetch(`${TABLE_ID}?maxRecords=500`)
   return data.records ?? []
 }
 
