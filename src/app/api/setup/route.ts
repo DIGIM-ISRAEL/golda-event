@@ -9,9 +9,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const existing = await db.user.findUnique({ where: { email: email.toLowerCase() } })
-  if (existing) {
-    return NextResponse.json({ error: 'User already exists' }, { status: 409 })
+  const userCount = await db.user.count()
+  if (userCount > 0) {
+    return NextResponse.json({ error: 'Setup already completed' }, { status: 409 })
   }
 
   const passwordHash = await bcrypt.hash(password, 12)

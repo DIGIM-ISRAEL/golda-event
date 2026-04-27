@@ -46,6 +46,7 @@ model User {
   passwordHash String   @map("password_hash")
   fullName     String   @map("full_name")
   role         Role     @default(sales)
+  phoneNumber  String?  @map("phone_number")
   createdAt    DateTime @default(now()) @map("created_at")
   leads        Lead[]
 

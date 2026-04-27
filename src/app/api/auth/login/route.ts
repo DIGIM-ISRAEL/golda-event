@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     email: user.email,
     role: user.role,
     name: user.fullName,
+    phoneNumber: user.phoneNumber,
   })
 
   const response = NextResponse.json({ ok: true })

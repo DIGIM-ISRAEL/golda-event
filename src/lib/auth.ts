@@ -7,6 +7,7 @@ export interface SessionPayload {
   email: string
   role: 'admin' | 'sales'
   name: string
+  phoneNumber?: string | null
 }
 
 export async function signToken(payload: SessionPayload): Promise<string> {
