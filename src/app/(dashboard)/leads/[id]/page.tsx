@@ -14,6 +14,7 @@ import {
 import { formatDate, formatTime } from '@/lib/utils'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
+import SignatureLink from '@/components/leads/SignatureLink'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -200,13 +201,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
             <h3 className="font-semibold text-gray-900 mb-2 text-sm">חתימה דיגיטלית</h3>
             <p className="text-xs text-gray-500 mb-3">שלח ללקוח לאישור ההצעה:</p>
-            <input
-              readOnly
-              value={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-gray-50 text-gray-600"
-              onClick={(e) => (e.target as HTMLInputElement).select()}
-              dir="ltr"
-            />
+            <SignatureLink url={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`} />
           </div>
 
           {lead.location && (
