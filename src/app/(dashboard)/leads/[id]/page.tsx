@@ -29,7 +29,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         flavors: { include: { flavor: true } },
       },
     }),
-    db.settings.findMany(),
+    db.settings.findMany().catch(() => [] as Awaited<ReturnType<typeof db.settings.findMany>>),
   ])
 
   if (!lead) notFound()

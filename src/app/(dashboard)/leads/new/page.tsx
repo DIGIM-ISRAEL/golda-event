@@ -3,8 +3,8 @@ import LeadForm from '@/components/leads/LeadForm'
 
 export default async function NewLeadPage() {
   const [flavors, locations, settingsRows] = await Promise.all([
-    db.flavor.findMany({ orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }] }),
-    db.location.findMany({ orderBy: { cityName: 'asc' } }),
+    db.flavor.findMany({ orderBy: [{ category: 'asc' as const }, { sortOrder: 'asc' as const }] }),
+    db.location.findMany({ orderBy: { cityName: 'asc' as const } }),
     db.settings.findMany(),
   ])
 
