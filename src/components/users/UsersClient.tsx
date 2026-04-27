@@ -8,7 +8,7 @@ interface User {
   fullName: string
   role: 'admin' | 'sales'
   phoneNumber: string | null
-  createdAt: string
+  createdAt: Date | string
 }
 
 interface Props {
