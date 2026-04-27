@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 
 interface AirtableFields {
+  'שם מלא'?: string
   phone_number?: string
   phone_my_user?: string
   phone_fundraiser?: string
@@ -16,7 +17,7 @@ interface AirtableLead {
   fields: AirtableFields
 }
 
-export default function IncomingLeadCards({ isAdmin }: { isAdmin: boolean }) {
+export default function IncomingLeadCards() {
   const [leads, setLeads] = useState<AirtableLead[]>([])
   const [callingId, setCallingId] = useState<string | null>(null)
   const [callResults, setCallResults] = useState<Record<string, { success: boolean; error?: string }>>({})
@@ -70,6 +71,7 @@ export default function IncomingLeadCards({ isAdmin }: { isAdmin: boolean }) {
         const f = lead.fields
         const callResult = callResults[lead.id]
         const isCalling = callingId === lead.id
+        const name = f['שם מלא'] || f.phone_number || '—'
         const score = f['Lead Quality Score']
 
         return (
@@ -83,9 +85,9 @@ export default function IncomingLeadCards({ isAdmin }: { isAdmin: boolean }) {
                 <span className="text-xs text-gray-500">{score}/10 ★</span>
               )}
             </div>
-            <div className="font-semibold text-gray-900 text-sm" dir="ltr">{f.phone_number ?? '—'}</div>
-            {isAdmin && f.phone_my_user && (
-              <div className="text-xs text-gray-400 mt-0.5" dir="ltr">{f.phone_my_user}</div>
+            <div className="font-semibold text-gray-900 text-sm">{name}</div>
+            {f.phone_number && (
+              <div className="text-xs text-gray-400 mt-0.5" dir="ltr">{f.phone_number}</div>
             )}
             {f['Call Summary'] && (
               <div className="text-xs text-gray-500 mt-1 line-clamp-2">{f['Call Summary']}</div>

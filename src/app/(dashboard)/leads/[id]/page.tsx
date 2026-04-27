@@ -27,7 +27,6 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         location: true,
         quote: true,
         flavors: { include: { flavor: true } },
-        salesRep: true,
       },
     }),
     db.settings.findMany(),

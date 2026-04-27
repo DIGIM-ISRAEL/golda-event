@@ -2,20 +2,23 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, CLIENT_TYPE_LABELS, EVENT_TYPE_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
-import { getSession } from '@/lib/session'
 import IncomingLeadCards from '@/components/leads/IncomingLeadCards'
 
 export const dynamic = 'force-dynamic'
 
 export default async function LeadsPage() {
-  const session = await getSession()
-  const leads = await db.lead.findMany({
-    include: { location: true, quote: true },
-    orderBy: { eventDate: 'asc' },
-  })
+  let leads: Awaited<ReturnType<typeof db.lead.findMany>> = []
+  try {
+    leads = await db.lead.findMany({
+      include: { location: true, quote: true },
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch {
+    // DB error — render empty board
+  }
 
   const statuses = ['lead', 'quote_sent', 'closed', 'done', 'canceled']
-  const showIncoming = !!process.env.AIRTABLE_API_KEY && (session?.role === 'admin' || !!session?.phoneNumber)
+  const hasAirtable = !!process.env.AIRTABLE_API_KEY
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -41,9 +44,7 @@ export default async function LeadsPage() {
                 <span className="text-xs text-gray-500">{statusLeads.length}</span>
               </div>
               <div className="space-y-2">
-                {status === 'lead' && showIncoming && (
-                  <IncomingLeadCards isAdmin={session?.role === 'admin'} />
-                )}
+                {status === 'lead' && hasAirtable && <IncomingLeadCards />}
                 {statusLeads.map((lead) => (
                   <Link
                     key={lead.id}
@@ -66,7 +67,7 @@ export default async function LeadsPage() {
                     </div>
                   </Link>
                 ))}
-                {statusLeads.length === 0 && !showIncoming && (
+                {statusLeads.length === 0 && !(status === 'lead' && hasAirtable) && (
                   <div className="text-xs text-gray-400 text-center py-4">ריק</div>
                 )}
               </div>
