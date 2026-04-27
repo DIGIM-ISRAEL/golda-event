@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS, CLIENT_TYPE_LABELS, EVENT_TYPE_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 import { getSession } from '@/lib/session'
-import IncomingLeadsSection from '@/components/leads/IncomingLeadsSection'
+import IncomingLeadCards from '@/components/leads/IncomingLeadCards'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +15,6 @@ export default async function LeadsPage() {
   })
 
   const statuses = ['lead', 'quote_sent', 'closed', 'done', 'canceled']
-
   const showIncoming = !!process.env.AIRTABLE_API_KEY && (session?.role === 'admin' || !!session?.phoneNumber)
 
   return (
@@ -30,8 +29,6 @@ export default async function LeadsPage() {
         </Link>
       </div>
 
-      {showIncoming && <IncomingLeadsSection isAdmin={session?.role === 'admin'} />}
-
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {statuses.map((status) => {
           const statusLeads = leads.filter((l) => l.status === status)
@@ -44,6 +41,9 @@ export default async function LeadsPage() {
                 <span className="text-xs text-gray-500">{statusLeads.length}</span>
               </div>
               <div className="space-y-2">
+                {status === 'lead' && showIncoming && (
+                  <IncomingLeadCards isAdmin={session?.role === 'admin'} />
+                )}
                 {statusLeads.map((lead) => (
                   <Link
                     key={lead.id}
@@ -66,7 +66,7 @@ export default async function LeadsPage() {
                     </div>
                   </Link>
                 ))}
-                {statusLeads.length === 0 && (
+                {statusLeads.length === 0 && !showIncoming && (
                   <div className="text-xs text-gray-400 text-center py-4">ריק</div>
                 )}
               </div>

@@ -2,6 +2,9 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY!
 const BASE_ID = 'app5pnaEc4UK3RUcP'
 const TABLE_ID = 'tblABFOvI4cQSz3sg'
 
+// Only leads created in the last 7 days
+const DATE_FILTER = `IS_AFTER(CREATED_TIME(), DATEADD(TODAY(), -7, 'days'))`
+
 export interface AirtableLead {
   id: string
   fields: {
@@ -27,18 +30,19 @@ async function airtableFetch(path: string) {
 }
 
 export async function getAirtableLeads(phoneMyUser: string): Promise<AirtableLead[]> {
-  const formula = encodeURIComponent(`{phone_my_user}="${phoneMyUser}"`)
-  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${formula}&maxRecords=500`)
+  const formula = `AND({phone_my_user}="${phoneMyUser}", ${DATE_FILTER})`
+  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=200`)
   return data.records ?? []
 }
 
 export async function getAirtableLeadsByPhones(phones: string[]): Promise<AirtableLead[]> {
   if (phones.length === 0) return []
-  const formula =
+  const phoneFilter =
     phones.length === 1
       ? `{phone_my_user}="${phones[0]}"`
       : `OR(${phones.map((p) => `{phone_my_user}="${p}"`).join(',')})`
-  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=500`)
+  const formula = `AND(${phoneFilter}, ${DATE_FILTER})`
+  const data = await airtableFetch(`${TABLE_ID}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=200`)
   return data.records ?? []
 }
 
