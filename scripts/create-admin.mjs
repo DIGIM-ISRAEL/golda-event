@@ -1,28 +1,24 @@
-import { createClient } from '@supabase/supabase-js'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
+const ADMIN_NAME = process.env.ADMIN_NAME ?? 'רון'
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
-  console.error('Missing required environment variables: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD')
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error('Missing required environment variables: ADMIN_EMAIL, ADMIN_PASSWORD')
   process.exit(1)
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
+const db = new PrismaClient()
+
+const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12)
+
+const user = await db.user.upsert({
+  where: { email: ADMIN_EMAIL.toLowerCase() },
+  update: { passwordHash, fullName: ADMIN_NAME, role: 'admin' },
+  create: { email: ADMIN_EMAIL.toLowerCase(), passwordHash, fullName: ADMIN_NAME, role: 'admin' },
 })
 
-const { data, error } = await supabase.auth.admin.createUser({
-  email: ADMIN_EMAIL,
-  password: ADMIN_PASSWORD,
-  email_confirm: true,
-  user_metadata: { full_name: 'רון', role: 'admin' },
-})
-
-if (error) {
-  console.error('שגיאה:', error.message)
-} else {
-  console.log('✅ משתמש נוצר בהצלחה:', data.user.email)
-}
+console.log('✅ Admin user created/updated:', user.email)
+await db.$disconnect()

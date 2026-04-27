@@ -1,39 +1,36 @@
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/session'
 import Link from 'next/link'
 import { LEAD_STATUS_COLORS, LEAD_STATUS_LABELS } from '@/lib/constants'
 import { formatTime } from '@/lib/utils'
-import type { Lead } from '@/lib/types'
+import type { LeadStatus } from '@/lib/types'
 
 export default async function CalendarPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const session = await getSession()
+  if (!session) redirect('/login')
 
-  // Get upcoming closed/reserved events
   const today = new Date().toISOString().split('T')[0]
-  const { data: events } = await supabase
-    .from('leads')
-    .select('*, location:locations(city_name)')
-    .in('status', ['closed', 'quote_sent', 'lead'])
-    .gte('event_date', today)
-    .order('event_date', { ascending: true })
-    .order('start_time', { ascending: true })
 
-  // Group by date
-  const grouped: Record<string, Lead[]> = {}
-  for (const e of events ?? []) {
-    if (!grouped[e.event_date]) grouped[e.event_date] = []
-    grouped[e.event_date].push(e)
+  const events = await db.lead.findMany({
+    where: {
+      status: { in: ['closed', 'quote_sent', 'lead'] },
+      eventDate: { gte: today },
+    },
+    include: { location: true },
+    orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
+  })
+
+  const grouped: Record<string, typeof events> = {}
+  for (const e of events) {
+    if (!grouped[e.eventDate]) grouped[e.eventDate] = []
+    grouped[e.eventDate].push(e)
   }
 
   function formatDateHebrew(dateStr: string) {
     const d = new Date(dateStr + 'T00:00:00')
     return d.toLocaleDateString('he-IL', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     })
   }
 
@@ -41,10 +38,7 @@ export default async function CalendarPage() {
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">לוח שנה</h1>
-        <Link
-          href="/leads/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
-        >
+        <Link href="/leads/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
           + ליד חדש
         </Link>
       </div>
@@ -67,22 +61,20 @@ export default async function CalendarPage() {
               )}
             </div>
             <div className="divide-y divide-gray-50">
-              {dayLeads.map((lead: Lead & { location?: { city_name: string } }) => (
+              {dayLeads.map((lead) => (
                 <Link
                   key={lead.id}
                   href={`/leads/${lead.id}`}
                   className="flex items-center justify-between px-5 py-4 hover:bg-gray-50"
                 >
                   <div>
-                    <div className="font-medium text-gray-900">{lead.client_name}</div>
+                    <div className="font-medium text-gray-900">{lead.clientName}</div>
                     <div className="text-sm text-gray-500">
-                      {formatTime(lead.start_time)} – {formatTime(lead.end_time)} ·{' '}
-                      {lead.participants} נפש ·{' '}
-                      {lead.location?.city_name ?? '—'}
+                      {formatTime(lead.startTime)} – {formatTime(lead.endTime)} · {lead.participants} נפש · {lead.location?.cityName ?? '—'}
                     </div>
                   </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>
-                    {LEAD_STATUS_LABELS[lead.status]}
+                  <span className={`text-xs px-2.5 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status as LeadStatus]}`}>
+                    {LEAD_STATUS_LABELS[lead.status as LeadStatus]}
                   </span>
                 </Link>
               ))}

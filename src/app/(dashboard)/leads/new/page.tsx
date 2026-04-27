@@ -1,36 +1,31 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
 import LeadForm from '@/components/leads/LeadForm'
 
 export default async function NewLeadPage() {
-  const supabase = await createClient()
+  const [flavors, locations, settingsRows] = await Promise.all([
+    db.flavor.findMany({ orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }] }),
+    db.location.findMany({ orderBy: { cityName: 'asc' } }),
+    db.settings.findMany(),
+  ])
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
+  const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
 
-  const [{ data: profile }, { data: flavors }, { data: locations }, { data: settings }] =
-    await Promise.all([
-      supabase.from('profiles').select('role').eq('id', user.id).single(),
-      supabase.from('flavors').select('*').order('category').order('sort_order'),
-      supabase.from('locations').select('*').order('city_name'),
-      supabase.from('settings').select('*'),
-    ])
+  const flavorsForForm = flavors.map((f) => ({
+    id: f.id, name: f.name, category: f.category,
+    is_in_stock: f.isInStock, sort_order: f.sortOrder, created_at: f.createdAt.toISOString(),
+  }))
 
-  const basketaCost = Number(
-    settings?.find((s: { key: string; value: string }) => s.key === 'basketa_cost_nis')?.value ?? 150,
-  )
+  const locationsForForm = locations.map((l) => ({
+    id: l.id, city_name: l.cityName, travel_cost_nis: l.travelCostNis, created_at: l.createdAt.toISOString(),
+  }))
 
   return (
     <div>
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <h1 className="text-xl font-bold text-gray-900">ליד חדש</h1>
       </div>
-      <LeadForm
-        flavors={flavors ?? []}
-        locations={locations ?? []}
-        role={profile?.role ?? 'sales'}
-        basketaCostNis={basketaCost}
-      />
+      <LeadForm flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import type { Flavor } from '@/lib/types'
 
 interface Props {
@@ -10,7 +9,6 @@ interface Props {
 }
 
 export default function FlavorManager({ flavors: initial, role }: Props) {
-  const supabase = createClient()
   const [flavors, setFlavors] = useState<Flavor[]>(initial)
   const [newName, setNewName] = useState('')
   const [newCategory, setNewCategory] = useState<'dairy' | 'parve'>('dairy')
@@ -20,25 +18,32 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
   const parve = flavors.filter((f) => f.category === 'parve')
 
   async function toggleStock(id: string, current: boolean) {
-    await supabase.from('flavors').update({ is_in_stock: !current }).eq('id', id)
+    await fetch(`/api/flavors/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isInStock: !current }),
+    })
     setFlavors(flavors.map((f) => (f.id === id ? { ...f, is_in_stock: !current } : f)))
   }
 
   async function deleteFlavor(id: string) {
     if (!confirm('למחוק את הטעם הזה?')) return
-    await supabase.from('flavors').delete().eq('id', id)
+    await fetch(`/api/flavors/${id}`, { method: 'DELETE' })
     setFlavors(flavors.filter((f) => f.id !== id))
   }
 
   async function addFlavor() {
     if (!newName.trim()) return
     setAdding(true)
-    const { data } = await supabase
-      .from('flavors')
-      .insert({ name: newName.trim(), category: newCategory, is_in_stock: true })
-      .select()
-      .single()
-    if (data) setFlavors([...flavors, data])
+    const res = await fetch('/api/flavors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName.trim(), category: newCategory }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setFlavors([...flavors, data])
+    }
     setNewName('')
     setAdding(false)
   }
@@ -61,26 +66,15 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => toggleStock(f.id, f.is_in_stock)}
-                  className={`relative inline-flex h-5 w-9 rounded-full transition-colors ${
-                    f.is_in_stock ? 'bg-green-500' : 'bg-gray-300'
-                  }`}
+                  className={`relative inline-flex h-5 w-9 rounded-full transition-colors ${f.is_in_stock ? 'bg-green-500' : 'bg-gray-300'}`}
                 >
-                  <span
-                    className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform ${
-                      f.is_in_stock ? 'translate-x-1' : 'translate-x-4'
-                    }`}
-                  />
+                  <span className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform ${f.is_in_stock ? 'translate-x-1' : 'translate-x-4'}`} />
                 </button>
                 <span className={`text-xs ${f.is_in_stock ? 'text-green-600' : 'text-gray-400'}`}>
                   {f.is_in_stock ? 'במלאי' : 'אזל'}
                 </span>
                 {role === 'admin' && (
-                  <button
-                    onClick={() => deleteFlavor(f.id)}
-                    className="text-red-400 hover:text-red-600 text-xs px-1"
-                  >
-                    ✕
-                  </button>
+                  <button onClick={() => deleteFlavor(f.id)} className="text-red-400 hover:text-red-600 text-xs px-1">✕</button>
                 )}
               </div>
             </div>
@@ -121,7 +115,6 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
           </div>
         </div>
       )}
-
       <FlavorList list={parve} title="🌿 פרווה / סורבה / טבעוני" />
       <FlavorList list={dairy} title="🥛 שמנת / חלבי" />
     </div>

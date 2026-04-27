@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { formatNIS } from '@/lib/pricing'
 import type { Location } from '@/lib/types'
 
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export default function LocationManager({ locations: initial, role }: Props) {
-  const supabase = createClient()
   const [locations, setLocations] = useState<Location[]>(initial)
   const [newCity, setNewCity] = useState('')
   const [newCost, setNewCost] = useState('')
@@ -20,12 +18,15 @@ export default function LocationManager({ locations: initial, role }: Props) {
   async function addLocation() {
     if (!newCity.trim() || !newCost) return
     setAdding(true)
-    const { data } = await supabase
-      .from('locations')
-      .insert({ city_name: newCity.trim(), travel_cost_nis: Number(newCost) })
-      .select()
-      .single()
-    if (data) setLocations([...locations, data].sort((a, b) => a.city_name.localeCompare(b.city_name, 'he')))
+    const res = await fetch('/api/locations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cityName: newCity.trim(), travelCostNis: Number(newCost) }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setLocations([...locations, data].sort((a, b) => a.city_name.localeCompare(b.city_name, 'he')))
+    }
     setNewCity('')
     setNewCost('')
     setAdding(false)
@@ -33,12 +34,16 @@ export default function LocationManager({ locations: initial, role }: Props) {
 
   async function deleteLocation(id: string) {
     if (!confirm('למחוק מיקום זה?')) return
-    await supabase.from('locations').delete().eq('id', id)
+    await fetch(`/api/locations/${id}`, { method: 'DELETE' })
     setLocations(locations.filter((l) => l.id !== id))
   }
 
   async function updateCost(id: string, cost: number) {
-    await supabase.from('locations').update({ travel_cost_nis: cost }).eq('id', id)
+    await fetch(`/api/locations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ travelCostNis: cost }),
+    })
     setLocations(locations.map((l) => (l.id === id ? { ...l, travel_cost_nis: cost } : l)))
   }
 
@@ -92,12 +97,7 @@ export default function LocationManager({ locations: initial, role }: Props) {
                 )}
                 <span className="text-xs text-gray-400">נסיעה</span>
                 {role === 'admin' && (
-                  <button
-                    onClick={() => deleteLocation(loc.id)}
-                    className="text-red-400 hover:text-red-600 text-xs px-1"
-                  >
-                    ✕
-                  </button>
+                  <button onClick={() => deleteLocation(loc.id)} className="text-red-400 hover:text-red-600 text-xs px-1">✕</button>
                 )}
               </div>
             </div>

@@ -2,11 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,10 +15,15 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
 
-    if (error) {
-      setError('אימייל או סיסמה שגויים')
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error ?? 'אימייל או סיסמה שגויים')
       setLoading(false)
       return
     }
@@ -32,7 +35,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white text-2xl font-bold">G</span>
@@ -43,9 +45,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              אימייל
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">אימייל</label>
             <input
               type="email"
               value={email}
@@ -58,9 +58,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              סיסמה
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">סיסמה</label>
             <input
               type="password"
               value={password}

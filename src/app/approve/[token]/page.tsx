@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
 
 export default function ApprovePage() {
   const params = useParams()
   const token = params.token as string
-  const supabase = createClient()
 
   const [name, setName] = useState('')
   const [done, setDone] = useState(false)
@@ -19,15 +17,13 @@ export default function ApprovePage() {
     setLoading(true)
     setError('')
 
-    const { error: e } = await supabase
-      .from('leads')
-      .update({
-        client_approved_at: new Date().toISOString(),
-        client_approved_name: name.trim(),
-      })
-      .eq('signature_token', token)
+    const res = await fetch(`/api/approve/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.trim() }),
+    })
 
-    if (e) {
+    if (!res.ok) {
       setError('שגיאה. ייתכן שהקישור אינו תקף.')
     } else {
       setDone(true)
@@ -55,12 +51,10 @@ export default function ApprovePage() {
           <span className="text-white text-2xl">G</span>
         </div>
         <h1 className="text-xl font-bold text-gray-900 mb-2">אישור הצעת מחיר</h1>
-        <p className="text-gray-600 text-sm mb-6">
-          גולדה אירועים — שירותי גלידה
-        </p>
+        <p className="text-gray-600 text-sm mb-6">גולדה אירועים — שירותי גלידה</p>
 
         <div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-800 mb-6">
-          לחיצה על "אני מאשר/ת" מהווה הסכמה לתנאי ההצעה שנשלחה אליך.
+          לחיצה על &quot;אני מאשר/ת&quot; מהווה הסכמה לתנאי ההצעה שנשלחה אליך.
         </div>
 
         <div className="mb-4">

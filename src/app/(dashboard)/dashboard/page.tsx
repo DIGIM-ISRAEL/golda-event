@@ -1,24 +1,20 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
-import type { Lead } from '@/lib/types'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const [leads, allStatuses] = await Promise.all([
+    db.lead.findMany({
+      include: { location: true },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
+    db.lead.findMany({ select: { status: true } }),
+  ])
 
-  const { data: leads } = await supabase
-    .from('leads')
-    .select('*, location:locations(city_name)')
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const { data: counts } = await supabase
-    .from('leads')
-    .select('status')
-
-  const statusCounts = (counts ?? []).reduce(
-    (acc: Record<string, number>, l: { status: string }) => {
+  const statusCounts = allStatuses.reduce(
+    (acc: Record<string, number>, l) => {
       acc[l.status] = (acc[l.status] ?? 0) + 1
       return acc
     },
@@ -44,7 +40,6 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
           <div key={s.label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -55,39 +50,32 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent leads */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-900">לידים אחרונים</h2>
-          <Link href="/leads" className="text-sm text-blue-600 hover:text-blue-700">
-            הצג הכל
-          </Link>
+          <Link href="/leads" className="text-sm text-blue-600 hover:text-blue-700">הצג הכל</Link>
         </div>
         <div className="divide-y divide-gray-50">
-          {(leads ?? []).length === 0 && (
+          {leads.length === 0 && (
             <div className="px-6 py-10 text-center text-gray-400 text-sm">
               אין לידים עדיין —{' '}
-              <Link href="/leads/new" className="text-blue-600">
-                צור ליד ראשון
-              </Link>
+              <Link href="/leads/new" className="text-blue-600">צור ליד ראשון</Link>
             </div>
           )}
-          {(leads ?? []).map((lead: Lead & { location?: { city_name: string } }) => (
+          {leads.map((lead) => (
             <Link
               key={lead.id}
               href={`/leads/${lead.id}`}
               className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
             >
               <div>
-                <div className="font-medium text-gray-900">{lead.client_name}</div>
+                <div className="font-medium text-gray-900">{lead.clientName}</div>
                 <div className="text-sm text-gray-500">
-                  {formatDate(lead.event_date)} · {lead.participants} נפש ·{' '}
-                  {lead.location?.city_name ?? '—'}
+                  {formatDate(lead.eventDate)} · {lead.participants} נפש ·{' '}
+                  {lead.location?.cityName ?? '—'}
                 </div>
               </div>
-              <span
-                className={`text-xs font-medium px-2.5 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}
-              >
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>
                 {LEAD_STATUS_LABELS[lead.status]}
               </span>
             </Link>

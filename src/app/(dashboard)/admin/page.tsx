@@ -1,31 +1,30 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import { calculateInventory, calculateProfitability } from '@/lib/inventory'
 import { formatNIS } from '@/lib/pricing'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
-import type { Lead } from '@/lib/types'
+import type { LeadStatus } from '@/lib/types'
 
 export default async function AdminPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const session = await getSession()
+  if (!session) redirect('/login')
+  if (session.role !== 'admin') redirect('/dashboard')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') redirect('/dashboard')
-
-  const [{ data: leads }, { data: settings }] = await Promise.all([
-    supabase
-      .from('leads')
-      .select('*, location:locations(travel_cost_nis, city_name), quote:quotes(*)')
-      .in('status', ['closed', 'quote_sent'])
-      .order('event_date', { ascending: true }),
-    supabase.from('settings').select('*'),
+  const [leads, settingsRows] = await Promise.all([
+    db.lead.findMany({
+      where: { status: { in: ['closed', 'quote_sent'] } },
+      include: { location: true, quote: true },
+      orderBy: { eventDate: 'asc' },
+    }),
+    db.settings.findMany(),
   ])
 
-  const basketaCost = Number(settings?.find((s: { key: string }) => s.key === 'basketa_cost_nis')?.value ?? 150)
-  const profitThreshold = Number(settings?.find((s: { key: string }) => s.key === 'profit_warning_threshold')?.value ?? 1000)
+  const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
+  const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
+  const profitThreshold = Number(settingsMap['profit_warning_threshold'] ?? 1000)
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -49,38 +48,27 @@ export default async function AdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {(leads ?? []).map((lead: Lead & {
-                location?: { travel_cost_nis: number; city_name: string }
-                quote?: { total_price: number }
-              }) => {
-                const quote = Array.isArray(lead.quote) ? lead.quote[0] : lead.quote
-                const totalPrice = quote?.total_price ?? 0
-                const logisticsCost = lead.location?.travel_cost_nis ?? 0
+              {leads.map((lead) => {
+                const totalPrice = lead.quote?.totalPrice ?? 0
+                const logisticsCost = lead.location?.travelCostNis ?? 0
                 const inventory = calculateInventory(lead.participants, basketaCost)
                 const profitability = calculateProfitability(
-                  totalPrice,
-                  logisticsCost,
-                  lead.manager_included,
-                  lead.assistants_count,
-                  inventory.estimatedCost,
-                  profitThreshold,
+                  totalPrice, logisticsCost, lead.managerIncluded,
+                  lead.assistantsCount, inventory.estimatedCost, profitThreshold,
                 )
 
                 return (
-                  <tr
-                    key={lead.id}
-                    className={profitability.isWarning ? 'bg-red-50' : 'hover:bg-gray-50'}
-                  >
+                  <tr key={lead.id} className={profitability.isWarning ? 'bg-red-50' : 'hover:bg-gray-50'}>
                     <td className="px-4 py-3">
                       <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-blue-700">
-                        {lead.client_name}
+                        {lead.clientName}
                       </Link>
-                      <div className="text-xs text-gray-400">{lead.location?.city_name}</div>
+                      <div className="text-xs text-gray-400">{lead.location?.cityName}</div>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{formatDate(lead.event_date)}</td>
+                    <td className="px-4 py-3 text-gray-600">{formatDate(lead.eventDate)}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status]}`}>
-                        {LEAD_STATUS_LABELS[lead.status]}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status as LeadStatus]}`}>
+                        {LEAD_STATUS_LABELS[lead.status as LeadStatus]}
                       </span>
                     </td>
                     <td className="px-4 py-3 font-medium">{formatNIS(totalPrice)}</td>
@@ -95,11 +83,9 @@ export default async function AdminPage() {
                   </tr>
                 )
               })}
-              {(leads ?? []).length === 0 && (
+              {leads.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
-                    אין אירועים פעילים
-                  </td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-gray-400">אין אירועים פעילים</td>
                 </tr>
               )}
             </tbody>

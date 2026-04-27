@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import { renderToBuffer, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import { formatNIS } from '@/lib/pricing'
@@ -44,57 +45,50 @@ function row(label: string, value: string) {
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { id } = await params
-  const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: lead } = await supabase
-    .from('leads')
-    .select('*, location:locations(*), flavors:lead_flavors(flavor:flavors(*)), quote:quotes(*)')
-    .eq('id', id)
-    .single()
+  const lead = await db.lead.findUnique({
+    where: { id },
+    include: {
+      location: true,
+      quote: true,
+      flavors: { include: { flavor: true } },
+    },
+  })
 
   if (!lead) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const quote = Array.isArray(lead.quote) ? lead.quote[0] : lead.quote
-  const flavors: { name: string }[] = lead.flavors?.map((f: { flavor: { name: string } }) => f.flavor) ?? []
+  const flavors = lead.flavors.map((lf) => lf.flavor)
 
   const doc = e(Document, null,
     e(Page, { size: 'A4', style: styles.page },
-      // Header
       e(View, { style: styles.header },
         e(Text, { style: styles.logo }, 'גולדה אירועים'),
         e(Text, { style: { fontSize: 10, color: '#6b7280' } }, `תאריך: ${new Date().toLocaleDateString('he-IL')}`),
       ),
-
-      e(Text, { style: styles.title }, `הצעת מחיר — ${lead.client_name}`),
-
-      // Event details
+      e(Text, { style: styles.title }, `הצעת מחיר — ${lead.clientName}`),
       e(View, { style: styles.section },
         e(Text, { style: styles.sectionTitle }, 'פרטי האירוע'),
-        row('לקוח', lead.client_name),
-        row('טלפון', lead.client_phone),
-        row('תאריך', formatDate(lead.event_date)),
-        row('שעות', `${formatTime(lead.start_time)} – ${formatTime(lead.end_time)}`),
-        row('מיקום', lead.location?.city_name ?? '—'),
+        row('לקוח', lead.clientName),
+        row('טלפון', lead.clientPhone),
+        row('תאריך', formatDate(lead.eventDate)),
+        row('שעות', `${formatTime(lead.startTime)} – ${formatTime(lead.endTime)}`),
+        row('מיקום', lead.location?.cityName ?? '—'),
         row('משתתפים', `${lead.participants} נפש`),
-        row('סוג אירוע', EVENT_TYPE_LABELS[lead.event_type]),
+        row('סוג אירוע', EVENT_TYPE_LABELS[lead.eventType]),
       ),
-
-      // What's included
       e(View, { style: styles.section },
         e(Text, { style: styles.sectionTitle }, 'ההצעה כוללת'),
         e(Text, { style: { fontSize: 10, color: '#374151', lineHeight: 1.6 } },
           '✓ עגלת גלידה מקצועית\n✓ 6 טעמים לבחירתכם\n✓ 2 רטבים ו-3 תוספות\n✓ 2 שעות פעילות\n✓ 2 עובדים\n✓ ציוד הגשה בסיסי',
         ),
       ),
-
-      // Flavors
       flavors.length > 0
         ? e(View, { style: styles.section },
             e(Text, { style: styles.sectionTitle }, 'טעמים שנבחרו'),
@@ -103,36 +97,30 @@ export async function GET(
             ),
           )
         : null,
-
-      // Pricing
-      quote
+      lead.quote
         ? e(View, { style: styles.section },
             e(Text, { style: styles.sectionTitle }, 'תמחור'),
-            lead.client_type === 'institutional' && quote.vat_amount != null
+            lead.clientType === 'institutional' && lead.quote.vatAmount != null
               ? e(View, null,
-                  row('מחיר לפני מע"מ', formatNIS(quote.total_price - quote.vat_amount)),
-                  row('מע"מ (18%)', formatNIS(quote.vat_amount)),
+                  row('מחיר לפני מע"מ', formatNIS(lead.quote.totalPrice - lead.quote.vatAmount)),
+                  row('מע"מ (18%)', formatNIS(lead.quote.vatAmount)),
                 )
               : null,
             e(View, { style: styles.totalRow },
               e(Text, { style: styles.totalLabel }, 'סה"כ לתשלום'),
-              e(Text, { style: styles.totalValue }, formatNIS(quote.total_price)),
+              e(Text, { style: styles.totalValue }, formatNIS(lead.quote.totalPrice)),
             ),
-            quote.advance_paid > 0
+            lead.quote.advancePaid > 0
               ? e(View, null,
-                  row('מקדמה ששולמה', formatNIS(quote.advance_paid)),
-                  row('יתרה לתשלום', formatNIS(quote.balance_due)),
+                  row('מקדמה ששולמה', formatNIS(lead.quote.advancePaid)),
+                  row('יתרה לתשלום', formatNIS(lead.quote.balanceDue)),
                 )
               : null,
           )
         : null,
-
-      // Terms
       e(Text, { style: styles.terms },
         '* ההצעה בתוקף ל-14 יום. ביטול עד 72 שעות לפני האירוע — ללא חיוב. ביטול פחות מ-72 שעות — חיוב 50%.',
       ),
-
-      // Signature
       e(View, { style: styles.signatureBox },
         e(Text, { style: { fontWeight: 'bold', marginBottom: 16 } }, 'אישור והסכמה'),
         e(Text, { style: { fontSize: 10, marginBottom: 20 } },
@@ -152,12 +140,12 @@ export async function GET(
     ),
   )
 
-  const pdfBuffer = await renderToBuffer(doc as any)
+  const pdfBuffer = await renderToBuffer(doc as Parameters<typeof renderToBuffer>[0])
 
   return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="quote-${lead.client_name}.pdf"`,
+      'Content-Disposition': `attachment; filename="quote-${lead.clientName}.pdf"`,
     },
   })
 }
