@@ -15,6 +15,7 @@ import { formatDate, formatTime } from '@/lib/utils'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
 import SignatureLink from '@/components/leads/SignatureLink'
+import EventChecklist from '@/components/leads/EventChecklist'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -174,6 +175,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               ⚠️ {OPERATIONAL_WARNING}
             </div>
           </div>
+
+          <EventChecklist
+            leadId={id}
+            initialCheckedItems={lead.checkedItems ?? []}
+            basketasRequired={inventory.basketasRequired}
+            flavors={flavors.map((f) => ({ name: f.name, category: f.category }))}
+          />
 
           {lead.clientApprovedAt && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-800">
