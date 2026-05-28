@@ -94,7 +94,7 @@ export default function KanbanBoard({ initialLeads }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="חיפוש לפי שם לקוח או עיר..."
-          className="w-full border border-gray-300 rounded-lg pr-9 pl-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full border border-gray-300 rounded-lg pr-9 pl-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
         />
       </div>
 
@@ -112,7 +112,7 @@ export default function KanbanBoard({ initialLeads }: Props) {
             }}
             onDrop={(e) => onDrop(e, status)}
             className={`rounded-xl p-3 min-h-[8rem] transition-colors ${
-              isOver ? 'bg-blue-50 ring-2 ring-blue-300' : 'bg-gray-100'
+              isOver ? 'bg-brand-mint ring-2 ring-brand-olive' : 'bg-gray-100'
             }`}
           >
             <div className="flex items-center justify-between mb-3">

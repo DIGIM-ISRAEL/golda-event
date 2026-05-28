@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import path from 'node:path'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { renderToBuffer, Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
+import { renderToBuffer, Document, Page, Text, View, StyleSheet, Font, Svg, Path, Circle } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime } from '@/lib/utils'
@@ -85,6 +85,23 @@ const styles = StyleSheet.create({
 
 const e = createElement
 
+// סמל הדקל של גולדה (זהב) ל-react-pdf
+function palmSvg() {
+  return e(Svg, { width: 38, height: 38, viewBox: '0 0 64 64', style: { marginBottom: 6 } },
+    e(Path, { d: 'M32 30 C 31 40, 30 48, 28 58', stroke: BRAND.gold, strokeWidth: 2.4, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 33 40, 34 48, 36 58', stroke: BRAND.gold, strokeWidth: 2.4, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 24 24, 14 22, 5 24', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 26 21, 18 14, 9 12', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 31 19, 30 11, 30 4', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 33 19, 34 11, 34 4', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 38 21, 46 14, 55 12', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Path, { d: 'M32 30 C 40 24, 50 22, 59 24', stroke: BRAND.gold, strokeWidth: 2, fill: 'none' }),
+    e(Circle, { cx: 32, cy: 29, r: 1.6, fill: BRAND.gold }),
+    e(Circle, { cx: 28, cy: 30.5, r: 1.3, fill: BRAND.gold }),
+    e(Circle, { cx: 36, cy: 30.5, r: 1.3, fill: BRAND.gold }),
+  )
+}
+
 function stripeBar() {
   return e(View, { style: styles.stripes },
     ...BRAND_STRIPES.map((c, i) =>
@@ -124,6 +141,7 @@ export async function GET(
 
       // כותרת ממותגת
       e(View, { style: styles.headerBand },
+        palmSvg(),
         e(Text, { style: styles.logo }, 'GOLDA'),
         e(Text, { style: styles.tagline }, BRAND_TAGLINE),
       ),

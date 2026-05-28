@@ -1,10 +1,25 @@
 @import "tailwindcss";
 
+/* פלטת צבעי המותג של גולדה — נדגמה מספר המותג */
+@theme {
+  --color-brand-gold: #84764F;
+  --color-brand-olive: #B0A97D;
+  --color-brand-peach: #E7B9A9;
+  --color-brand-tan: #DDC8B7;
+  --color-brand-mint: #D0E1D7;
+  --color-brand-maroon: #5C2A2B;
+  --color-brand-maroon-dark: #46201F;
+  --color-brand-cream: #F5F0E8;
+  --color-brand-magenta: #C82FBF;
+
+  --font-serif: 'Frank Ruhl Libre', Georgia, serif;
+}
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
+  --background: #F5F0E8;
+  --foreground: #3A2E2E;
+  --primary: #5C2A2B;
+  --primary-dark: #46201F;
 }
 
 * {
@@ -22,6 +37,11 @@ body {
   min-height: 100vh;
 }
 
+/* כותרות בגופן המותג */
+h1, h2, h3 {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+}
+
 /* RTL overrides */
 input, textarea, select {
   text-align: right;
@@ -32,9 +52,9 @@ input, textarea, select {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #EDE6DA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #C9BBA6;
   border-radius: 3px;
 }

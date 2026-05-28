@@ -60,7 +60,7 @@ export default async function AdminPage() {
                 return (
                   <tr key={lead.id} className={profitability.isWarning ? 'bg-red-50' : 'hover:bg-gray-50'}>
                     <td className="px-4 py-3">
-                      <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-blue-700">
+                      <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-brand-maroon-dark">
                         {lead.clientName}
                       </Link>
                       <div className="text-xs text-gray-400">{lead.location?.cityName}</div>

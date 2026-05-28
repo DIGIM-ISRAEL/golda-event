@@ -47,7 +47,7 @@ export default async function DashboardPage() {
   )
 
   const stats = [
-    { label: 'לידים פתוחים', value: statusCounts['lead'] ?? 0, color: 'bg-blue-500' },
+    { label: 'לידים פתוחים', value: statusCounts['lead'] ?? 0, color: 'bg-brand-gold' },
     { label: 'הצעות שנשלחו', value: statusCounts['quote_sent'] ?? 0, color: 'bg-yellow-500' },
     { label: 'סגורים / שמורים', value: statusCounts['closed'] ?? 0, color: 'bg-green-500' },
     { label: 'בוצעו', value: statusCounts['done'] ?? 0, color: 'bg-gray-500' },
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">לוח בקרה</h1>
         <Link
           href="/leads/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors"
         >
           + ליד חדש
         </Link>
@@ -118,13 +118,13 @@ export default async function DashboardPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">לידים אחרונים</h2>
-            <Link href="/leads" className="text-sm text-blue-600 hover:text-blue-700">הצג הכל</Link>
+            <Link href="/leads" className="text-sm text-brand-maroon hover:text-brand-maroon-dark">הצג הכל</Link>
           </div>
           <div className="divide-y divide-gray-50">
             {leads.length === 0 && (
               <div className="px-5 py-8 text-center text-gray-400 text-sm">
                 אין לידים עדיין —{' '}
-                <Link href="/leads/new" className="text-blue-600">צור ליד ראשון</Link>
+                <Link href="/leads/new" className="text-brand-maroon">צור ליד ראשון</Link>
               </div>
             )}
             {leads.map((lead) => (
@@ -173,7 +173,7 @@ function EventsCard({
   return (
     <div
       className={`rounded-xl shadow-sm border overflow-hidden ${
-        highlight ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-100'
+        highlight ? 'bg-brand-maroon border-brand-maroon' : 'bg-white border-gray-100'
       }`}
     >
       <div className={`px-5 py-3 ${highlight ? 'text-white' : 'text-gray-900'}`}>

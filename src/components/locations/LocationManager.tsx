@@ -56,7 +56,7 @@ export default function LocationManager({ locations: initial, role }: Props) {
             value={newCity}
             onChange={(e) => setNewCity(e.target.value)}
             placeholder="שם עיר"
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
             onKeyDown={(e) => e.key === 'Enter' && addLocation()}
           />
           <input
@@ -64,12 +64,12 @@ export default function LocationManager({ locations: initial, role }: Props) {
             value={newCost}
             onChange={(e) => setNewCost(e.target.value)}
             placeholder="עלות ₪"
-            className="w-28 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-28 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
           />
           <button
             onClick={addLocation}
             disabled={adding}
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+            className="bg-brand-maroon text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60"
           >
             + הוסף
           </button>
@@ -90,7 +90,7 @@ export default function LocationManager({ locations: initial, role }: Props) {
                     type="number"
                     defaultValue={loc.travel_cost_nis}
                     onBlur={(e) => updateCost(loc.id, Number(e.target.value))}
-                    className="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:ring-2 focus:ring-brand-gold focus:outline-none"
                   />
                 ) : (
                   <span className="text-sm text-gray-600">{formatNIS(loc.travel_cost_nis)}</span>

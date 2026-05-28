@@ -124,7 +124,7 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
         <button
           onClick={fetchLeads}
           disabled={loading}
-          className="text-sm text-blue-600 hover:underline disabled:opacity-50"
+          className="text-sm text-brand-maroon hover:underline disabled:opacity-50"
         >
           {loading ? 'טוען...' : '↻ רענן'}
         </button>
@@ -174,7 +174,7 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
                 <button
                   onClick={() => handleCall(lead)}
                   disabled={isCalling || !f.phone_number}
-                  className="mt-auto w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="mt-auto w-full bg-brand-maroon text-white text-sm font-medium py-2 rounded-lg hover:bg-brand-maroon-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isCalling ? '📞 מחייג...' : '📞 חייג'}
                 </button>

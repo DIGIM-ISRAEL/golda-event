@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, LogOut } from 'lucide-react'
 import type { Role } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import PalmLogo from '@/components/brand/PalmLogo'
 
 interface SidebarProps {
   role: Role
@@ -46,7 +47,7 @@ export default function Sidebar({ role, userName }: SidebarProps) {
         onClick={() => setMobileOpen(false)}
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-          active ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+          active ? 'bg-brand-mint text-brand-maroon' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
         )}
       >
         <span>{item.icon}</span>
@@ -67,10 +68,8 @@ export default function Sidebar({ role, userName }: SidebarProps) {
           <Menu size={22} />
         </button>
         <div className="flex items-center gap-2">
-          <span className="font-bold text-gray-900 text-sm">גולדה אירועים</span>
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">G</span>
-          </div>
+          <span className="font-serif font-bold text-brand-gold text-lg tracking-widest">GOLDA</span>
+          <span className="text-brand-gold"><PalmLogo size={26} /></span>
         </div>
       </div>
 
@@ -93,12 +92,10 @@ export default function Sidebar({ role, userName }: SidebarProps) {
       >
         <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-sm">G</span>
-            </div>
+            <span className="text-brand-gold shrink-0"><PalmLogo size={36} /></span>
             <div>
-              <div className="font-bold text-gray-900 text-sm">גולדה אירועים</div>
-              <div className="text-xs text-gray-500">מערכת ניהול</div>
+              <div className="font-serif font-bold text-brand-gold text-lg tracking-widest leading-none">GOLDA</div>
+              <div className="text-[10px] text-brand-gold/60 tracking-wider mt-1">מערכת ניהול</div>
             </div>
           </div>
           {/* כפתור סגירה — מובייל בלבד */}
@@ -124,8 +121,8 @@ export default function Sidebar({ role, userName }: SidebarProps) {
 
         <div className="px-3 py-4 border-t border-gray-200">
           <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-              <span className="text-blue-700 text-xs font-bold">{userName.charAt(0)}</span>
+            <div className="w-8 h-8 bg-brand-mint rounded-full flex items-center justify-center shrink-0">
+              <span className="text-brand-maroon text-xs font-bold">{userName.charAt(0)}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-gray-900 truncate">{userName}</div>

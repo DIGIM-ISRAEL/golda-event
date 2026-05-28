@@ -74,7 +74,7 @@ export default async function LeadsPage() {
         <h1 className="text-2xl font-bold text-gray-900">לידים</h1>
         <Link
           href="/leads/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors"
         >
           + ליד חדש
         </Link>

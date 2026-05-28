@@ -38,7 +38,7 @@ export default function StatusChanger({ leadId, currentStatus }: Props) {
     <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-gray-900 text-sm">עדכון סטטוס</h3>
-        {loading && <span className="text-xs text-blue-500">מעדכן...</span>}
+        {loading && <span className="text-xs text-brand-gold">מעדכן...</span>}
       </div>
       <div className="space-y-2">
         {STATUS_FLOW.map((status) => (

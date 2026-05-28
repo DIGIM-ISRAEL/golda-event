@@ -45,15 +45,15 @@ export default function ApprovePage() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-brand-mint flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
-        <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5">
+        <div className="w-16 h-16 bg-brand-maroon rounded-2xl flex items-center justify-center mx-auto mb-5">
           <span className="text-white text-2xl">G</span>
         </div>
         <h1 className="text-xl font-bold text-gray-900 mb-2">אישור הצעת מחיר</h1>
         <p className="text-gray-600 text-sm mb-6">גולדה אירועים — שירותי גלידה</p>
 
-        <div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-800 mb-6">
+        <div className="bg-brand-mint rounded-xl p-4 text-sm text-brand-maroon-dark mb-6">
           לחיצה על &quot;אני מאשר/ת&quot; מהווה הסכמה לתנאי ההצעה שנשלחה אליך.
         </div>
 
@@ -63,7 +63,7 @@ export default function ApprovePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="הזן את שמך המלא"
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
           />
         </div>
 

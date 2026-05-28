@@ -34,7 +34,7 @@ export default function SettingsForm({ profitWarningThreshold, basketaCostNis }:
           type="number"
           value={threshold}
           onChange={(e) => setThreshold(Number(e.target.value))}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
         />
       </div>
 
@@ -45,12 +45,12 @@ export default function SettingsForm({ profitWarningThreshold, basketaCostNis }:
           type="number"
           value={basketaCost}
           onChange={(e) => setBasketaCost(Number(e.target.value))}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
         />
       </div>
 
       <div className="flex items-center gap-3">
-        <button onClick={save} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700">
+        <button onClick={save} className="bg-brand-maroon text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark">
           שמור הגדרות
         </button>
         {saved && <span className="text-green-600 text-sm font-medium">✓ נשמר בהצלחה</span>}

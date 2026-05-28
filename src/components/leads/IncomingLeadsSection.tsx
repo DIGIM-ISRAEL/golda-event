@@ -113,7 +113,7 @@ export default function IncomingLeadsSection({ isAdmin }: { isAdmin: boolean }) 
                 <button
                   onClick={() => handleCall(lead)}
                   disabled={isCalling || !f.phone_number}
-                  className="mt-auto w-full bg-blue-600 text-white text-xs font-medium py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="mt-auto w-full bg-brand-maroon text-white text-xs font-medium py-1.5 rounded-lg hover:bg-brand-maroon-dark disabled:opacity-50 transition-colors"
                 >
                   {isCalling ? '📞 מחייג...' : '📞 חייג'}
                 </button>

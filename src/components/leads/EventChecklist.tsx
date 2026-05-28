@@ -72,7 +72,7 @@ export default function EventChecklist({
           <span className="text-sm text-gray-500">
             {allCheckedCount}/{totalWithComputed}
           </span>
-          {pending && <span className="text-xs text-blue-500">שומר...</span>}
+          {pending && <span className="text-xs text-brand-gold">שומר...</span>}
         </div>
         <div className="flex items-center gap-3">
           <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -103,7 +103,7 @@ export default function EventChecklist({
                 onToggle={() => toggle('__basketas__')}
                 label={
                   <span>
-                    <span className="font-bold text-blue-700">
+                    <span className="font-bold text-brand-maroon-dark">
                       {basketasRequired} בסקטות
                     </span>
                     <span className="text-gray-500 text-xs mr-2">

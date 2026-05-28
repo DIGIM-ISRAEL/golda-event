@@ -192,17 +192,17 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">שם לקוח *</label>
             <input value={clientName} onChange={(e) => setClientName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="שם מלא" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="שם מלא" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">טלפון *</label>
             <input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="050-0000000" dir="ltr" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="050-0000000" dir="ltr" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">סוג לקוח *</label>
             <select value={clientType} onChange={(e) => setClientType(e.target.value as ClientType)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
               <option value="institutional">מוסדי / חברה</option>
               <option value="private">פרטי</option>
             </select>
@@ -210,7 +210,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">סוג אירוע *</label>
             <select value={eventType} onChange={(e) => setEventType(e.target.value as EventType)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
               <option value="dairy">אירוע חלבי</option>
               <option value="parve">אירוע פרווה / בשרי</option>
             </select>
@@ -218,29 +218,29 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">תאריך אירוע *</label>
             <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" dir="ltr" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">משתתפים *</label>
             <input type="number" value={participants} onChange={(e) => setParticipants(Number(e.target.value))} min={1}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">שעת התחלה</label>
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" dir="ltr" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">שעת סיום</label>
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" dir="ltr" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
           </div>
         </div>
 
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">מיקום</label>
           <select value={locationId} onChange={(e) => setLocationId(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
             <option value="">בחר מיקום...</option>
             {locationsList.map((l) => (
               <option key={l.id} value={l.id}>{l.city_name} — {formatNIS(l.travel_cost_nis)}</option>
@@ -248,9 +248,9 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           </select>
           <div className="flex gap-2 mt-2">
             <input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder="עיר חדשה"
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
             <input value={newCityCost} onChange={(e) => setNewCityCost(e.target.value)} placeholder="₪ עלות" type="number"
-              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
             <button type="button" onClick={addLocation} className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200">
               + הוסף
             </button>
@@ -260,7 +260,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">הערות</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="הערות נוספות..." />
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none resize-none" placeholder="הערות נוספות..." />
         </div>
       </section>
 
@@ -295,7 +295,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
             <div className="flex flex-wrap gap-2">
               {availableFlavors.filter((f) => f.category === 'dairy').map((f) => (
                 <button key={f.id} type="button" onClick={() => toggleFlavor(f.id)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}`}>
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-gray-700 border-gray-300 hover:border-brand-olive'}`}>
                   {f.name}
                 </button>
               ))}
@@ -308,7 +308,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-gray-900 text-lg">מה ההצעה כוללת</h2>
-          <button type="button" onClick={addIncluded} className="text-sm text-blue-600 hover:text-blue-700">+ הוסף פריט</button>
+          <button type="button" onClick={addIncluded} className="text-sm text-brand-maroon hover:text-brand-maroon-dark">+ הוסף פריט</button>
         </div>
         <p className="text-xs text-gray-500 mb-3">הרשימה תופיע בהצעת המחיר. ניתן לערוך/להוסיף לפי בקשת הלקוח.</p>
         <div className="space-y-2">
@@ -319,7 +319,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
                 value={item}
                 onChange={(e) => updateIncluded(i, e.target.value)}
                 placeholder="תיאור פריט שכלול בהצעה"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
               />
               <button type="button" onClick={() => removeIncluded(i)} className="text-red-400 hover:text-red-600 px-2 shrink-0">✕</button>
             </div>
@@ -334,22 +334,22 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="font-semibold text-gray-900 text-lg mb-4">תמחור</h2>
         {clientType === 'private' && (
-          <div className="bg-blue-50 rounded-lg p-4 mb-4">
-            <div className="text-sm font-medium text-blue-800 mb-2">עקיפת מחיר (לקוח פרטי)</div>
+          <div className="bg-brand-mint rounded-lg p-4 mb-4">
+            <div className="text-sm font-medium text-brand-maroon-dark mb-2">עקיפת מחיר (לקוח פרטי)</div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-blue-700 mb-1">מחיר לנפש (₪)</label>
+                <label className="block text-xs text-brand-maroon-dark mb-1">מחיר לנפש (₪)</label>
                 <input type="number" value={pricePerPersonOverride}
                   onChange={(e) => { setPricePerPersonOverride(e.target.value); setPriceOverride('') }}
                   placeholder="ברירת מחדל: 38"
-                  className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  className="w-full border border-brand-olive rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
               </div>
               <div>
-                <label className="block text-xs text-blue-700 mb-1">מחיר סופי ידני (₪)</label>
+                <label className="block text-xs text-brand-maroon-dark mb-1">מחיר סופי ידני (₪)</label>
                 <input type="number" value={priceOverride}
                   onChange={(e) => { setPriceOverride(e.target.value); setPricePerPersonOverride('') }}
                   placeholder="עקיפה מלאה"
-                  className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                  className="w-full border border-brand-olive rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
               </div>
             </div>
           </div>
@@ -357,15 +357,15 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">תוספות</span>
-            <button type="button" onClick={addExtra} className="text-sm text-blue-600 hover:text-blue-700">+ הוסף תוספת</button>
+            <button type="button" onClick={addExtra} className="text-sm text-brand-maroon hover:text-brand-maroon-dark">+ הוסף תוספת</button>
           </div>
           {extras.map((extra, i) => (
             <div key={i} className="flex gap-2 mb-2">
               <input value={extra.label} onChange={(e) => updateExtra(i, 'label', e.target.value)}
                 placeholder="תיאור (שעה נוספת, עובד נוסף...)"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
               <input type="number" value={extra.amount} onChange={(e) => updateExtra(i, 'amount', Number(e.target.value))}
-                placeholder="₪" className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                placeholder="₪" className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
               <button type="button" onClick={() => removeExtra(i)} className="text-red-400 hover:text-red-600 px-2">✕</button>
             </div>
           ))}
@@ -374,7 +374,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           <div className="text-sm font-medium text-gray-700 mb-2">הנחה</div>
           <div className="flex gap-2">
             <select value={discountType ?? ''} onChange={(e) => setDiscountType(e.target.value as DiscountType || null)}
-              className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
               <option value="">ללא הנחה</option>
               <option value="percent">אחוז (%)</option>
               <option value="fixed">סכום קבוע (₪)</option>
@@ -382,7 +382,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
             {discountType && (
               <input type="number" value={discountValue} onChange={(e) => setDiscountValue(Number(e.target.value))}
                 placeholder={discountType === 'percent' ? '%' : '₪'}
-                className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
             )}
           </div>
         </div>
@@ -412,14 +412,14 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           )}
           <div className="flex justify-between font-bold text-base border-t pt-2">
             <span>סה&quot;כ לתשלום</span>
-            <span className="text-blue-700">{formatNIS(pricing.totalPrice)}</span>
+            <span className="text-brand-maroon-dark">{formatNIS(pricing.totalPrice)}</span>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">מקדמה ששולמה (₪)</label>
             <input type="number" value={advancePaid} onChange={(e) => setAdvancePaid(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">יתרה לתשלום</label>
@@ -443,7 +443,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
             <div className="text-xs text-gray-500">גרם נדרש</div>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <div className="text-2xl font-bold text-blue-700">{inventory.basketasRequired}</div>
+            <div className="text-2xl font-bold text-brand-maroon-dark">{inventory.basketasRequired}</div>
             <div className="text-xs text-gray-500">בסקטות</div>
           </div>
         </div>
@@ -458,13 +458,13 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={managerIncluded} onChange={(e) => setManagerIncluded(e.target.checked)}
-                className="w-4 h-4 accent-blue-600" />
+                className="w-4 h-4 accent-brand-maroon" />
               <span className="text-sm text-gray-700">מנהל אירוע (₪500)</span>
             </label>
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-700">עוזרים נוספים:</label>
               <input type="number" min={0} max={5} value={assistantsCount} onChange={(e) => setAssistantsCount(Number(e.target.value))}
-                className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
               <span className="text-xs text-gray-500">(₪300 לכל אחד)</span>
             </div>
           </div>
@@ -485,7 +485,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           שמור כליד
         </button>
         <button type="button" onClick={() => handleSave('quote_sent')} disabled={saving}
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60">
+          className="px-5 py-2.5 bg-brand-maroon text-white rounded-lg text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
           {saving ? 'שומר...' : 'שמור ושלח הצעה'}
         </button>
       </div>

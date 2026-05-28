@@ -82,7 +82,7 @@ export default async function CalendarPage({
           {currentMonthStr !== nowMonthStr && (
             <Link
               href="/calendar"
-              className="text-sm text-blue-600 hover:underline px-3 py-1.5"
+              className="text-sm text-brand-maroon hover:underline px-3 py-1.5"
             >
               חזור להיום
             </Link>
@@ -106,7 +106,7 @@ export default async function CalendarPage({
           </Link>
           <Link
             href="/leads/new"
-            className="flex items-center gap-1.5 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mr-1"
+            className="flex items-center gap-1.5 bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors mr-1"
           >
             <Plus size={16} />
             ליד חדש
@@ -122,7 +122,7 @@ export default async function CalendarPage({
             <div
               key={day}
               className={`py-2.5 text-center text-xs font-bold tracking-wide ${
-                i === 5 || i === 6 ? 'text-blue-500' : 'text-gray-500'
+                i === 5 || i === 6 ? 'text-brand-gold' : 'text-gray-500'
               }`}
             >
               {day}
@@ -153,7 +153,7 @@ export default async function CalendarPage({
                     key={dayIdx}
                     className={`p-1.5 border-l border-gray-100 first:border-l-0 overflow-hidden ${
                       !day ? 'bg-gray-50/80' : ''
-                    } ${isWeekend && day ? 'bg-blue-50/20' : ''}`}
+                    } ${isWeekend && day ? 'bg-brand-mint/20' : ''}`}
                   >
                     {day && (
                       <>
@@ -162,7 +162,7 @@ export default async function CalendarPage({
                           <span
                             className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${
                               isToday
-                                ? 'bg-blue-600 text-white shadow-sm'
+                                ? 'bg-brand-maroon text-white shadow-sm'
                                 : 'text-gray-700'
                             }`}
                           >

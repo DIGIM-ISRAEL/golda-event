@@ -94,13 +94,13 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="שם הטעם"
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
               onKeyDown={(e) => e.key === 'Enter' && addFlavor()}
             />
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value as 'dairy' | 'parve')}
-              className="w-36 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-36 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
             >
               <option value="dairy">חלבי</option>
               <option value="parve">פרווה</option>
@@ -108,7 +108,7 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
             <button
               onClick={addFlavor}
               disabled={adding}
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+              className="bg-brand-maroon text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60"
             >
               + הוסף
             </button>

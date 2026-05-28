@@ -85,7 +85,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               {LEAD_STATUS_LABELS[lead.status]}
             </span>
           </div>
-          <a href={`tel:${lead.clientPhone}`} className="text-blue-600 text-sm hover:underline" dir="ltr">
+          <a href={`tel:${lead.clientPhone}`} className="text-brand-maroon text-sm hover:underline" dir="ltr">
             {lead.clientPhone}
           </a>
         </div>
@@ -93,7 +93,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <Link href={`/leads/${id}/edit`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
             ✏️ עריכה
           </Link>
-          <a href={`/api/quotes/${id}/pdf`} target="_blank" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+          <a href={`/api/quotes/${id}/pdf`} target="_blank" className="px-4 py-2 bg-brand-maroon text-white rounded-lg text-sm font-medium hover:bg-brand-maroon-dark">
             📄 הצעת מחיר PDF
           </a>
           <a href={`/api/quotes/${id}/docx`} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
@@ -148,7 +148,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <h2 className="font-semibold text-gray-900 mb-3">טעמים שנבחרו ({flavors.length})</h2>
             <div className="flex flex-wrap gap-2">
               {flavors.map((f) => (
-                <span key={f.id} className={`px-3 py-1 rounded-full text-sm ${f.category === 'dairy' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                <span key={f.id} className={`px-3 py-1 rounded-full text-sm ${f.category === 'dairy' ? 'bg-brand-mint text-brand-maroon-dark' : 'bg-green-100 text-green-800'}`}>
                   {f.name}
                 </span>
               ))}
@@ -173,7 +173,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               )}
               <div className="flex justify-between font-bold text-base">
                 <span>סה&quot;כ</span>
-                <span className="text-blue-700">{formatNIS(pricing.totalPrice)}</span>
+                <span className="text-brand-maroon-dark">{formatNIS(pricing.totalPrice)}</span>
               </div>
               {pricing.advancePaid > 0 && (
                 <>
@@ -202,7 +202,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <div className="text-xs text-gray-500">גרם</div>
               </div>
               <div className="bg-white rounded-lg p-3">
-                <div className="text-xl font-bold text-blue-700">{inventory.basketasRequired}</div>
+                <div className="text-xl font-bold text-brand-maroon-dark">{inventory.basketasRequired}</div>
                 <div className="text-xs text-gray-500">בסקטות</div>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <div className="grid grid-cols-2 gap-2">
             <a
               href={`tel:${lead.clientPhone}`}
-              className="flex items-center justify-center gap-2 bg-blue-600 text-white rounded-xl py-3 text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="flex items-center justify-center gap-2 bg-brand-maroon text-white rounded-xl py-3 text-sm font-medium hover:bg-brand-maroon-dark transition-colors"
             >
               📞 התקשר
             </a>
@@ -270,7 +270,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               href={`https://waze.com/ul?q=${encodeURIComponent(lead.location.cityName)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700 hover:bg-blue-100"
+              className="flex items-center gap-2 bg-brand-mint border border-brand-tan rounded-xl p-4 text-sm text-brand-maroon-dark hover:bg-brand-mint"
             >
               🗺️ פתח ב-Waze — {lead.location.cityName}
             </a>

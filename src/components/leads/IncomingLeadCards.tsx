@@ -59,7 +59,7 @@ function LeadModal({
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="font-bold text-gray-900 text-lg">{name}</div>
-            <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-medium bg-brand-mint text-brand-maroon-dark px-2 py-0.5 rounded-full">
               ליד נכנס
             </span>
           </div>
@@ -109,7 +109,7 @@ function LeadModal({
           <button
             onClick={() => onCall(lead)}
             disabled={calling || !f.phone_number}
-            className="flex-1 bg-blue-600 text-white text-sm font-medium py-2.5 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="flex-1 bg-brand-maroon text-white text-sm font-medium py-2.5 rounded-xl hover:bg-brand-maroon-dark disabled:opacity-50 transition-colors"
           >
             {calling ? '📞 מחייג...' : '📞 חייג'}
           </button>
@@ -197,11 +197,11 @@ export default function IncomingLeadCards() {
         return (
           <div
             key={lead.id}
-            className="bg-white rounded-lg p-3 shadow-sm border border-blue-100 ring-1 ring-blue-200 cursor-pointer hover:shadow-md transition-shadow"
+            className="bg-white rounded-lg p-3 shadow-sm border border-brand-mint ring-1 ring-brand-tan cursor-pointer hover:shadow-md transition-shadow"
             onClick={() => setSelected(lead)}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">נכנס</span>
+              <span className="text-xs font-semibold text-brand-maroon bg-brand-mint px-1.5 py-0.5 rounded">נכנס</span>
               {score !== undefined && <QualityStars score={score} />}
             </div>
             <div className="font-semibold text-gray-900 text-sm">{name}</div>
@@ -223,7 +223,7 @@ export default function IncomingLeadCards() {
             <button
               onClick={(e) => { e.stopPropagation(); handleCall(lead) }}
               disabled={isCalling || !f.phone_number}
-              className="mt-2 w-full bg-blue-600 text-white text-xs font-medium py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="mt-2 w-full bg-brand-maroon text-white text-xs font-medium py-1.5 rounded-lg hover:bg-brand-maroon-dark disabled:opacity-50 transition-colors"
             >
               {isCalling ? '📞 מחייג...' : '📞 חייג'}
             </button>

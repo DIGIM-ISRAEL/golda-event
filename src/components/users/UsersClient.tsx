@@ -111,7 +111,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
         <h1 className="text-2xl font-bold text-gray-900">ניהול משתמשים</h1>
         <button
           onClick={openNew}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors"
         >
           + משתמש חדש
         </button>
@@ -134,7 +134,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                 <td className="px-4 py-3 font-medium text-gray-900">
                   {user.fullName}
                   {user.id === currentUserId && (
-                    <span className="mr-2 text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">אתה</span>
+                    <span className="mr-2 text-xs text-brand-maroon bg-brand-mint px-1.5 py-0.5 rounded">אתה</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{user.email}</td>
@@ -152,7 +152,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => openEdit(user)}
-                      className="text-xs text-blue-600 hover:underline"
+                      className="text-xs text-brand-maroon hover:underline"
                     >
                       עריכה
                     </button>
@@ -187,7 +187,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   required
                   value={form.fullName}
                   onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
                 />
               </div>
 
@@ -198,7 +198,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   required
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
                   dir="ltr"
                 />
               </div>
@@ -212,7 +212,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   required={!editing}
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
                   dir="ltr"
                 />
               </div>
@@ -226,7 +226,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   value={form.phoneNumber}
                   onChange={(e) => setForm((f) => ({ ...f, phoneNumber: e.target.value }))}
                   placeholder="972501234567"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
                   dir="ltr"
                 />
                 <p className="text-xs text-gray-500 mt-1">פורמט בינלאומי ללא + (לדוגמה: 972501234567)</p>
@@ -237,7 +237,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                 <select
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as 'admin' | 'sales' }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
                 >
                   <option value="sales">איש מכירות</option>
                   <option value="admin">מנהל</option>
@@ -250,7 +250,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-brand-maroon text-white py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'שומר...' : editing ? 'שמור שינויים' : 'צור משתמש'}
                 </button>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import PalmLogo from '@/components/brand/PalmLogo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -33,38 +34,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-brand-mint to-brand-cream flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-brand-tan/40">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">G</span>
+          <div className="text-brand-gold flex justify-center mb-2">
+            <PalmLogo size={56} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">גולדה אירועים</h1>
-          <p className="text-gray-500 mt-1 text-sm">מערכת ניהול פנימית</p>
+          <h1 className="font-serif text-4xl font-bold text-brand-gold tracking-[0.2em] mr-[0.2em]">GOLDA</h1>
+          <p className="text-brand-gold/70 text-[10px] tracking-[0.25em] mt-1">WE MAKE FABULOUS GELATO</p>
+          <p className="text-brand-maroon mt-4 text-sm font-medium">מערכת ניהול פנימית</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">אימייל</label>
+            <label className="block text-sm font-medium text-brand-maroon mb-1">אימייל</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               placeholder="example@email.com"
               dir="ltr"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">סיסמה</label>
+            <label className="block text-sm font-medium text-brand-maroon mb-1">סיסמה</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               placeholder="••••••••"
               dir="ltr"
             />
@@ -79,7 +81,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white rounded-lg py-3 font-semibold text-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="w-full bg-brand-maroon text-white rounded-lg py-3 font-semibold text-sm hover:bg-brand-maroon-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'מתחבר...' : 'כניסה למערכת'}
           </button>
