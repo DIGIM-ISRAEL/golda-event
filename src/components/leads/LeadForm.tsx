@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculatePrice, formatNIS } from '@/lib/pricing'
 import { calculateInventory } from '@/lib/inventory'
-import { MAX_FLAVORS, OPERATIONAL_WARNING, EVENT_TYPE_LABELS, CLIENT_TYPE_LABELS } from '@/lib/constants'
+import { MAX_FLAVORS, OPERATIONAL_WARNING, DEFAULT_INCLUDED_ITEMS } from '@/lib/constants'
 import type { Flavor, Location, Lead, Extra, DiscountType, ClientType, EventType } from '@/lib/types'
 
 interface LeadFormProps {
@@ -29,6 +29,12 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
   const [locationId, setLocationId] = useState(lead?.location_id ?? '')
   const [participants, setParticipants] = useState(lead?.participants ?? 100)
   const [notes, setNotes] = useState(lead?.notes ?? '')
+
+  const [includedItems, setIncludedItems] = useState<string[]>(
+    lead?.included_items && lead.included_items.length > 0
+      ? lead.included_items
+      : DEFAULT_INCLUDED_ITEMS,
+  )
 
   const [newCity, setNewCity] = useState('')
   const [newCityCost, setNewCityCost] = useState('')
@@ -86,6 +92,14 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
     }
   }
 
+  function addIncluded() { setIncludedItems([...includedItems, '']) }
+  function updateIncluded(i: number, value: string) {
+    const updated = [...includedItems]
+    updated[i] = value
+    setIncludedItems(updated)
+  }
+  function removeIncluded(i: number) { setIncludedItems(includedItems.filter((_, idx) => idx !== i)) }
+
   function addExtra() { setExtras([...extras, { label: '', amount: 0 }]) }
   function updateExtra(i: number, field: keyof Extra, value: string | number) {
     const updated = [...extras]
@@ -126,6 +140,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       participants,
       status,
       notes,
+      includedItems: includedItems.map((s) => s.trim()).filter(Boolean),
       managerIncluded,
       assistantsCount,
       priceOverride: priceOverride ? Number(priceOverride) : null,
@@ -287,6 +302,32 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
             </div>
           </div>
         )}
+      </section>
+
+      {/* מה ההצעה כוללת */}
+      <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-gray-900 text-lg">מה ההצעה כוללת</h2>
+          <button type="button" onClick={addIncluded} className="text-sm text-blue-600 hover:text-blue-700">+ הוסף פריט</button>
+        </div>
+        <p className="text-xs text-gray-500 mb-3">הרשימה תופיע בהצעת המחיר. ניתן לערוך/להוסיף לפי בקשת הלקוח.</p>
+        <div className="space-y-2">
+          {includedItems.map((item, i) => (
+            <div key={i} className="flex gap-2 items-center">
+              <span className="text-green-600 shrink-0">✓</span>
+              <input
+                value={item}
+                onChange={(e) => updateIncluded(i, e.target.value)}
+                placeholder="תיאור פריט שכלול בהצעה"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <button type="button" onClick={() => removeIncluded(i)} className="text-red-400 hover:text-red-600 px-2 shrink-0">✕</button>
+            </div>
+          ))}
+          {includedItems.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-2">אין פריטים — לחץ &quot;הוסף פריט&quot;</p>
+          )}
+        </div>
       </section>
 
       {/* Pricing */}

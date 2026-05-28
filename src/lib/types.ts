@@ -55,6 +55,7 @@ export interface Lead {
   client_approved_at: string | null
   client_approved_name: string | null
   google_event_id: string | null
+  included_items?: string[]
   created_at: string
   updated_at: string
   // Joined

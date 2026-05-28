@@ -1,46 +1,102 @@
 import { NextRequest, NextResponse } from 'next/server'
+import path from 'node:path'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { renderToBuffer, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { renderToBuffer, Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime } from '@/lib/utils'
-import { EVENT_TYPE_LABELS } from '@/lib/constants'
+import { EVENT_TYPE_LABELS, DEFAULT_INCLUDED_ITEMS } from '@/lib/constants'
+import { BRAND, BRAND_STRIPES, BRAND_TAGLINE } from '@/lib/brand'
+
+// רישום גופנים עבריים (סטטיים) — מתקן את באג העברית ב-react-pdf
+const FONT_DIR = path.join(process.cwd(), 'public', 'fonts')
+Font.register({
+  family: 'DavidLibre',
+  fonts: [
+    { src: path.join(FONT_DIR, 'DavidLibre-Regular.ttf') },
+    { src: path.join(FONT_DIR, 'DavidLibre-Bold.ttf'), fontWeight: 'bold' },
+  ],
+})
+Font.register({
+  family: 'Alef',
+  fonts: [
+    { src: path.join(FONT_DIR, 'Alef-Regular.ttf') },
+    { src: path.join(FONT_DIR, 'Alef-Bold.ttf'), fontWeight: 'bold' },
+  ],
+})
+// בלי חיתוך מילים (חשוב לעברית)
+Font.registerHyphenationCallback((word) => [word])
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 11 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-  logo: { fontSize: 20, fontWeight: 'bold', color: '#2563eb' },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 20, color: '#0f172a' },
-  section: { marginBottom: 16 },
+  page: { fontFamily: 'Alef', fontSize: 10, color: BRAND.ink, direction: 'rtl' },
+
+  // כותרת ממותגת
+  headerBand: { backgroundColor: BRAND.mint, paddingVertical: 26, alignItems: 'center' },
+  logo: { fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 38, color: BRAND.gold, letterSpacing: 6 },
+  tagline: { fontFamily: 'Alef', fontSize: 7, color: BRAND.gold, letterSpacing: 3, marginTop: 4 },
+
+  stripes: { flexDirection: 'row', height: 7 },
+
+  content: { paddingHorizontal: 40, paddingTop: 24, paddingBottom: 40 },
+
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20 },
+  title: { fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 20, color: BRAND.maroon },
+  dateText: { fontFamily: 'Alef', fontSize: 9, color: BRAND.gray },
+
+  section: { marginBottom: 18 },
   sectionTitle: {
-    fontSize: 12, fontWeight: 'bold', marginBottom: 8, color: '#374151',
-    borderBottomWidth: 1, borderBottomColor: '#e5e7eb', paddingBottom: 4,
+    fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 12, color: BRAND.gold,
+    marginBottom: 8, textAlign: 'right',
   },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  label: { color: '#6b7280' },
+
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  label: { color: BRAND.gray, fontSize: 10 },
+  value: { color: BRAND.ink, fontSize: 10, fontWeight: 'bold' },
+
+  includeRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  includeDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: BRAND.gold, marginLeft: 8 },
+  includeText: { fontSize: 10, color: BRAND.ink },
+
+  flavorsRow: { flexDirection: 'row', flexWrap: 'wrap' },
   flavorChip: {
-    backgroundColor: '#eff6ff', color: '#1d4ed8',
-    padding: '3 8', borderRadius: 4, margin: 2, fontSize: 10,
+    backgroundColor: BRAND.mint, color: BRAND.maroon,
+    paddingVertical: 3, paddingHorizontal: 9, borderRadius: 10, margin: 2, fontSize: 9,
   },
-  flavorsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 },
+
+  priceBox: { backgroundColor: BRAND.cream, borderRadius: 8, padding: 14 },
   totalRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#e5e7eb',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: BRAND.tan,
   },
-  totalLabel: { fontSize: 13, fontWeight: 'bold' },
-  totalValue: { fontSize: 13, fontWeight: 'bold', color: '#2563eb' },
-  terms: { marginTop: 24, fontSize: 9, color: '#9ca3af' },
-  signatureBox: { marginTop: 40, borderTopWidth: 1, borderTopColor: '#d1d5db', paddingTop: 16 },
-  signatureLine: { borderBottomWidth: 1, borderBottomColor: '#000', marginBottom: 4, height: 30, width: '60%' },
+  totalLabel: { fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 13, color: BRAND.maroon },
+  totalValue: { fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 15, color: BRAND.gold },
+
+  terms: { marginTop: 18, fontSize: 8, color: BRAND.gray, textAlign: 'right', lineHeight: 1.5 },
+
+  signatureBox: { marginTop: 26, borderTopWidth: 1, borderTopColor: BRAND.tan, paddingTop: 16 },
+  signatureTitle: { fontFamily: 'DavidLibre', fontWeight: 'bold', fontSize: 12, color: BRAND.maroon, marginBottom: 6, textAlign: 'right' },
+  signatureLine: { borderBottomWidth: 1, borderBottomColor: BRAND.ink, height: 28, marginBottom: 4 },
+  signatureCaption: { fontSize: 8, color: BRAND.gray, textAlign: 'right' },
+
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0 },
+  footerText: { textAlign: 'center', fontSize: 7, color: BRAND.gray, paddingVertical: 6, letterSpacing: 1 },
 })
 
 const e = createElement
 
-function row(label: string, value: string) {
+function stripeBar() {
+  return e(View, { style: styles.stripes },
+    ...BRAND_STRIPES.map((c, i) =>
+      e(View, { key: i, style: { flex: 1, backgroundColor: c } }),
+    ),
+  )
+}
+
+function infoRow(label: string, value: string) {
   return e(View, { style: styles.row },
     e(Text, { style: styles.label }, label),
-    e(Text, { style: { fontWeight: 'bold' } }, value),
+    e(Text, { style: styles.value }, value),
   )
 }
 
@@ -55,87 +111,117 @@ export async function GET(
 
   const lead = await db.lead.findUnique({
     where: { id },
-    include: {
-      location: true,
-      quote: true,
-      flavors: { include: { flavor: true } },
-    },
+    include: { location: true, quote: true, flavors: { include: { flavor: true } } },
   })
 
   if (!lead) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const flavors = lead.flavors.map((lf) => lf.flavor)
+  const includes = lead.includedItems.length > 0 ? lead.includedItems : DEFAULT_INCLUDED_ITEMS
 
   const doc = e(Document, null,
     e(Page, { size: 'A4', style: styles.page },
-      e(View, { style: styles.header },
-        e(Text, { style: styles.logo }, 'גולדה אירועים'),
-        e(Text, { style: { fontSize: 10, color: '#6b7280' } }, `תאריך: ${new Date().toLocaleDateString('he-IL')}`),
+
+      // כותרת ממותגת
+      e(View, { style: styles.headerBand },
+        e(Text, { style: styles.logo }, 'GOLDA'),
+        e(Text, { style: styles.tagline }, BRAND_TAGLINE),
       ),
-      e(Text, { style: styles.title }, `הצעת מחיר — ${lead.clientName}`),
-      e(View, { style: styles.section },
-        e(Text, { style: styles.sectionTitle }, 'פרטי האירוע'),
-        row('לקוח', lead.clientName),
-        row('טלפון', lead.clientPhone),
-        row('תאריך', formatDate(lead.eventDate)),
-        row('שעות', `${formatTime(lead.startTime)} – ${formatTime(lead.endTime)}`),
-        row('מיקום', lead.location?.cityName ?? '—'),
-        row('משתתפים', `${lead.participants} נפש`),
-        row('סוג אירוע', EVENT_TYPE_LABELS[lead.eventType]),
-      ),
-      e(View, { style: styles.section },
-        e(Text, { style: styles.sectionTitle }, 'ההצעה כוללת'),
-        e(Text, { style: { fontSize: 10, color: '#374151', lineHeight: 1.6 } },
-          '✓ עגלת גלידה מקצועית\n✓ 6 טעמים לבחירתכם\n✓ 2 רטבים ו-3 תוספות\n✓ 2 שעות פעילות\n✓ 2 עובדים\n✓ ציוד הגשה בסיסי',
+      stripeBar(),
+
+      // תוכן
+      e(View, { style: styles.content },
+        e(View, { style: styles.titleRow },
+          e(Text, { style: styles.title }, `הצעת מחיר`),
+          e(Text, { style: styles.dateText }, new Date().toLocaleDateString('he-IL')),
         ),
-      ),
-      flavors.length > 0
-        ? e(View, { style: styles.section },
-            e(Text, { style: styles.sectionTitle }, 'טעמים שנבחרו'),
-            e(View, { style: styles.flavorsRow },
-              ...flavors.map((f, i) => e(Text, { key: i, style: styles.flavorChip }, f.name)),
-            ),
-          )
-        : null,
-      lead.quote
-        ? e(View, { style: styles.section },
-            e(Text, { style: styles.sectionTitle }, 'תמחור'),
-            lead.clientType === 'institutional' && lead.quote.vatAmount != null
-              ? e(View, null,
-                  row('מחיר לפני מע"מ', formatNIS(lead.quote.totalPrice - lead.quote.vatAmount)),
-                  row('מע"מ (18%)', formatNIS(lead.quote.vatAmount)),
-                )
-              : null,
-            e(View, { style: styles.totalRow },
-              e(Text, { style: styles.totalLabel }, 'סה"כ לתשלום'),
-              e(Text, { style: styles.totalValue }, formatNIS(lead.quote.totalPrice)),
-            ),
-            lead.quote.advancePaid > 0
-              ? e(View, null,
-                  row('מקדמה ששולמה', formatNIS(lead.quote.advancePaid)),
-                  row('יתרה לתשלום', formatNIS(lead.quote.balanceDue)),
-                )
-              : null,
-          )
-        : null,
-      e(Text, { style: styles.terms },
-        '* ההצעה בתוקף ל-14 יום. ביטול עד 72 שעות לפני האירוע — ללא חיוב. ביטול פחות מ-72 שעות — חיוב 50%.',
-      ),
-      e(View, { style: styles.signatureBox },
-        e(Text, { style: { fontWeight: 'bold', marginBottom: 16 } }, 'אישור והסכמה'),
-        e(Text, { style: { fontSize: 10, marginBottom: 20 } },
-          'אני הח"מ מאשר/ת את ההצעה לעיל ומסכים/ת לתנאים המפורטים.',
+
+        // פרטי האירוע
+        e(View, { style: styles.section },
+          e(Text, { style: styles.sectionTitle }, 'פרטי האירוע'),
+          infoRow('שם הלקוח', lead.clientName),
+          infoRow('טלפון', lead.clientPhone),
+          infoRow('תאריך', formatDate(lead.eventDate)),
+          infoRow('שעות', `${formatTime(lead.startTime)} – ${formatTime(lead.endTime)}`),
+          infoRow('מיקום', lead.location?.cityName ?? '—'),
+          infoRow('מספר משתתפים', `${lead.participants}`),
+          infoRow('סוג אירוע', EVENT_TYPE_LABELS[lead.eventType]),
         ),
-        e(View, { style: { flexDirection: 'row', justifyContent: 'space-between' } },
-          e(View, null,
-            e(View, { style: styles.signatureLine }),
-            e(Text, { style: { fontSize: 9, color: '#6b7280' } }, 'חתימת הלקוח'),
-          ),
-          e(View, null,
-            e(View, { style: styles.signatureLine }),
-            e(Text, { style: { fontSize: 9, color: '#6b7280' } }, 'תאריך'),
+
+        // מה ההצעה כוללת
+        e(View, { style: styles.section },
+          e(Text, { style: styles.sectionTitle }, 'מה ההצעה כוללת'),
+          ...includes.map((item, i) =>
+            e(View, { key: i, style: styles.includeRow },
+              e(View, { style: styles.includeDot }),
+              e(Text, { style: styles.includeText }, item),
+            ),
           ),
         ),
+
+        // טעמים
+        flavors.length > 0
+          ? e(View, { style: styles.section },
+              e(Text, { style: styles.sectionTitle }, `הטעמים שנבחרו (${flavors.length})`),
+              e(View, { style: styles.flavorsRow },
+                ...flavors.map((f, i) => e(Text, { key: i, style: styles.flavorChip }, f.name)),
+              ),
+            )
+          : null,
+
+        // תמחור
+        lead.quote
+          ? e(View, { style: styles.section },
+              e(Text, { style: styles.sectionTitle }, 'תמחור'),
+              e(View, { style: styles.priceBox },
+                lead.clientType === 'institutional' && lead.quote.vatAmount != null
+                  ? e(View, null,
+                      infoRow('מחיר לפני מע"מ', formatNIS(lead.quote.totalPrice - lead.quote.vatAmount)),
+                      infoRow('מע"מ (18%)', formatNIS(lead.quote.vatAmount)),
+                    )
+                  : null,
+                e(View, { style: styles.totalRow },
+                  e(Text, { style: styles.totalLabel }, 'סה"כ לתשלום'),
+                  e(Text, { style: styles.totalValue }, formatNIS(lead.quote.totalPrice)),
+                ),
+                lead.quote.advancePaid > 0
+                  ? e(View, { style: { marginTop: 8 } },
+                      infoRow('מקדמה ששולמה', formatNIS(lead.quote.advancePaid)),
+                      infoRow('יתרה לתשלום', formatNIS(lead.quote.balanceDue)),
+                    )
+                  : null,
+              ),
+            )
+          : null,
+
+        // תנאים
+        e(Text, { style: styles.terms },
+          'ההצעה בתוקף ל-14 יום ממועד הוצאתה. ביטול עד 72 שעות לפני האירוע — ללא חיוב. ביטול בפחות מ-72 שעות — חיוב 50% מערך ההזמנה.',
+        ),
+
+        // חתימה
+        e(View, { style: styles.signatureBox },
+          e(Text, { style: styles.signatureTitle }, 'אישור והסכמה'),
+          e(Text, { style: { fontSize: 9, marginBottom: 18, textAlign: 'right', color: BRAND.ink } },
+            'אני הח"מ מאשר/ת את ההצעה לעיל ומסכים/ה לתנאים המפורטים בה.',
+          ),
+          e(View, { style: { flexDirection: 'row', justifyContent: 'space-between', gap: 30 } },
+            e(View, { style: { flex: 1 } },
+              e(View, { style: styles.signatureLine }),
+              e(Text, { style: styles.signatureCaption }, 'חתימת הלקוח'),
+            ),
+            e(View, { style: { flex: 1 } },
+              e(View, { style: styles.signatureLine }),
+              e(Text, { style: styles.signatureCaption }, 'תאריך'),
+            ),
+          ),
+        ),
+      ),
+
+      // פוטר
+      e(View, { style: styles.footer },
+        e(Text, { style: styles.footerText }, 'גולדה אירועים  ·  ' + BRAND_TAGLINE),
+        stripeBar(),
       ),
     ),
   )
@@ -145,7 +231,7 @@ export async function GET(
   return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="quote-${lead.clientName}.pdf"`,
+      'Content-Disposition': `attachment; filename="golda-quote-${lead.id}.pdf"`,
     },
   })
 }

@@ -50,6 +50,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
     assistants_count: lead.assistantsCount,
     price_override: lead.priceOverride,
     price_per_person_override: lead.pricePerPersonOverride,
+    included_items: lead.includedItems,
     flavors: lead.flavors.map((lf) => ({
       id: lf.flavor.id, name: lf.flavor.name, category: lf.flavor.category,
       is_in_stock: lf.flavor.isInStock, sort_order: lf.flavor.sortOrder, created_at: lf.flavor.createdAt.toISOString(),
