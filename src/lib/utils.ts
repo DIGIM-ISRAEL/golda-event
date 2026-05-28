@@ -11,6 +11,17 @@ export function formatTime(timeStr: string): string {
   return timeStr.slice(0, 5)
 }
 
+// ממיר מספר טלפון ישראלי לפורמט בינלאומי ל-WhatsApp (972...)
+export function toWhatsAppNumber(phone: string): string {
+  let digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('0')) {
+    digits = '972' + digits.slice(1)
+  } else if (!digits.startsWith('972')) {
+    digits = '972' + digits
+  }
+  return digits
+}
+
 export function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number)
   return h * 60 + m

@@ -11,7 +11,7 @@ import {
   EVENT_TYPE_LABELS,
   OPERATIONAL_WARNING,
 } from '@/lib/constants'
-import { formatDate, formatTime } from '@/lib/utils'
+import { formatDate, formatTime, toWhatsAppNumber } from '@/lib/utils'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
 import SignatureLink from '@/components/leads/SignatureLink'
@@ -35,6 +35,17 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   ])
 
   if (!lead) notFound()
+
+  // אזהרת התנגשות רכה — אירועים נוספים באותו יום (זמן נסיעה בין מיקומים)
+  const sameDayEvents = await db.lead.findMany({
+    where: {
+      eventDate: lead.eventDate,
+      status: { in: ['closed', 'quote_sent'] },
+      id: { not: lead.id },
+    },
+    include: { location: true },
+    orderBy: { startTime: 'asc' },
+  })
 
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
   const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
@@ -74,7 +85,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               {LEAD_STATUS_LABELS[lead.status]}
             </span>
           </div>
-          <p className="text-gray-500 text-sm">{lead.clientPhone}</p>
+          <a href={`tel:${lead.clientPhone}`} className="text-blue-600 text-sm hover:underline" dir="ltr">
+            {lead.clientPhone}
+          </a>
         </div>
         <div className="flex gap-2">
           <Link href={`/leads/${id}/edit`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
@@ -91,6 +104,28 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-5">
+          {sameDayEvents.length > 0 && (
+            <div className="bg-orange-50 border border-orange-300 rounded-xl p-4">
+              <div className="flex items-start gap-2">
+                <span className="text-lg">🚗</span>
+                <div className="text-sm text-orange-800">
+                  <div className="font-semibold mb-1">
+                    שים לב: {sameDayEvents.length} אירוע{sameDayEvents.length > 1 ? 'ים' : ''} נוסף{sameDayEvents.length > 1 ? 'ים' : ''} באותו יום
+                  </div>
+                  <div className="text-xs text-orange-700 mb-2">וודא שיש מספיק זמן נסיעה בין המיקומים (עגלה אחת בלבד):</div>
+                  <ul className="space-y-1">
+                    {sameDayEvents.map((e) => (
+                      <li key={e.id}>
+                        <span className="font-medium">{formatTime(e.startTime)}–{formatTime(e.endTime)}</span>
+                        {' · '}{e.clientName}{' · '}{e.location?.cityName ?? '—'}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-900 mb-3">פרטי אירוע</h2>
             <dl className="grid grid-cols-2 gap-3 text-sm">
@@ -205,6 +240,24 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               profitWarningThreshold={profitThreshold}
             />
           )}
+
+          {/* פעולות יצירת קשר מהירות */}
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href={`tel:${lead.clientPhone}`}
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white rounded-xl py-3 text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              📞 התקשר
+            </a>
+            <a
+              href={`https://wa.me/${toWhatsAppNumber(lead.clientPhone)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-green-600 text-white rounded-xl py-3 text-sm font-medium hover:bg-green-700 transition-colors"
+            >
+              💬 WhatsApp
+            </a>
+          </div>
 
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
             <h3 className="font-semibold text-gray-900 mb-2 text-sm">חתימה דיגיטלית</h3>

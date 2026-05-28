@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import { timesOverlap } from '@/lib/utils'
+import { syncLeadCalendar } from '@/lib/calendar-sync'
 import nodemailer from 'nodemailer'
 
 export async function PATCH(
@@ -37,6 +38,9 @@ export async function PATCH(
   }
 
   await db.lead.update({ where: { id }, data: { status } })
+
+  // סנכרון Google Calendar — יוצר אירוע בסגירה, מוחק כשיוצאים מ"סגור"
+  await syncLeadCalendar(id)
 
   if (status === 'closed') {
     try {

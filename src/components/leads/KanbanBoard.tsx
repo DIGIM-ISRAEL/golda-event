@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 import {
   LEAD_STATUS_LABELS,
   LEAD_STATUS_COLORS,
@@ -33,7 +34,17 @@ export default function KanbanBoard({ initialLeads }: Props) {
   const [leads, setLeads] = useState(initialLeads)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
   const savedStatus = useRef<string | null>(null)
+
+  const query = search.trim().toLowerCase()
+  function matchesSearch(lead: KanbanLead) {
+    if (!query) return true
+    return (
+      lead.clientName.toLowerCase().includes(query) ||
+      (lead.location?.cityName ?? '').toLowerCase().includes(query)
+    )
+  }
 
   function onDragStart(e: React.DragEvent, lead: KanbanLead) {
     e.dataTransfer.effectAllowed = 'move'
@@ -74,9 +85,22 @@ export default function KanbanBoard({ initialLeads }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div>
+      {/* חיפוש */}
+      <div className="relative mb-4 max-w-sm">
+        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="חיפוש לפי שם לקוח או עיר..."
+          className="w-full border border-gray-300 rounded-lg pr-9 pl-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {STATUSES.map((status) => {
-        const col = leads.filter((l) => l.status === status)
+        const col = leads.filter((l) => l.status === status && matchesSearch(l))
         const isOver = dragOver === status && draggingId !== null
 
         return (
@@ -146,6 +170,7 @@ export default function KanbanBoard({ initialLeads }: Props) {
           </div>
         )
       })}
+      </div>
     </div>
   )
 }
