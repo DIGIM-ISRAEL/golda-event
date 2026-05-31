@@ -71,7 +71,7 @@ export default async function LeadsPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">לידים</h1>
+        <h1 className="text-2xl font-bold text-brand-ink">לידים</h1>
         <Link
           href="/leads/new"
           className="bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors"

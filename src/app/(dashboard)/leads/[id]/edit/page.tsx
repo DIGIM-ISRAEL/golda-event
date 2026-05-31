@@ -74,8 +74,8 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
 
   return (
     <div>
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <h1 className="text-xl font-bold text-gray-900">עריכת ליד — {lead.clientName}</h1>
+      <div className="bg-white border-b border-brand-line px-6 py-4">
+        <h1 className="text-xl font-bold text-brand-ink">עריכת ליד — {lead.clientName}</h1>
       </div>
       <LeadForm lead={leadForForm as Parameters<typeof LeadForm>[0]['lead']} flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} />
     </div>

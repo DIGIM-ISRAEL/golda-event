@@ -28,16 +28,16 @@ export default async function AdminPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">רווחיות פנימית</h1>
+      <h1 className="text-2xl font-bold text-brand-ink mb-6">רווחיות פנימית</h1>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">אירועים פעילים</h2>
+      <div className="rounded-2xl border border-brand-line bg-white shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-brand-line">
+          <h2 className="font-semibold text-brand-ink">אירועים פעילים</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-gray-500 text-xs">
+              <tr className="bg-brand-cream/60 text-brand-muted text-xs">
                 <th className="text-right px-4 py-3 font-medium">לקוח</th>
                 <th className="text-right px-4 py-3 font-medium">תאריך</th>
                 <th className="text-right px-4 py-3 font-medium">סטטוס</th>
@@ -47,7 +47,7 @@ export default async function AdminPage() {
                 <th className="text-right px-4 py-3 font-medium">בסקטות</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-brand-line">
               {leads.map((lead) => {
                 const totalPrice = lead.quote?.totalPrice ?? 0
                 const logisticsCost = lead.location?.travelCostNis ?? 0
@@ -58,23 +58,23 @@ export default async function AdminPage() {
                 )
 
                 return (
-                  <tr key={lead.id} className={profitability.isWarning ? 'bg-red-50' : 'hover:bg-gray-50'}>
+                  <tr key={lead.id} className={profitability.isWarning ? 'bg-brand-maroon/5' : 'hover:bg-brand-cream/60'}>
                     <td className="px-4 py-3">
-                      <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-brand-maroon-dark">
+                      <Link href={`/leads/${lead.id}`} className="font-medium text-brand-ink hover:text-brand-maroon-dark">
                         {lead.clientName}
                       </Link>
-                      <div className="text-xs text-gray-400">{lead.location?.cityName}</div>
+                      <div className="text-xs text-brand-muted">{lead.location?.cityName}</div>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{formatDate(lead.eventDate)}</td>
+                    <td className="px-4 py-3 text-brand-muted">{formatDate(lead.eventDate)}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${LEAD_STATUS_COLORS[lead.status as LeadStatus]}`}>
                         {LEAD_STATUS_LABELS[lead.status as LeadStatus]}
                       </span>
                     </td>
                     <td className="px-4 py-3 font-medium">{formatNIS(totalPrice)}</td>
-                    <td className="px-4 py-3 text-gray-600">{formatNIS(profitability.totalCost)}</td>
+                    <td className="px-4 py-3 text-brand-muted">{formatNIS(profitability.totalCost)}</td>
                     <td className="px-4 py-3">
-                      <span className={`font-semibold ${profitability.isWarning ? 'text-red-600' : 'text-green-700'}`}>
+                      <span className={`font-semibold ${profitability.isWarning ? 'text-brand-maroon' : 'text-[#4A6B41]'}`}>
                         {profitability.isWarning && '⚠️ '}
                         {formatNIS(profitability.netProfit)}
                       </span>
@@ -85,7 +85,7 @@ export default async function AdminPage() {
               })}
               {leads.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-400">אין אירועים פעילים</td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-brand-muted">אין אירועים פעילים</td>
                 </tr>
               )}
             </tbody>

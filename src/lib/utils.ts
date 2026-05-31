@@ -2,7 +2,8 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
 
-export function formatDate(dateStr: string): string {
+export function formatDate(date: string | Date): string {
+  const dateStr = typeof date === 'string' ? date : date.toISOString().slice(0, 10)
   const [year, month, day] = dateStr.split('-')
   return `${day}/${month}/${year}`
 }

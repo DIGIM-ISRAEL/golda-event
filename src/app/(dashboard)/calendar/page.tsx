@@ -77,7 +77,7 @@ export default async function CalendarPage({
     <div className="p-4 h-full flex flex-col gap-3" dir="rtl">
       {/* כותרת */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">לוח שנה</h1>
+        <h1 className="text-2xl font-bold text-brand-ink">לוח שנה</h1>
         <div className="flex items-center gap-2">
           {currentMonthStr !== nowMonthStr && (
             <Link
@@ -89,17 +89,17 @@ export default async function CalendarPage({
           )}
           <Link
             href={`/calendar?month=${prevMonth}`}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+            className="p-2 rounded-lg hover:bg-brand-cream/60 text-brand-muted transition-colors"
             title="חודש קודם"
           >
             <ChevronRight size={20} />
           </Link>
-          <span className="text-base font-bold text-gray-900 min-w-[130px] text-center">
+          <span className="text-base font-bold text-brand-ink min-w-[130px] text-center">
             {HEBREW_MONTHS[month]} {year}
           </span>
           <Link
             href={`/calendar?month=${nextMonth}`}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+            className="p-2 rounded-lg hover:bg-brand-cream/60 text-brand-muted transition-colors"
             title="חודש הבא"
           >
             <ChevronLeft size={20} />
@@ -115,14 +115,14 @@ export default async function CalendarPage({
       </div>
 
       {/* לוח שנה */}
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+      <div className="flex-1 bg-white rounded-2xl border border-brand-line shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] overflow-hidden flex flex-col">
         {/* כותרות ימים */}
-        <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+        <div className="grid grid-cols-7 border-b border-brand-line bg-brand-cream/60">
           {HEBREW_DAYS_SHORT.map((day, i) => (
             <div
               key={day}
               className={`py-2.5 text-center text-xs font-bold tracking-wide ${
-                i === 5 || i === 6 ? 'text-brand-gold' : 'text-gray-500'
+                i === 5 || i === 6 ? 'text-brand-gold' : 'text-brand-muted'
               }`}
             >
               {day}
@@ -138,7 +138,7 @@ export default async function CalendarPage({
           {Array.from({ length: cells.length / 7 }, (_, weekIdx) => (
             <div
               key={weekIdx}
-              className="grid grid-cols-7 border-b border-gray-100 last:border-b-0"
+              className="grid grid-cols-7 border-b border-brand-line last:border-b-0"
             >
               {cells.slice(weekIdx * 7, weekIdx * 7 + 7).map((day, dayIdx) => {
                 const dateStr = day
@@ -151,8 +151,8 @@ export default async function CalendarPage({
                 return (
                   <div
                     key={dayIdx}
-                    className={`p-1.5 border-l border-gray-100 first:border-l-0 overflow-hidden ${
-                      !day ? 'bg-gray-50/80' : ''
+                    className={`p-1.5 border-l border-brand-line first:border-l-0 overflow-hidden ${
+                      !day ? 'bg-brand-cream/60' : ''
                     } ${isWeekend && day ? 'bg-brand-mint/20' : ''}`}
                   >
                     {day && (
@@ -163,7 +163,7 @@ export default async function CalendarPage({
                             className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium ${
                               isToday
                                 ? 'bg-brand-maroon text-white shadow-sm'
-                                : 'text-gray-700'
+                                : 'text-brand-ink'
                             }`}
                           >
                             {day}
@@ -202,7 +202,7 @@ export default async function CalendarPage({
 
       {/* מקרא */}
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs text-gray-400 font-medium">סטטוסים:</span>
+        <span className="text-xs text-brand-muted font-medium">סטטוסים:</span>
         {Object.entries(LEAD_STATUS_LABELS)
           .filter(([s]) => s !== 'canceled')
           .map(([status, label]) => (

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Check, ChevronRight } from 'lucide-react'
+import { Check, ChevronRight, ListChecks } from 'lucide-react'
 import { CHECKLIST_ITEMS, CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
+import { cn } from '@/lib/utils'
 
 interface Props {
   leadId: string
@@ -22,9 +23,6 @@ export default function EventChecklist({
   const [expanded, setExpanded] = useState(true)
 
   const groups = groupedItems()
-  const totalItems = CHECKLIST_ITEMS.length + 1 // +1 for basketas (computed)
-  const checkedCount =
-    checked.size + (checked.has('__basketas__') ? 0 : 0)
 
   // Special "basketas" item is also tracked
   const basketasChecked = checked.has('__basketas__')
@@ -62,39 +60,40 @@ export default function EventChecklist({
   const progress = Math.round((allCheckedCount / totalWithComputed) * 100)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-brand-line shadow-[0_1px_2px_rgba(93,42,49,0.04),0_12px_32px_-22px_rgba(93,42,49,0.22)] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className="w-full px-5 py-4 flex items-center justify-between hover:bg-brand-cream/50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <h2 className="font-semibold text-gray-900">📋 רשימת הכנה לאירוע</h2>
-          <span className="text-sm text-gray-500">
+          <h2 className="flex items-center gap-2 font-serif text-[15px] font-semibold text-brand-ink">
+            <ListChecks size={16} className="text-brand-gold" />
+            רשימת הכנה לאירוע
+          </h2>
+          <span className="text-sm text-brand-muted">
             {allCheckedCount}/{totalWithComputed}
           </span>
-          {pending && <span className="text-xs text-brand-gold">שומר...</span>}
+          {pending && <span className="text-xs text-brand-gold">שומר…</span>}
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-24 h-2 bg-brand-line/60 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500 transition-all duration-300"
+              className="h-full bg-[#86A86F] transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
           <ChevronRight
             size={20}
-            className={`text-gray-400 transition-transform ${
-              expanded ? 'rotate-90' : ''
-            }`}
+            className={cn('text-brand-muted/60 transition-transform', expanded && 'rotate-90')}
           />
         </div>
       </button>
 
       {expanded && (
-        <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
+        <div className="px-5 pb-5 space-y-4 border-t border-brand-line/70 pt-4">
           {/* פריטים מחושבים — בסקטות וטעמים */}
           <div>
-            <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">
+            <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wide mb-2">
               מלאי לפי האירוע
             </h3>
             <div className="space-y-1.5">
@@ -103,10 +102,8 @@ export default function EventChecklist({
                 onToggle={() => toggle('__basketas__')}
                 label={
                   <span>
-                    <span className="font-bold text-brand-maroon-dark">
-                      {basketasRequired} בסקטות
-                    </span>
-                    <span className="text-gray-500 text-xs mr-2">
+                    <span className="font-bold text-brand-maroon">{basketasRequired} בסקטות</span>
+                    <span className="text-brand-muted text-xs mr-2">
                       ({basketasRequired * 4.5} ק&quot;ג גלידה)
                     </span>
                   </span>
@@ -117,11 +114,9 @@ export default function EventChecklist({
                 onToggle={() => toggle('__flavors__')}
                 label={
                   <span>
-                    <span className="font-medium">
-                      {flavors.length} טעמים נבחרים
-                    </span>
+                    <span className="font-medium">{flavors.length} טעמים נבחרים</span>
                     {flavors.length > 0 && (
-                      <span className="text-gray-500 text-xs mr-2 block">
+                      <span className="text-brand-muted text-xs mr-2 block">
                         {flavors.map((f) => f.name).join(' · ')}
                       </span>
                     )}
@@ -134,7 +129,7 @@ export default function EventChecklist({
           {/* פריטים לפי קטגוריה */}
           {Object.entries(groups).map(([category, items]) => (
             <div key={category}>
-              <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">
+              <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wide mb-2">
                 {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
               </h3>
               <div className="space-y-1.5">
@@ -167,23 +162,21 @@ function ChecklistRow({
   return (
     <button
       onClick={onToggle}
-      className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-lg text-right transition-colors ${
-        checked ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50'
-      }`}
+      className={cn(
+        'w-full flex items-center gap-3 px-2 py-1.5 rounded-lg text-right transition-colors',
+        checked ? 'bg-[#EAF1E3] hover:bg-[#E1EBD8]' : 'hover:bg-brand-cream/60',
+      )}
     >
       <div
-        className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-          checked
-            ? 'bg-green-500 border-green-500'
-            : 'border-gray-300 bg-white'
-        }`}
+        className={cn(
+          'w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors',
+          checked ? 'bg-[#6E9A5B] border-[#6E9A5B]' : 'border-brand-line bg-white',
+        )}
       >
         {checked && <Check size={14} className="text-white" strokeWidth={3} />}
       </div>
       <div
-        className={`text-sm flex-1 ${
-          checked ? 'text-gray-500 line-through' : 'text-gray-900'
-        }`}
+        className={cn('text-sm flex-1', checked ? 'text-brand-muted line-through' : 'text-brand-ink')}
       >
         {label}
       </div>

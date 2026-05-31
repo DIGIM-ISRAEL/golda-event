@@ -3,28 +3,48 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, LogOut } from 'lucide-react'
+import {
+  Menu,
+  X,
+  LogOut,
+  LayoutDashboard,
+  ClipboardList,
+  CalendarDays,
+  IceCream,
+  MapPin,
+  Wallet,
+  Users,
+  Settings,
+  type LucideIcon,
+} from 'lucide-react'
 import type { Role } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import PalmLogo from '@/components/brand/PalmLogo'
+import GoldaLockup from '@/components/brand/GoldaLockup'
+import StripeBar from '@/components/brand/StripeBar'
 
 interface SidebarProps {
   role: Role
   userName: string
 }
 
-const navItems = [
-  { href: '/dashboard', label: 'לוח בקרה', icon: '📊' },
-  { href: '/leads', label: 'לידים', icon: '📋' },
-  { href: '/calendar', label: 'לוח שנה', icon: '📅' },
-  { href: '/flavors', label: 'טעמים', icon: '🍦' },
-  { href: '/locations', label: 'מיקומים', icon: '📍' },
+interface NavItem {
+  href: string
+  label: string
+  icon: LucideIcon
+}
+
+const navItems: NavItem[] = [
+  { href: '/dashboard', label: 'לוח בקרה', icon: LayoutDashboard },
+  { href: '/leads', label: 'לידים', icon: ClipboardList },
+  { href: '/calendar', label: 'לוח שנה', icon: CalendarDays },
+  { href: '/flavors', label: 'טעמים', icon: IceCream },
+  { href: '/locations', label: 'מיקומים', icon: MapPin },
 ]
 
-const adminItems = [
-  { href: '/admin', label: 'רווחיות', icon: '💰' },
-  { href: '/admin/users', label: 'משתמשים', icon: '👥' },
-  { href: '/admin/settings', label: 'הגדרות', icon: '⚙️' },
+const adminItems: NavItem[] = [
+  { href: '/admin', label: 'רווחיות', icon: Wallet },
+  { href: '/admin/users', label: 'משתמשים', icon: Users },
+  { href: '/admin/settings', label: 'הגדרות', icon: Settings },
 ]
 
 export default function Sidebar({ role, userName }: SidebarProps) {
@@ -38,19 +58,30 @@ export default function Sidebar({ role, userName }: SidebarProps) {
     router.refresh()
   }
 
-  function renderNavLink(item: { href: string; label: string; icon: string }) {
+  function renderNavLink(item: NavItem) {
     const active = pathname === item.href || pathname.startsWith(item.href + '/')
+    const Icon = item.icon
     return (
       <Link
         key={item.href}
         href={item.href}
         onClick={() => setMobileOpen(false)}
         className={cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-          active ? 'bg-brand-mint text-brand-maroon' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+          'group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-colors',
+          active
+            ? 'bg-white/[0.10] text-brand-cream font-semibold'
+            : 'text-brand-cream/70 hover:bg-white/[0.06] hover:text-brand-cream font-medium',
         )}
       >
-        <span>{item.icon}</span>
+        {/* מחוון פעיל — פס זהב בקצה הפנימי (שמאל ב-RTL) */}
+        {active && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-full bg-brand-gold" aria-hidden />
+        )}
+        <Icon
+          size={18}
+          strokeWidth={2}
+          className={cn('shrink-0 transition-colors', active ? 'text-brand-gold' : 'text-brand-cream/55 group-hover:text-brand-gold/80')}
+        />
         <span>{item.label}</span>
       </Link>
     )
@@ -59,77 +90,81 @@ export default function Sidebar({ role, userName }: SidebarProps) {
   return (
     <>
       {/* סרגל עליון למובייל */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4">
+      <div className="md:hidden fixed top-0 inset-x-0 z-30 h-14 bg-brand-maroon flex items-center justify-between px-4 shadow-sm">
         <button
           onClick={() => setMobileOpen(true)}
-          className="p-2 -mr-2 text-gray-600 hover:text-gray-900"
+          className="p-2 -mr-2 text-brand-cream/80 hover:text-brand-cream"
           aria-label="פתח תפריט"
         >
           <Menu size={22} />
         </button>
-        <div className="flex items-center gap-2">
-          <span className="font-serif font-bold text-brand-gold text-lg tracking-widest">GOLDA</span>
-          <span className="text-brand-gold"><PalmLogo size={26} /></span>
-        </div>
+        <GoldaLockup size={30} badge />
       </div>
 
       {/* רקע כהה מאחורי ה-drawer במובייל */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/40 z-40"
+          className="md:hidden fixed inset-0 bg-brand-ink/50 backdrop-blur-[2px] z-40"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* סרגל צד — קבוע בדסקטופ, נשלף במובייל */}
+      {/* סרגל צד — בורדו פרימיום, קבוע בדסקטופ ונשלף במובייל */}
       <aside
         className={cn(
-          'bg-white border-l border-gray-200 flex flex-col z-50',
-          'md:w-60 md:sticky md:top-0 md:h-screen md:translate-x-0',
-          'fixed top-0 bottom-0 right-0 w-64 transition-transform duration-300 ease-in-out',
+          'bg-brand-maroon flex flex-col z-50 overflow-hidden',
+          'md:w-64 md:sticky md:top-0 md:h-screen md:translate-x-0',
+          'fixed top-0 bottom-0 right-0 w-72 transition-transform duration-300 ease-in-out',
           mobileOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0',
         )}
       >
-        <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-brand-gold shrink-0"><PalmLogo size={36} /></span>
-            <div>
-              <div className="font-serif font-bold text-brand-gold text-lg tracking-widest leading-none">GOLDA</div>
-              <div className="text-[10px] text-brand-gold/60 tracking-wider mt-1">מערכת ניהול</div>
-            </div>
-          </div>
-          {/* כפתור סגירה — מובייל בלבד */}
+        {/* פס פסים — חתימת המותג */}
+        <StripeBar height={4} />
+
+        {/* לוגו */}
+        <div className="px-6 pt-7 pb-6 flex items-center justify-between">
+          <GoldaLockup size={56} badge />
           <button
             onClick={() => setMobileOpen(false)}
-            className="md:hidden p-1 text-gray-400 hover:text-gray-600"
+            className="md:hidden p-1 text-brand-cream/50 hover:text-brand-cream absolute top-5 left-4"
             aria-label="סגור תפריט"
           >
             <X size={20} />
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <div className="mx-6 mb-4 h-px bg-brand-gold/20" />
+
+        <nav className="flex-1 px-3 overflow-y-auto">
           <div className="space-y-1">{navItems.map(renderNavLink)}</div>
 
           {role === 'admin' && (
-            <div className="mt-6">
-              <div className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">ניהול</div>
+            <div className="mt-7">
+              <div className="px-3.5 mb-2 text-[10px] font-semibold text-brand-gold/60 uppercase tracking-[0.18em]">
+                ניהול
+              </div>
               <div className="space-y-1">{adminItems.map(renderNavLink)}</div>
             </div>
           )}
         </nav>
 
-        <div className="px-3 py-4 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50">
-            <div className="w-8 h-8 bg-brand-mint rounded-full flex items-center justify-center shrink-0">
-              <span className="text-brand-maroon text-xs font-bold">{userName.charAt(0)}</span>
+        {/* כרטיס משתמש */}
+        <div className="p-3">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.06] border border-brand-gold/15">
+            <div className="w-9 h-9 rounded-full bg-brand-gold/90 flex items-center justify-center shrink-0">
+              <span className="text-brand-maroon-dark text-sm font-bold">{userName.charAt(0)}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">{userName}</div>
-              <div className="text-xs text-gray-500">{role === 'admin' ? 'מנהל' : 'איש מכירות'}</div>
+              <div className="text-sm font-semibold text-brand-cream truncate">{userName}</div>
+              <div className="text-[11px] text-brand-cream/55">{role === 'admin' ? 'מנהל' : 'איש מכירות'}</div>
             </div>
-            <button onClick={handleLogout} className="text-gray-400 hover:text-gray-600" title="יציאה">
-              <LogOut size={16} />
+            <button
+              onClick={handleLogout}
+              className="text-brand-cream/50 hover:text-brand-cream transition-colors p-1"
+              title="יציאה"
+              aria-label="יציאה"
+            >
+              <LogOut size={17} />
             </button>
           </div>
         </div>

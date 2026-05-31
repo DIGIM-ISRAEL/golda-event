@@ -22,14 +22,14 @@ interface Props {
 }
 
 function QualityStars({ score }: { score?: number }) {
-  if (!score) return <span className="text-gray-400 text-xs">לא דורג</span>
+  if (!score) return <span className="text-brand-muted text-xs">לא דורג</span>
   const filled = Math.round((score / 10) * 5)
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={i <= filled ? 'text-yellow-400' : 'text-gray-200'}>★</span>
+        <span key={i} className={i <= filled ? 'text-brand-gold' : 'text-brand-line'}>★</span>
       ))}
-      <span className="text-xs text-gray-500 mr-1">{score}/10</span>
+      <span className="text-xs text-brand-muted mr-1">{score}/10</span>
     </div>
   )
 }
@@ -105,8 +105,8 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
   if (!canLoad) {
     return (
       <div className="p-6 max-w-3xl mx-auto" dir="rtl">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">לידים חיצוניים</h1>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-amber-800">
+        <h1 className="text-2xl font-bold text-brand-ink mb-4">לידים חיצוניים</h1>
+        <div className="bg-[#F8F0DF] border border-brand-gold/30 rounded-xl p-5 text-brand-gold-deep">
           <p className="font-semibold mb-1">לא הוגדר מספר טלפון בפרופיל שלך</p>
           <p className="text-sm">בקש ממנהל המערכת להגדיר מספר טלפון לחשבונך תחת ניהול → משתמשים.</p>
         </div>
@@ -118,8 +118,8 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
     <div className="p-6 max-w-5xl mx-auto" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">לידים חיצוניים</h1>
-          {isAdmin && <p className="text-sm text-gray-500 mt-0.5">מציג את כל הלידים (מנהל)</p>}
+          <h1 className="text-2xl font-bold text-brand-ink">לידים חיצוניים</h1>
+          {isAdmin && <p className="text-sm text-brand-muted mt-0.5">מציג את כל הלידים (מנהל)</p>}
         </div>
         <button
           onClick={fetchLeads}
@@ -131,13 +131,13 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm mb-4">{error}</div>
+        <div className="bg-brand-maroon/5 border border-brand-maroon/20 rounded-xl p-4 text-brand-maroon text-sm mb-4">{error}</div>
       )}
 
-      {loading && <div className="text-center text-gray-400 py-16">טוען לידים מ-Airtable...</div>}
+      {loading && <div className="text-center text-brand-muted py-16">טוען לידים מ-Airtable...</div>}
 
       {!loading && !error && leads.length === 0 && (
-        <div className="text-center text-gray-400 py-16">אין לידים להצגה</div>
+        <div className="text-center text-brand-muted py-16">אין לידים להצגה</div>
       )}
 
       {!loading && leads.length > 0 && (
@@ -148,25 +148,25 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
             const isCalling = callingId === lead.id
 
             return (
-              <div key={lead.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex flex-col gap-3">
+              <div key={lead.id} className="bg-white rounded-2xl border border-brand-line p-4 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] flex flex-col gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-gray-800 mb-1" dir="ltr">
+                  <div className="text-sm font-semibold text-brand-ink mb-1" dir="ltr">
                     {f.phone_number ?? '—'}
                   </div>
                   {isAdmin && f.phone_my_user && (
-                    <div className="text-xs text-gray-400" dir="ltr">נציג: {f.phone_my_user}</div>
+                    <div className="text-xs text-brand-muted" dir="ltr">נציג: {f.phone_my_user}</div>
                   )}
                   <QualityStars score={f['Lead Quality Score']} />
                 </div>
 
                 {f['Call Summary'] && (
-                  <div className="text-xs text-gray-600 bg-gray-50 rounded-lg p-2 leading-relaxed max-h-20 overflow-y-auto">
+                  <div className="text-xs text-brand-muted bg-brand-cream/60 rounded-lg p-2 leading-relaxed max-h-20 overflow-y-auto">
                     {f['Call Summary']}
                   </div>
                 )}
 
                 {callResult && (
-                  <div className={`text-xs rounded-lg px-3 py-2 ${callResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  <div className={`text-xs rounded-lg px-3 py-2 ${callResult.success ? 'bg-[#E7EDE4] text-[#4A6B41]' : 'bg-brand-maroon/5 text-brand-maroon'}`}>
                     {callResult.success ? '✓ חיוג יצא בהצלחה' : `✗ ${callResult.error}`}
                   </div>
                 )}

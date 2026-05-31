@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import PalmLogo from '@/components/brand/PalmLogo'
+import GoldaLockup from '@/components/brand/GoldaLockup'
+import StripeBar from '@/components/brand/StripeBar'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -34,58 +35,67 @@ export default function LoginPage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-brand-mint to-brand-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-brand-tan/40">
-        <div className="text-center mb-8">
-          <div className="text-brand-gold flex justify-center mb-2">
-            <PalmLogo size={56} />
+    <div dir="rtl" className="brand-aurora relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+      <div className="relative w-full max-w-md">
+        <div className="brand-card overflow-hidden">
+          <StripeBar height={6} />
+          <div className="px-8 pt-10 pb-9">
+            <div className="flex flex-col items-center">
+              <GoldaLockup size={120} tagline />
+              <div className="mt-6 flex items-center gap-3 w-full max-w-[14rem]">
+                <span className="h-px flex-1 bg-brand-line" />
+                <span className="text-[11px] tracking-[0.25em] text-brand-muted whitespace-nowrap">מערכת ניהול פנימית</span>
+                <span className="h-px flex-1 bg-brand-line" />
+              </div>
+            </div>
+
+            <form onSubmit={handleLogin} className="mt-8 space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-brand-ink mb-1.5">אימייל</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  dir="ltr"
+                  className="w-full rounded-xl border border-brand-line bg-white px-4 py-3 text-sm text-brand-ink placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 transition"
+                  placeholder="example@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-ink mb-1.5">סיסמה</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  dir="ltr"
+                  className="w-full rounded-xl border border-brand-line bg-white px-4 py-3 text-sm text-brand-ink placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 transition"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {error && (
+                <div className="rounded-xl bg-brand-peach/25 border border-brand-peach/60 text-brand-maroon px-4 py-3 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-brand-maroon text-brand-cream py-3.5 font-semibold text-sm tracking-wide hover:bg-brand-maroon-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+              >
+                {loading ? 'מתחבר…' : 'כניסה למערכת'}
+              </button>
+            </form>
           </div>
-          <h1 className="font-serif text-4xl font-bold text-brand-gold tracking-[0.2em] mr-[0.2em]">GOLDA</h1>
-          <p className="text-brand-gold/70 text-[10px] tracking-[0.25em] mt-1">WE MAKE FABULOUS GELATO</p>
-          <p className="text-brand-maroon mt-4 text-sm font-medium">מערכת ניהול פנימית</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-brand-maroon mb-1">אימייל</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
-              placeholder="example@email.com"
-              dir="ltr"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-brand-maroon mb-1">סיסמה</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
-              placeholder="••••••••"
-              dir="ltr"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-brand-maroon text-white rounded-lg py-3 font-semibold text-sm hover:bg-brand-maroon-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'מתחבר...' : 'כניסה למערכת'}
-          </button>
-        </form>
+        <p className="text-center text-[11px] text-brand-muted/80 mt-5 tracking-[0.15em]">
+          גלידה ישראלית · גולדה אירועים
+        </p>
       </div>
     </div>
   )

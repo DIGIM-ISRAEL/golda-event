@@ -15,7 +15,7 @@ export default async function LocationsPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">ניהול מיקומים</h1>
+      <h1 className="text-2xl font-bold text-brand-ink mb-6">ניהול מיקומים</h1>
       <LocationManager locations={locationsForClient} role={session.role} />
     </div>
   )

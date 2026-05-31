@@ -1,25 +1,45 @@
 @import "tailwindcss";
 
-/* פלטת צבעי המותג של גולדה — נדגמה מספר המותג */
+/* ============================================================
+   פלטת צבעי המותג של גולדה — ערכים רשמיים (Pantone)
+   ============================================================ */
 @theme {
-  --color-brand-gold: #84764F;
-  --color-brand-olive: #B0A97D;
-  --color-brand-peach: #E7B9A9;
-  --color-brand-tan: #DDC8B7;
-  --color-brand-mint: #D0E1D7;
-  --color-brand-maroon: #5C2A2B;
-  --color-brand-maroon-dark: #46201F;
-  --color-brand-cream: #F5F0E8;
-  --color-brand-magenta: #C82FBF;
+  /* זהב — הצבע החתימה של המותג */
+  --color-brand-gold: #C0A058;        /* 871 C */
+  --color-brand-gold-deep: #8A6E3C;   /* זהב כהה לטקסט */
+  --color-brand-olive: #CDBF93;       /* 452 C — זהב חיוור */
+  --color-brand-pale-gold: #CDBF93;
 
+  /* פסטלים ראשיים */
+  --color-brand-peach: #EBC7B1;       /* 7415 C — בלאש */
+  --color-brand-blush: #EBC7B1;
+  --color-brand-tan: #E6D8C0;         /* 482 C — חול */
+  --color-brand-sand: #E6D8C0;
+  --color-brand-mint: #D8E7DD;        /* 621 C — מנטה */
+
+  /* עומק ופופ */
+  --color-brand-maroon: #5E2A33;      /* 490 C — בורדו */
+  --color-brand-burgundy: #5E2A33;
+  --color-brand-maroon-dark: #48202A;
+  --color-brand-magenta: #2F4634;     /* Real Purple C */
+  --color-brand-green: #41D12A;       /* 802 C */
+
+  /* נייטרליים חמים */
+  --color-brand-cream: #FAF4E9;
+  --color-brand-paper: #FFFFFF;
+  --color-brand-ink: #33262B;
+  --color-brand-muted: #90817B;
+  --color-brand-line: #ECE2D2;
+
+  /* גופנים */
+  --font-sans: 'Assistant', 'Heebo', Arial, sans-serif;
   --font-serif: 'Frank Ruhl Libre', Georgia, serif;
+  --font-display: 'EB Garamond', 'Frank Ruhl Libre', Georgia, serif;
 }
 
 :root {
-  --background: #F5F0E8;
-  --foreground: #3A2E2E;
-  --primary: #5C2A2B;
-  --primary-dark: #46201F;
+  --background: #FAF4E9;
+  --foreground: #33262B;
 }
 
 * {
@@ -33,28 +53,87 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Assistant', Arial, Helvetica, sans-serif;
+  font-family: 'Assistant', 'Heebo', Arial, Helvetica, sans-serif;
+  font-weight: 400;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* כותרות בגופן המותג */
-h1, h2, h3 {
+/* כותרות בגופן הסריף של המותג */
+h1, h2, h3, h4 {
   font-family: 'Frank Ruhl Libre', Georgia, serif;
+  color: #2E2422;
+  letter-spacing: -0.01em;
 }
 
-/* RTL overrides */
+/* ה-wordmark הלטיני GOLDA */
+.font-display {
+  font-family: 'EB Garamond', 'Frank Ruhl Libre', Georgia, serif;
+}
+
+/* RTL — יישור שדות לימין */
 input, textarea, select {
   text-align: right;
 }
+input[dir="ltr"], textarea[dir="ltr"] {
+  text-align: left;
+}
 
-/* Scrollbar */
+/* ============================================================
+   מוטיב הפסים של גולדה — פס אנכי רב-גוני חוזר (חתימה ויזואלית)
+   ============================================================ */
+.golda-stripes {
+  background-image: repeating-linear-gradient(
+    90deg,
+    #EBC7B1 0px 5px,
+    #E6D8C0 5px 11px,
+    #C0A058 11px 15px,
+    #D8E7DD 15px 24px,
+    #2F4634 24px 28px,
+    #5E2A33 28px 33px,
+    #CDBF93 33px 41px,
+    #CFA5B2 41px 47px,
+    #FAF4E9 47px 51px
+  );
+}
+
+/* רקע "זוהר" פסטלי אווירירי — חלופה זולה ל-blur כבד */
+.brand-aurora {
+  background-color: #FAF4E9;
+  background-image:
+    radial-gradient(42rem 30rem at 88% -8%, rgba(211, 228, 221, 0.6), transparent 70%),
+    radial-gradient(38rem 30rem at -8% 108%, rgba(230, 184, 168, 0.42), transparent 70%);
+}
+
+/* כרטיס בסיסי של המותג */
+.brand-card {
+  background: #FFFFFF;
+  border: 1px solid var(--color-brand-line);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(93, 42, 49, 0.04), 0 8px 24px -16px rgba(93, 42, 49, 0.18);
+}
+
+/* בחירת טקסט בגוון המותג */
+::selection {
+  background: #EBC7B1;
+  color: #48202A;
+}
+
+/* פס גלילה עדין בגוון זהב */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #EDE6DA;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C9BBA6;
-  border-radius: 3px;
+  background: #E6D8C0;
+  border-radius: 99px;
+  border: 2px solid var(--background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #CDBF93;
 }

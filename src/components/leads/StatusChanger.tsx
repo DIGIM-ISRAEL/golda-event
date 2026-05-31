@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Check } from 'lucide-react'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/lib/constants'
+import { cn } from '@/lib/utils'
+import { Card, CardHeader } from '@/components/ui'
 import type { LeadStatus } from '@/lib/types'
 
 const STATUS_FLOW: LeadStatus[] = ['lead', 'quote_sent', 'closed', 'done', 'canceled']
@@ -35,33 +38,37 @@ export default function StatusChanger({ leadId, currentStatus }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-900 text-sm">עדכון סטטוס</h3>
-        {loading && <span className="text-xs text-brand-gold">מעדכן...</span>}
-      </div>
-      <div className="space-y-2">
-        {STATUS_FLOW.map((status) => (
-          <button
-            key={status}
-            onClick={() => changeStatus(status)}
-            disabled={loading || status === currentStatus}
-            className={`w-full text-right px-3 py-2.5 rounded-lg text-sm font-medium transition-colors border ${
-              status === currentStatus
-                ? `${LEAD_STATUS_COLORS[status]} border-transparent cursor-default`
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            {status === currentStatus && '✓ '}
-            {LEAD_STATUS_LABELS[status]}
-          </button>
-        ))}
+    <Card>
+      <CardHeader
+        title="עדכון סטטוס"
+        action={loading ? <span className="text-xs text-brand-gold">מעדכן…</span> : undefined}
+      />
+      <div className="p-4 space-y-2">
+        {STATUS_FLOW.map((status) => {
+          const isCurrent = status === currentStatus
+          return (
+            <button
+              key={status}
+              onClick={() => changeStatus(status)}
+              disabled={loading || isCurrent}
+              className={cn(
+                'w-full flex items-center gap-2 text-right px-3 py-2.5 rounded-xl text-sm font-medium border transition-colors',
+                isCurrent
+                  ? `${LEAD_STATUS_COLORS[status]} border-transparent cursor-default`
+                  : 'bg-white text-brand-muted border-brand-line hover:bg-brand-cream/60 hover:text-brand-ink',
+              )}
+            >
+              {isCurrent && <Check size={15} strokeWidth={3} className="shrink-0" />}
+              {LEAD_STATUS_LABELS[status]}
+            </button>
+          )
+        })}
       </div>
       {error && (
-        <div className="mt-3 text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">
+        <div className="mx-4 mb-4 text-xs text-brand-maroon bg-brand-maroon/5 border border-brand-maroon/15 rounded-lg px-3 py-2">
           {error}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

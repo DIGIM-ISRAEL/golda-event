@@ -6,12 +6,22 @@ export const LEAD_STATUS_LABELS: Record<string, string> = {
   canceled: 'בוטל',
 }
 
+// גווני סטטוס בשפת המותג — פסטלים חמים, עדינים וקריאים (לא צבעי ברירת־מחדל של Tailwind)
 export const LEAD_STATUS_COLORS: Record<string, string> = {
-  lead: 'bg-blue-100 text-blue-800',
-  quote_sent: 'bg-yellow-100 text-yellow-800',
-  closed: 'bg-green-100 text-green-800',
-  done: 'bg-gray-100 text-gray-800',
-  canceled: 'bg-red-100 text-red-800',
+  lead: 'bg-[#DCEAE3] text-[#4A6A5C]',        // מנטה — ליד טרי
+  quote_sent: 'bg-[#F2EBD7] text-[#6F6440]',  // זהב חיוור — ממתין
+  closed: 'bg-[#E2EEDD] text-[#436B36]',      // ירוק רך — נסגר/שמור
+  done: 'bg-[#ECE5D8] text-[#8A7F72]',        // חול — בוצע/ארכיון
+  canceled: 'bg-[#F2DED6] text-[#8A4A45]',    // אפרסק־ורוד — בוטל
+}
+
+// נקודת צבע אחידה לכל סטטוס (לשימוש במונים/מקראות)
+export const LEAD_STATUS_DOTS: Record<string, string> = {
+  lead: 'bg-[#8FB3A3]',
+  quote_sent: 'bg-brand-gold',
+  closed: 'bg-[#6B9A5B]',
+  done: 'bg-brand-sand',
+  canceled: 'bg-brand-peach',
 }
 
 export const CLIENT_TYPE_LABELS: Record<string, string> = {

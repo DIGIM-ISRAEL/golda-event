@@ -108,7 +108,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
   return (
     <div className="p-6 max-w-4xl mx-auto" dir="rtl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">ניהול משתמשים</h1>
+        <h1 className="text-2xl font-bold text-brand-ink">ניהול משתמשים</h1>
         <button
           onClick={openNew}
           className="bg-brand-maroon text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-maroon-dark transition-colors"
@@ -117,32 +117,32 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="rounded-2xl border border-brand-line bg-white shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-brand-cream/60 border-b border-brand-line">
             <tr>
-              <th className="text-right px-4 py-3 font-semibold text-gray-700">שם</th>
-              <th className="text-right px-4 py-3 font-semibold text-gray-700">מייל</th>
-              <th className="text-right px-4 py-3 font-semibold text-gray-700">טלפון</th>
-              <th className="text-right px-4 py-3 font-semibold text-gray-700">תפקיד</th>
+              <th className="text-right px-4 py-3 font-semibold text-brand-ink">שם</th>
+              <th className="text-right px-4 py-3 font-semibold text-brand-ink">מייל</th>
+              <th className="text-right px-4 py-3 font-semibold text-brand-ink">טלפון</th>
+              <th className="text-right px-4 py-3 font-semibold text-brand-ink">תפקיד</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-brand-line">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-900">
+              <tr key={user.id} className="hover:bg-brand-cream/60">
+                <td className="px-4 py-3 font-medium text-brand-ink">
                   {user.fullName}
                   {user.id === currentUserId && (
                     <span className="mr-2 text-xs text-brand-maroon bg-brand-mint px-1.5 py-0.5 rounded">אתה</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                <td className="px-4 py-3 text-gray-600 dir-ltr text-left">{user.phoneNumber || '—'}</td>
+                <td className="px-4 py-3 text-brand-muted">{user.email}</td>
+                <td className="px-4 py-3 text-brand-muted dir-ltr text-left">{user.phoneNumber || '—'}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+                      user.role === 'admin' ? 'bg-brand-maroon/10 text-brand-maroon' : 'bg-brand-cream text-brand-muted'
                     }`}
                   >
                     {ROLE_LABELS[user.role]}
@@ -159,7 +159,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                     {user.id !== currentUserId && (
                       <button
                         onClick={() => handleDelete(user)}
-                        className="text-xs text-red-500 hover:underline"
+                        className="text-xs text-brand-maroon hover:underline"
                       >
                         מחיקה
                       </button>
@@ -174,37 +174,37 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" dir="rtl">
-            <h2 className="text-lg font-bold text-gray-900 mb-5">
+          <div className="rounded-2xl border border-brand-line bg-white p-6 w-full max-w-md shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]" dir="rtl">
+            <h2 className="text-lg font-bold text-brand-ink mb-5">
               {editing ? 'עריכת משתמש' : 'משתמש חדש'}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">שם מלא *</label>
+                <label className="block text-sm font-medium text-brand-ink mb-1">שם מלא *</label>
                 <input
                   type="text"
                   required
                   value={form.fullName}
                   onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">מייל *</label>
+                <label className="block text-sm font-medium text-brand-ink mb-1">מייל *</label>
                 <input
                   type="email"
                   required
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
                   dir="ltr"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-brand-ink mb-1">
                   סיסמה {editing ? '(השאר ריק לאי-שינוי)' : '*'}
                 </label>
                 <input
@@ -212,13 +212,13 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   required={!editing}
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
                   dir="ltr"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-brand-ink mb-1">
                   מספר טלפון (לחיוג לידים)
                 </label>
                 <input
@@ -226,25 +226,25 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                   value={form.phoneNumber}
                   onChange={(e) => setForm((f) => ({ ...f, phoneNumber: e.target.value }))}
                   placeholder="972501234567"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
                   dir="ltr"
                 />
-                <p className="text-xs text-gray-500 mt-1">פורמט בינלאומי ללא + (לדוגמה: 972501234567)</p>
+                <p className="text-xs text-brand-muted mt-1">פורמט בינלאומי ללא + (לדוגמה: 972501234567)</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">תפקיד</label>
+                <label className="block text-sm font-medium text-brand-ink mb-1">תפקיד</label>
                 <select
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as 'admin' | 'sales' }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
                 >
                   <option value="sales">איש מכירות</option>
                   <option value="admin">מנהל</option>
                 </select>
               </div>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-brand-maroon">{error}</p>}
 
               <div className="flex gap-3 pt-2">
                 <button
@@ -257,7 +257,7 @@ export default function UsersClient({ initialUsers, currentUserId }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                  className="flex-1 bg-brand-cream text-brand-ink py-2 rounded-lg text-sm font-medium hover:bg-brand-cream/60 transition-colors"
                 >
                   ביטול
                 </button>

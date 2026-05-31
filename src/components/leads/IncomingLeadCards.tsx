@@ -23,9 +23,9 @@ function QualityStars({ score }: { score?: number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={i <= filled ? 'text-yellow-400 text-xs' : 'text-gray-200 text-xs'}>★</span>
+        <span key={i} className={i <= filled ? 'text-brand-gold text-xs' : 'text-brand-line text-xs'}>★</span>
       ))}
-      <span className="text-xs text-gray-500 mr-1">{score}/10</span>
+      <span className="text-xs text-brand-muted mr-1">{score}/10</span>
     </div>
   )
 }
@@ -52,43 +52,43 @@ function LeadModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6"
+        className="bg-white rounded-2xl border border-brand-line shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] w-full max-w-sm mx-4 p-6"
         dir="rtl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <div className="font-bold text-gray-900 text-lg">{name}</div>
+            <div className="font-bold text-brand-ink text-lg">{name}</div>
             <span className="text-xs font-medium bg-brand-mint text-brand-maroon-dark px-2 py-0.5 rounded-full">
               ליד נכנס
             </span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+          <button onClick={onClose} className="text-brand-muted hover:text-brand-ink text-xl leading-none">✕</button>
         </div>
 
         <div className="space-y-3 text-sm">
           {f.phone_number && (
             <div className="flex justify-between">
-              <span className="text-gray-500">טלפון</span>
+              <span className="text-brand-muted">טלפון</span>
               <span className="font-medium" dir="ltr">{f.phone_number}</span>
             </div>
           )}
           {f.phone_my_user && (
             <div className="flex justify-between">
-              <span className="text-gray-500">נציג</span>
+              <span className="text-brand-muted">נציג</span>
               <span className="font-medium" dir="ltr">{f.phone_my_user}</span>
             </div>
           )}
           {f['Lead Quality Score'] !== undefined && (
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">ציון</span>
+              <span className="text-brand-muted">ציון</span>
               <QualityStars score={f['Lead Quality Score']} />
             </div>
           )}
           {f['Call Summary'] && (
             <div>
-              <div className="text-gray-500 mb-1">סיכום שיחה</div>
-              <div className="bg-gray-50 rounded-lg p-3 text-gray-700 text-xs leading-relaxed">
+              <div className="text-brand-muted mb-1">סיכום שיחה</div>
+              <div className="bg-brand-cream/60 rounded-lg p-3 text-brand-ink text-xs leading-relaxed">
                 {f['Call Summary']}
               </div>
             </div>
@@ -98,7 +98,7 @@ function LeadModal({
         {callResult && (
           <div
             className={`mt-4 text-xs rounded-lg px-3 py-2 ${
-              callResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+              callResult.success ? 'bg-[#E7EDE4] text-[#4A6B41]' : 'bg-brand-maroon/5 text-brand-maroon'
             }`}
           >
             {callResult.success ? '✓ חיוג יצא בהצלחה' : `✗ ${callResult.error}`}
@@ -115,7 +115,7 @@ function LeadModal({
           </button>
           <a
             href={`/leads/new?name=${encodeURIComponent(f['שם מלא'] ?? '')}&phone=${encodeURIComponent(f.phone_number ?? '')}`}
-            className="flex-1 text-center bg-gray-100 text-gray-700 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-200 transition-colors"
+            className="flex-1 text-center bg-brand-cream text-brand-ink text-sm font-medium py-2.5 rounded-xl hover:bg-brand-cream/60 transition-colors"
           >
             + צור ליד
           </a>
@@ -204,17 +204,17 @@ export default function IncomingLeadCards() {
               <span className="text-xs font-semibold text-brand-maroon bg-brand-mint px-1.5 py-0.5 rounded">נכנס</span>
               {score !== undefined && <QualityStars score={score} />}
             </div>
-            <div className="font-semibold text-gray-900 text-sm">{name}</div>
+            <div className="font-semibold text-brand-ink text-sm">{name}</div>
             {f.phone_number && (
-              <div className="text-xs text-gray-400 mt-0.5" dir="ltr">{f.phone_number}</div>
+              <div className="text-xs text-brand-muted mt-0.5" dir="ltr">{f.phone_number}</div>
             )}
             {f['Call Summary'] && (
-              <div className="text-xs text-gray-500 mt-1 line-clamp-2">{f['Call Summary']}</div>
+              <div className="text-xs text-brand-muted mt-1 line-clamp-2">{f['Call Summary']}</div>
             )}
             {callResult && (
               <div
                 className={`text-xs mt-1 rounded px-1.5 py-0.5 ${
-                  callResult.success ? 'text-green-700 bg-green-50' : 'text-red-600 bg-red-50'
+                  callResult.success ? 'text-[#4A6B41] bg-[#E7EDE4]' : 'text-brand-maroon bg-brand-maroon/5'
                 }`}
               >
                 {callResult.success ? '✓ חוייג' : `✗ ${callResult.error}`}

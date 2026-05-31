@@ -1,29 +1,37 @@
-// פלטת צבעי המותג של גולדה — נדגמה מספר המותג הרשמי
+// פלטת צבעי המותג של גולדה — הערכים הרשמיים מתוך golda_color_palette.json
 export const BRAND = {
-  gold: '#84764F',      // Pantone 871 C — לוגו, דקל, כותרות
-  olive: '#B0A97D',     // Pantone 452 C — זהב משני
-  peach: '#E7B9A9',     // Pantone 7415 C — רקעים, פסים
-  tan: '#DDC8B7',       // Pantone 482 C — פסים
-  mint: '#D0E1D7',      // Pantone 621 C — רקע רך
-  maroon: '#5C2A2B',    // Pantone 490 C — טקסט וכותרות
-  magenta: '#C82FBF',   // Real Purple C — הדגשות
-  green: '#44D62D',     // Pantone 802 C — הדגשות
-  cream: '#F5F0E8',     // רקע קרם
+  gold: '#C0A058',      // זהב המותג — לוגו, כותרות, קווי מתאר
+  goldDeep: '#8A6E3C',  // זהב כהה לטקסט על רקע בהיר
+  paleGold: '#CDBF93',  // זהב משני, מסגרות עדינות
+  cream: '#FAF4E9',     // רקע קרם ראשי
+  blush: '#EBC7B1',     // בלאש — רקעים רכים, פסים
+  sand: '#E6D8C0',      // חול — רקעים, פסים
+  tan: '#E6D8C0',       // כינוי ל-sand (שימוש ב-PDF)
+  mint: '#D8E7DD',      // מנטה — רקע רך, סטטוסים
+  burgundy: '#5E2A33',  // בורדו עשיר — אקצנט, CTA, סרגל צד
+  maroon: '#5E2A33',    // כינוי ל-burgundy (שימוש ב-PDF)
+  maroonDark: '#48202A',
+  magenta: '#2F4634',   // ירוק עמוק — נקודת הדגשה (במשורה)
+  green: '#4A6B41',     // סייג' — הצלחה / חיובי
   white: '#FFFFFF',
-  ink: '#3A2E2E',       // טקסט גוף כהה
-  gray: '#8A7F7A',      // טקסט משני
+  ink: '#33262B',       // טקסט גוף כהה
+  muted: '#90817B',     // טקסט משני
+  gray: '#90817B',      // כינוי ל-muted (שימוש ב-PDF)
+  line: '#ECE2D2',      // קווי הפרדה עדינים
 } as const
 
-// סדר הפסים האנכיים של המותג (מוטיב חוזר על האריזות)
+// סדר הפסים האנכיים של המותג (מוטיב חוזר על האריזות) — נדגם מ-stripes.svg
 export const BRAND_STRIPES = [
-  BRAND.peach,
-  BRAND.tan,
-  BRAND.gold,
-  BRAND.magenta,
-  BRAND.mint,
-  BRAND.maroon,
-  BRAND.peach,
-  BRAND.olive,
-]
+  '#EBC7B1', // blush
+  '#E6D8C0', // sand
+  '#C0A058', // gold
+  '#D8E7DD', // mint
+  '#2F4634', // ירוק עמוק
+  '#5E2A33', // burgundy
+  '#CDBF93', // pale gold
+  '#CFA5B2', // dusty rose
+  '#FAF4E9', // cream
+] as const
 
-export const BRAND_TAGLINE = 'WE MAKE FABULOUS GELATO SINCE 2012'
+export const BRAND_TAGLINE = 'WE MAKE FABULOUS GELATO'
+export const BRAND_TAGLINE_FULL = 'WE MAKE FABULOUS GELATO SINCE 2012'

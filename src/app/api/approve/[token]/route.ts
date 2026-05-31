@@ -6,7 +6,7 @@ export async function POST(
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params
-  const { name } = await request.json()
+  const { name, signature } = await request.json()
 
   if (!name?.trim()) {
     return NextResponse.json({ error: 'שם חסר' }, { status: 400 })
@@ -25,6 +25,19 @@ export async function POST(
       clientApprovedName: name.trim(),
     },
   })
+
+  // שמירת תמונת החתימה — רכה: לא מפילה את האישור אם העמודה clientSignature עדיין לא קיימת ב-DB
+  if (typeof signature === 'string' && signature.startsWith('data:image')) {
+    try {
+      await db.lead.update({
+        where: { signatureToken: token },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: { clientSignature: signature } as any,
+      })
+    } catch {
+      // העמודה תתווסף במיגרציה; עד אז מתעלמים בשקט
+    }
+  }
 
   return NextResponse.json({ ok: true })
 }

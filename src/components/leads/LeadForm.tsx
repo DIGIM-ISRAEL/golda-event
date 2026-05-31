@@ -186,61 +186,61 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Basic Info */}
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h2 className="font-semibold text-gray-900 mb-4 text-lg">פרטי לקוח ואירוע</h2>
+      <section className="rounded-2xl border border-brand-line bg-white p-6 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
+        <h2 className="font-semibold text-brand-ink mb-4 text-lg">פרטי לקוח ואירוע</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">שם לקוח *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">שם לקוח *</label>
             <input value={clientName} onChange={(e) => setClientName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="שם מלא" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" placeholder="שם מלא" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">טלפון *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">טלפון *</label>
             <input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" placeholder="050-0000000" dir="ltr" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" placeholder="050-0000000" dir="ltr" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">סוג לקוח *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">סוג לקוח *</label>
             <select value={clientType} onChange={(e) => setClientType(e.target.value as ClientType)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none">
               <option value="institutional">מוסדי / חברה</option>
               <option value="private">פרטי</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">סוג אירוע *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">סוג אירוע *</label>
             <select value={eventType} onChange={(e) => setEventType(e.target.value as EventType)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none">
               <option value="dairy">אירוע חלבי</option>
               <option value="parve">אירוע פרווה / בשרי</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">תאריך אירוע *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">תאריך אירוע *</label>
             <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" dir="ltr" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">משתתפים *</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">משתתפים *</label>
             <input type="number" value={participants} onChange={(e) => setParticipants(Number(e.target.value))} min={1}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">שעת התחלה</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">שעת התחלה</label>
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" dir="ltr" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">שעת סיום</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">שעת סיום</label>
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" dir="ltr" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" dir="ltr" />
           </div>
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">מיקום</label>
+          <label className="block text-sm font-medium text-brand-ink mb-1">מיקום</label>
           <select value={locationId} onChange={(e) => setLocationId(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+            className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none">
             <option value="">בחר מיקום...</option>
             {locationsList.map((l) => (
               <option key={l.id} value={l.id}>{l.city_name} — {formatNIS(l.travel_cost_nis)}</option>
@@ -248,42 +248,42 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           </select>
           <div className="flex gap-2 mt-2">
             <input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder="עיר חדשה"
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+              className="flex-1 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
             <input value={newCityCost} onChange={(e) => setNewCityCost(e.target.value)} placeholder="₪ עלות" type="number"
-              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
-            <button type="button" onClick={addLocation} className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200">
+              className="w-28 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
+            <button type="button" onClick={addLocation} className="bg-brand-cream text-brand-ink px-3 py-2 rounded-xl text-sm hover:bg-brand-cream/60">
               + הוסף
             </button>
           </div>
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">הערות</label>
+          <label className="block text-sm font-medium text-brand-ink mb-1">הערות</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none resize-none" placeholder="הערות נוספות..." />
+            className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2.5 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none resize-none" placeholder="הערות נוספות..." />
         </div>
       </section>
 
       {/* Flavor Selector */}
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <section className="rounded-2xl border border-brand-line bg-white p-6 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900 text-lg">בחירת טעמים</h2>
-          <span className="text-sm font-medium text-gray-600">{selectedFlavors.length}/{MAX_FLAVORS} נבחרו</span>
+          <h2 className="font-semibold text-brand-ink text-lg">בחירת טעמים</h2>
+          <span className="text-sm font-medium text-brand-muted">{selectedFlavors.length}/{MAX_FLAVORS} נבחרו</span>
         </div>
         {flavorWarning && (
-          <div className="bg-orange-50 border border-orange-200 text-orange-700 rounded-lg px-4 py-3 text-sm mb-4">
+          <div className="bg-[#F8F0DF] border border-brand-gold/30 text-brand-gold-deep rounded-xl px-4 py-3 text-sm mb-4">
             ⚠️ בחרת {MAX_FLAVORS} טעמים. טעם נוסף מעל 6 כרוך בתוספת תשלום!
           </div>
         )}
-        <div className="text-xs text-gray-500 mb-3">
+        <div className="text-xs text-brand-muted mb-3">
           {eventType === 'dairy' ? 'אירוע חלבי — כל הטעמים' : 'אירוע פרווה — טעמי סורבה/טבעוני בלבד'}
         </div>
         <div className="mb-4">
-          <div className="text-xs font-semibold text-gray-400 uppercase mb-2">סורבה / טבעוני</div>
+          <div className="text-xs font-semibold text-brand-muted uppercase mb-2">סורבה / טבעוני</div>
           <div className="flex flex-wrap gap-2">
             {availableFlavors.filter((f) => f.category === 'parve').map((f) => (
               <button key={f.id} type="button" onClick={() => toggleFlavor(f.id)}
-                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700 border-gray-300 hover:border-green-400'}`}>
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-[#4F7A43] text-white border-[#4F7A43]' : 'bg-white text-brand-ink border-brand-line hover:border-[#4F7A43]'}`}>
                 {f.name}
               </button>
             ))}
@@ -291,11 +291,11 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
         </div>
         {eventType === 'dairy' && (
           <div>
-            <div className="text-xs font-semibold text-gray-400 uppercase mb-2">שמנת / חלבי</div>
+            <div className="text-xs font-semibold text-brand-muted uppercase mb-2">שמנת / חלבי</div>
             <div className="flex flex-wrap gap-2">
               {availableFlavors.filter((f) => f.category === 'dairy').map((f) => (
                 <button key={f.id} type="button" onClick={() => toggleFlavor(f.id)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-gray-700 border-gray-300 hover:border-brand-olive'}`}>
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedFlavors.includes(f.id) ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-brand-ink border-brand-line hover:border-brand-olive'}`}>
                   {f.name}
                 </button>
               ))}
@@ -305,36 +305,36 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       </section>
 
       {/* מה ההצעה כוללת */}
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <section className="rounded-2xl border border-brand-line bg-white p-6 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900 text-lg">מה ההצעה כוללת</h2>
+          <h2 className="font-semibold text-brand-ink text-lg">מה ההצעה כוללת</h2>
           <button type="button" onClick={addIncluded} className="text-sm text-brand-maroon hover:text-brand-maroon-dark">+ הוסף פריט</button>
         </div>
-        <p className="text-xs text-gray-500 mb-3">הרשימה תופיע בהצעת המחיר. ניתן לערוך/להוסיף לפי בקשת הלקוח.</p>
+        <p className="text-xs text-brand-muted mb-3">הרשימה תופיע בהצעת המחיר. ניתן לערוך/להוסיף לפי בקשת הלקוח.</p>
         <div className="space-y-2">
           {includedItems.map((item, i) => (
             <div key={i} className="flex gap-2 items-center">
-              <span className="text-green-600 shrink-0">✓</span>
+              <span className="text-[#4F7A43] shrink-0">✓</span>
               <input
                 value={item}
                 onChange={(e) => updateIncluded(i, e.target.value)}
                 placeholder="תיאור פריט שכלול בהצעה"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none"
+                className="flex-1 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
               />
-              <button type="button" onClick={() => removeIncluded(i)} className="text-red-400 hover:text-red-600 px-2 shrink-0">✕</button>
+              <button type="button" onClick={() => removeIncluded(i)} className="text-brand-maroon/60 hover:text-brand-maroon px-2 shrink-0">✕</button>
             </div>
           ))}
           {includedItems.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-2">אין פריטים — לחץ &quot;הוסף פריט&quot;</p>
+            <p className="text-sm text-brand-muted text-center py-2">אין פריטים — לחץ &quot;הוסף פריט&quot;</p>
           )}
         </div>
       </section>
 
       {/* Pricing */}
-      <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h2 className="font-semibold text-gray-900 text-lg mb-4">תמחור</h2>
+      <section className="rounded-2xl border border-brand-line bg-white p-6 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
+        <h2 className="font-semibold text-brand-ink text-lg mb-4">תמחור</h2>
         {clientType === 'private' && (
-          <div className="bg-brand-mint rounded-lg p-4 mb-4">
+          <div className="bg-brand-mint rounded-xl p-4 mb-4">
             <div className="text-sm font-medium text-brand-maroon-dark mb-2">עקיפת מחיר (לקוח פרטי)</div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -342,39 +342,39 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
                 <input type="number" value={pricePerPersonOverride}
                   onChange={(e) => { setPricePerPersonOverride(e.target.value); setPriceOverride('') }}
                   placeholder="ברירת מחדל: 38"
-                  className="w-full border border-brand-olive rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+                  className="w-full border border-brand-olive bg-brand-paper rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
               </div>
               <div>
                 <label className="block text-xs text-brand-maroon-dark mb-1">מחיר סופי ידני (₪)</label>
                 <input type="number" value={priceOverride}
                   onChange={(e) => { setPriceOverride(e.target.value); setPricePerPersonOverride('') }}
                   placeholder="עקיפה מלאה"
-                  className="w-full border border-brand-olive rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+                  className="w-full border border-brand-olive bg-brand-paper rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
               </div>
             </div>
           </div>
         )}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">תוספות</span>
+            <span className="text-sm font-medium text-brand-ink">תוספות</span>
             <button type="button" onClick={addExtra} className="text-sm text-brand-maroon hover:text-brand-maroon-dark">+ הוסף תוספת</button>
           </div>
           {extras.map((extra, i) => (
             <div key={i} className="flex gap-2 mb-2">
               <input value={extra.label} onChange={(e) => updateExtra(i, 'label', e.target.value)}
                 placeholder="תיאור (שעה נוספת, עובד נוסף...)"
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+                className="flex-1 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
               <input type="number" value={extra.amount} onChange={(e) => updateExtra(i, 'amount', Number(e.target.value))}
-                placeholder="₪" className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
-              <button type="button" onClick={() => removeExtra(i)} className="text-red-400 hover:text-red-600 px-2">✕</button>
+                placeholder="₪" className="w-24 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
+              <button type="button" onClick={() => removeExtra(i)} className="text-brand-maroon/60 hover:text-brand-maroon px-2">✕</button>
             </div>
           ))}
         </div>
         <div className="mb-4">
-          <div className="text-sm font-medium text-gray-700 mb-2">הנחה</div>
+          <div className="text-sm font-medium text-brand-ink mb-2">הנחה</div>
           <div className="flex gap-2">
             <select value={discountType ?? ''} onChange={(e) => setDiscountType(e.target.value as DiscountType || null)}
-              className="w-36 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              className="w-36 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none">
               <option value="">ללא הנחה</option>
               <option value="percent">אחוז (%)</option>
               <option value="fixed">סכום קבוע (₪)</option>
@@ -382,30 +382,30 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
             {discountType && (
               <input type="number" value={discountValue} onChange={(e) => setDiscountValue(Number(e.target.value))}
                 placeholder={discountType === 'percent' ? '%' : '₪'}
-                className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+                className="w-28 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
             )}
           </div>
         </div>
-        <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-gray-600">מחיר בסיס</span><span>{formatNIS(pricing.basePrice)}</span></div>
+        <div className="bg-brand-cream/60 rounded-xl p-4 space-y-2 text-sm">
+          <div className="flex justify-between"><span className="text-brand-muted">מחיר בסיס</span><span>{formatNIS(pricing.basePrice)}</span></div>
           {pricing.extraParticipantsPrice > 0 && (
-            <div className="flex justify-between"><span className="text-gray-600">תוספת משתתפים</span><span>{formatNIS(pricing.extraParticipantsPrice)}</span></div>
+            <div className="flex justify-between"><span className="text-brand-muted">תוספת משתתפים</span><span>{formatNIS(pricing.extraParticipantsPrice)}</span></div>
           )}
           {pricing.logisticsCost > 0 && (
-            <div className="flex justify-between"><span className="text-gray-600">לוגיסטיקה</span><span>{formatNIS(pricing.logisticsCost)}</span></div>
+            <div className="flex justify-between"><span className="text-brand-muted">לוגיסטיקה</span><span>{formatNIS(pricing.logisticsCost)}</span></div>
           )}
           {pricing.extrasTotal > 0 && (
-            <div className="flex justify-between"><span className="text-gray-600">תוספות</span><span>{formatNIS(pricing.extrasTotal)}</span></div>
+            <div className="flex justify-between"><span className="text-brand-muted">תוספות</span><span>{formatNIS(pricing.extrasTotal)}</span></div>
           )}
           {pricing.discountAmount > 0 && (
-            <div className="flex justify-between text-red-600"><span>הנחה</span><span>−{formatNIS(pricing.discountAmount)}</span></div>
+            <div className="flex justify-between text-brand-maroon"><span>הנחה</span><span>−{formatNIS(pricing.discountAmount)}</span></div>
           )}
           {pricing.vatAmount != null && (
             <>
-              <div className="flex justify-between text-gray-500 text-xs border-t pt-2">
+              <div className="flex justify-between text-brand-muted text-xs border-t pt-2">
                 <span>לפני מע&quot;מ</span><span>{formatNIS(pricing.totalPrice - pricing.vatAmount)}</span>
               </div>
-              <div className="flex justify-between text-gray-500 text-xs">
+              <div className="flex justify-between text-brand-muted text-xs">
                 <span>מע&quot;מ (18%)</span><span>{formatNIS(pricing.vatAmount)}</span>
               </div>
             </>
@@ -417,13 +417,13 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">מקדמה ששולמה (₪)</label>
+            <label className="block text-sm font-medium text-brand-ink mb-1">מקדמה ששולמה (₪)</label>
             <input type="number" value={advancePaid} onChange={(e) => setAdvancePaid(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
+              className="w-full border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">יתרה לתשלום</label>
-            <div className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 font-semibold text-orange-600">
+            <label className="block text-sm font-medium text-brand-ink mb-1">יתרה לתשלום</label>
+            <div className="w-full border border-brand-line rounded-xl px-3 py-2 text-sm bg-brand-cream/60 font-semibold text-brand-gold-deep">
               {formatNIS(pricing.balanceDue)}
             </div>
           </div>
@@ -431,61 +431,61 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       </section>
 
       {/* Inventory */}
-      <section className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-        <h2 className="font-semibold text-amber-900 text-lg mb-3">🍦 מחשבון מלאי</h2>
+      <section className="bg-[#F8F0DF] border border-brand-gold/30 rounded-2xl p-6">
+        <h2 className="font-semibold text-brand-gold-deep text-lg mb-3">🍦 מחשבון מלאי</h2>
         <div className="grid grid-cols-3 gap-4 text-center mb-4">
           <div className="bg-white rounded-lg p-3">
-            <div className="text-2xl font-bold text-gray-900">{inventory.participants}</div>
-            <div className="text-xs text-gray-500">משתתפים</div>
+            <div className="text-2xl font-bold text-brand-ink">{inventory.participants}</div>
+            <div className="text-xs text-brand-muted">משתתפים</div>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <div className="text-2xl font-bold text-gray-900">{inventory.gramsNeeded.toLocaleString()}</div>
-            <div className="text-xs text-gray-500">גרם נדרש</div>
+            <div className="text-2xl font-bold text-brand-ink">{inventory.gramsNeeded.toLocaleString()}</div>
+            <div className="text-xs text-brand-muted">גרם נדרש</div>
           </div>
           <div className="bg-white rounded-lg p-3">
             <div className="text-2xl font-bold text-brand-maroon-dark">{inventory.basketasRequired}</div>
-            <div className="text-xs text-gray-500">בסקטות</div>
+            <div className="text-xs text-brand-muted">בסקטות</div>
           </div>
         </div>
-        <div className="bg-amber-100 border border-amber-300 rounded-lg p-3 text-sm text-amber-800 font-medium">
+        <div className="bg-[#F1E4C8] border border-brand-gold/40 rounded-xl p-3 text-sm text-brand-gold-deep font-medium">
           ⚠️ {OPERATIONAL_WARNING}
         </div>
       </section>
 
       {role === 'admin' && (
-        <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="font-semibold text-gray-900 text-lg mb-4">עובדים (פנימי)</h2>
+        <section className="rounded-2xl border border-brand-line bg-white p-6 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
+          <h2 className="font-semibold text-brand-ink text-lg mb-4">עובדים (פנימי)</h2>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={managerIncluded} onChange={(e) => setManagerIncluded(e.target.checked)}
                 className="w-4 h-4 accent-brand-maroon" />
-              <span className="text-sm text-gray-700">מנהל אירוע (₪500)</span>
+              <span className="text-sm text-brand-ink">מנהל אירוע (₪500)</span>
             </label>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-700">עוזרים נוספים:</label>
+              <label className="text-sm text-brand-ink">עוזרים נוספים:</label>
               <input type="number" min={0} max={5} value={assistantsCount} onChange={(e) => setAssistantsCount(Number(e.target.value))}
-                className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-brand-gold focus:outline-none" />
-              <span className="text-xs text-gray-500">(₪300 לכל אחד)</span>
+                className="w-16 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-xl px-2 py-1.5 text-sm focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none" />
+              <span className="text-xs text-brand-muted">(₪300 לכל אחד)</span>
             </div>
           </div>
         </section>
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">{error}</div>
+        <div className="bg-brand-maroon/5 border border-brand-maroon/20 text-brand-maroon rounded-xl px-4 py-3 text-sm">{error}</div>
       )}
 
       <div className="flex gap-3 justify-end pb-8">
         <button type="button" onClick={() => router.back()}
-          className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+          className="px-5 py-2.5 border border-brand-line rounded-xl text-sm text-brand-ink hover:bg-brand-cream/60">
           ביטול
         </button>
         <button type="button" onClick={() => handleSave('lead')} disabled={saving}
-          className="px-5 py-2.5 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-60">
+          className="px-5 py-2.5 bg-white border border-brand-gold/40 text-brand-gold-deep rounded-xl text-sm font-medium hover:bg-brand-cream/60 disabled:opacity-60">
           שמור כליד
         </button>
         <button type="button" onClick={() => handleSave('quote_sent')} disabled={saving}
-          className="px-5 py-2.5 bg-brand-maroon text-white rounded-lg text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
+          className="px-5 py-2.5 bg-brand-maroon text-brand-cream rounded-xl text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
           {saving ? 'שומר...' : 'שמור ושלח הצעה'}
         </button>
       </div>

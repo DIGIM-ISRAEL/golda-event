@@ -18,7 +18,7 @@ export default async function FlavorsPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">ניהול טעמים</h1>
+      <h1 className="text-2xl font-bold text-brand-ink mb-6">ניהול טעמים</h1>
       <FlavorManager flavors={flavorsForClient} role={session.role} />
     </div>
   )

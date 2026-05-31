@@ -22,8 +22,8 @@ export default async function NewLeadPage() {
 
   return (
     <div>
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <h1 className="text-xl font-bold text-gray-900">ליד חדש</h1>
+      <div className="bg-white border-b border-brand-line px-6 py-4">
+        <h1 className="text-xl font-bold text-brand-ink">ליד חדש</h1>
       </div>
       <LeadForm flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} />
     </div>

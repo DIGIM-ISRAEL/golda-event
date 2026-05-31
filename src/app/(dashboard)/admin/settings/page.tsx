@@ -13,7 +13,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">הגדרות מערכת</h1>
+      <h1 className="text-2xl font-bold text-brand-ink mb-6">הגדרות מערכת</h1>
       <SettingsForm
         profitWarningThreshold={Number(settingsMap['profit_warning_threshold'] ?? 1000)}
         basketaCostNis={Number(settingsMap['basketa_cost_nis'] ?? 150)}
