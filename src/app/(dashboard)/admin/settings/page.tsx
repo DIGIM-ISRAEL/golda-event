@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import SettingsForm from '@/components/admin/SettingsForm'
+import FlavorSyncButton from '@/components/admin/FlavorSyncButton'
 
 export default async function SettingsPage() {
   const session = await getSession()
@@ -12,8 +13,8 @@ export default async function SettingsPage() {
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-brand-ink mb-6">הגדרות מערכת</h1>
+    <div className="p-6 max-w-2xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-brand-ink">הגדרות מערכת</h1>
       <SettingsForm
         profitWarningThreshold={Number(settingsMap['profit_warning_threshold'] ?? 1000)}
         basketaCostNis={Number(settingsMap['basketa_cost_nis'] ?? 150)}
@@ -21,6 +22,7 @@ export default async function SettingsPage() {
         depositInstructions={settingsMap['deposit_instructions'] ?? ''}
         depositLink={settingsMap['deposit_link'] ?? ''}
       />
+      <FlavorSyncButton />
     </div>
   )
 }
