@@ -1,24 +1,37 @@
+import { headers } from 'next/headers'
 import { CalendarDays, Clock, MapPin, Users, PartyPopper, CheckCircle2 } from 'lucide-react'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
+import { notifyQuoteViewed } from '@/lib/notifications'
 import { calculatePrice, formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime } from '@/lib/utils'
 import { EVENT_TYPE_LABELS, DEFAULT_INCLUDED_ITEMS } from '@/lib/constants'
 import StripeBar from '@/components/brand/StripeBar'
 import ApprovalForm from '@/components/approve/ApprovalForm'
+import DepositBox from '@/components/approve/DepositBox'
 
 export const dynamic = 'force-dynamic'
+
+// בוטים של תצוגה מקדימה (וואטסאפ/פייסבוק/טלגרם...) פותחים את הקישור ברגע השליחה —
+// אסור שהם יסמנו "נצפה" ויקפיצו התראה לפני שהלקוח באמת פתח.
+const PREVIEW_BOT_RE = /whatsapp|facebookexternalhit|telegram|skype|slack|twitter|linkedin|discord|bot|crawler|spider|preview|curl|wget/i
 
 // עמוד אישור ציבורי — הלקוח רואה את הצעת המחיר המלאה וחותם עליה באותו מקום.
 // נגיש ללא התחברות (דרך טוקן ייחודי בלבד).
 export default async function ApprovePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
 
-  const lead = await db.lead
-    .findUnique({
-      where: { signatureToken: token },
-      include: { location: true, quote: true, flavors: { include: { flavor: true } } },
-    })
-    .catch(() => null)
+  const [lead, settingsRows, session, headerList] = await Promise.all([
+    db.lead
+      .findUnique({
+        where: { signatureToken: token },
+        include: { location: true, quote: true, flavors: { include: { flavor: true } }, salesRep: true },
+      })
+      .catch(() => null),
+    db.settings.findMany().catch(() => [] as { key: string; value: string }[]),
+    getSession(),
+    headers(),
+  ])
 
   if (!lead) {
     return (
@@ -34,6 +47,7 @@ export default async function ApprovePage({ params }: { params: Promise<{ token:
   const flavors = lead.flavors.map((lf) => lf.flavor)
   const includes = lead.includedItems.length > 0 ? lead.includedItems : DEFAULT_INCLUDED_ITEMS
   const logisticsCost = lead.location?.travelCostNis ?? 0
+  const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
 
   const pricing = lead.quote
     ? {
@@ -63,6 +77,35 @@ export default async function ApprovePage({ params }: { params: Promise<{ token:
       })()
 
   const alreadyApproved = !!lead.clientApprovedAt
+
+  // תיעוד צפייה ראשונה — רק לקוח אמיתי: לא נציג מחובר ולא בוט תצוגה-מקדימה
+  const userAgent = headerList.get('user-agent') ?? ''
+  const isRealClientView = !session && !PREVIEW_BOT_RE.test(userAgent)
+  if (!lead.quoteViewedAt && !alreadyApproved && isRealClientView) {
+    await db.lead
+      .update({ where: { id: lead.id }, data: { quoteViewedAt: new Date() } })
+      .catch(() => {})
+    // ההתראה יוצאת ברקע — לא מעכבת את טעינת העמוד ללקוח
+    void notifyQuoteViewed({
+      leadId: lead.id,
+      clientName: lead.clientName,
+      clientPhone: lead.clientPhone,
+      eventDate: lead.eventDate,
+      totalPrice: lead.quote?.totalPrice ?? null,
+      salesRepEmail: lead.salesRep?.email,
+    }).catch((err) => console.error('Quote viewed notification failed:', err))
+  }
+
+  // מקדמה — מוצגת ללקוח אחרי החתימה (אם הוגדרה בהגדרות המערכת)
+  const depositPercent = Number(settingsMap['deposit_percent'] ?? 0)
+  const depositInstructions = (settingsMap['deposit_instructions'] ?? '').trim()
+  const depositLink = (settingsMap['deposit_link'] ?? '').trim()
+  const depositAmount =
+    depositPercent > 0 ? Math.round((pricing.totalPrice * depositPercent) / 100) : 0
+  const deposit =
+    depositAmount > 0 && (depositInstructions || depositLink)
+      ? { amount: depositAmount, percent: depositPercent, instructions: depositInstructions, link: depositLink }
+      : null
 
   return (
     <Shell>
@@ -166,17 +209,20 @@ export default async function ApprovePage({ params }: { params: Promise<{ token:
 
         <div className="border-t border-brand-line pt-7">
           {alreadyApproved ? (
-            <div className="flex items-start gap-3 rounded-2xl bg-[#EAF1E3] border border-[#C8DABA] p-4 text-sm text-[#3D5A30]">
-              <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
-              <span>
-                ההצעה אושרה ונחתמה{lead.clientApprovedName ? ` על ידי ${lead.clientApprovedName}` : ''} ·{' '}
-                {lead.clientApprovedAt!.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}.
-                <br />
-                נציג שלנו יצור קשר בקרוב להמשך התיאום. 🍦
-              </span>
-            </div>
+            <>
+              <div className="flex items-start gap-3 rounded-2xl bg-[#EAF1E3] border border-[#C8DABA] p-4 text-sm text-[#3D5A30]">
+                <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                <span>
+                  ההצעה אושרה ונחתמה{lead.clientApprovedName ? ` על ידי ${lead.clientApprovedName}` : ''} ·{' '}
+                  {lead.clientApprovedAt!.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}.
+                  <br />
+                  נציג שלנו יצור קשר בקרוב להמשך התיאום. 🍦
+                </span>
+              </div>
+              {deposit && <DepositBox deposit={deposit} />}
+            </>
           ) : (
-            <ApprovalForm token={token} />
+            <ApprovalForm token={token} deposit={deposit} />
           )}
         </div>
       </div>

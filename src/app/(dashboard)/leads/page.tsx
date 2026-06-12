@@ -32,6 +32,7 @@ export default async function LeadsPage() {
   let leads: {
     id: string
     clientName: string
+    clientPhone: string
     eventDate: string
     participants: number
     status: string
@@ -47,6 +48,7 @@ export default async function LeadsPage() {
       select: {
         id: true,
         clientName: true,
+        clientPhone: true,
         eventDate: true,
         participants: true,
         status: true,

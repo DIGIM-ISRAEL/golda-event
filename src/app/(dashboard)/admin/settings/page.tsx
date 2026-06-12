@@ -17,6 +17,9 @@ export default async function SettingsPage() {
       <SettingsForm
         profitWarningThreshold={Number(settingsMap['profit_warning_threshold'] ?? 1000)}
         basketaCostNis={Number(settingsMap['basketa_cost_nis'] ?? 150)}
+        depositPercent={Number(settingsMap['deposit_percent'] ?? 30)}
+        depositInstructions={settingsMap['deposit_instructions'] ?? ''}
+        depositLink={settingsMap['deposit_link'] ?? ''}
       />
     </div>
   )

@@ -20,6 +20,7 @@ import {
   PartyPopper,
   IceCreamCone,
   AlertTriangle,
+  Eye,
 } from 'lucide-react'
 import { Card, CardHeader, StatusBadge } from '@/components/ui'
 import { formatDate, formatTime } from '@/lib/utils'
@@ -61,17 +62,18 @@ export interface LeadDetailViewProps {
   }[]
   operationalWarning: string
   clientApproved?: { name: string | null; at: string | Date } | null
+  quoteViewedAt?: string | Date | null
   pdfHref: string
   docxHref: string
   editHref: string
   telHref: string
   whatsappHref: string
-  sendQuoteHref: string
   wazeHref?: string | null
   // slots — רכיבי קליינט
   statusChanger: React.ReactNode
   profitabilityPanel?: React.ReactNode
   signatureLink: React.ReactNode
+  sendQuoteButton: React.ReactNode
   checklist: React.ReactNode
 }
 
@@ -97,16 +99,17 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
     sameDayEvents,
     operationalWarning,
     clientApproved,
+    quoteViewedAt,
     pdfHref,
     docxHref,
     editHref,
     telHref,
     whatsappHref,
-    sendQuoteHref,
     wazeHref,
     statusChanger,
     profitabilityPanel,
     signatureLink,
+    sendQuoteButton,
     checklist,
   } = props
 
@@ -369,15 +372,18 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
               }
             />
             <div className="p-5">
-              <a
-                href={sendQuoteHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full bg-[#4F7A43] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#456B3A] transition-colors mb-3"
-              >
-                <MessageCircle size={16} />
-                שלח הצעה בוואטסאפ
-              </a>
+              {quoteViewedAt && !clientApproved && (
+                <div className="flex items-start gap-2 rounded-xl bg-[#F8F0DF] border border-brand-gold/35 px-3 py-2.5 text-xs text-brand-ink/85 mb-3">
+                  <Eye size={14} className="text-brand-gold-deep shrink-0 mt-0.5" />
+                  <span>
+                    <span className="font-semibold">הלקוח צפה בהצעה</span> ·{' '}
+                    {new Date(quoteViewedAt).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' })}
+                    <br />
+                    רוב העסקאות נסגרות ביממה שאחרי הצפייה — שווה להתקשר.
+                  </span>
+                </div>
+              )}
+              {sendQuoteButton}
               <p className="text-xs text-brand-muted mb-2">
                 ההודעה כוללת את תקציר ההצעה וקישור לצפייה, אישור וחתימה דיגיטלית.
               </p>

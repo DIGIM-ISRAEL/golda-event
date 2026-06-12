@@ -14,6 +14,7 @@ import LeadDetailView from '@/components/leads/LeadDetailView'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
 import SignatureLink from '@/components/leads/SignatureLink'
+import SendQuoteButton from '@/components/leads/SendQuoteButton'
 import EventChecklist from '@/components/leads/EventChecklist'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -120,12 +121,12 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           ? { name: lead.clientApprovedName, at: lead.clientApprovedAt }
           : null
       }
+      quoteViewedAt={lead.quoteViewedAt}
       pdfHref={`/api/quotes/${id}/pdf`}
       docxHref={`/api/quotes/${id}/docx`}
       editHref={`/leads/${id}/edit`}
       telHref={`tel:${lead.clientPhone}`}
       whatsappHref={`https://wa.me/${toWhatsAppNumber(lead.clientPhone)}`}
-      sendQuoteHref={sendQuoteHref}
       wazeHref={
         lead.location
           ? `https://waze.com/ul?q=${encodeURIComponent(lead.location.cityName)}`
@@ -146,6 +147,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         ) : null
       }
       signatureLink={<SignatureLink url={approveUrl} />}
+      sendQuoteButton={
+        <SendQuoteButton leadId={id} currentStatus={lead.status} sendQuoteHref={sendQuoteHref} />
+      }
       checklist={
         <EventChecklist
           leadId={id}

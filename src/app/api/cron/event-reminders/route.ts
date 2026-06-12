@@ -3,10 +3,13 @@ import { db } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 import { CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
 import { calculateInventory } from '@/lib/inventory'
-import { formatDate, formatTime, israelDateStr } from '@/lib/utils'
+import { formatNIS } from '@/lib/pricing'
+import { formatDate, formatTime, israelDateStr, toWhatsAppNumber } from '@/lib/utils'
 
-// Endpoint יורץ פעם ביום (Railway cron) ב-09:00.
-// מוצא את כל האירועים שמתקיימים מחר ושולח תזכורת.
+// Endpoint יורץ פעם ביום (Railway cron) ב-09:00. שתי עבודות:
+//  1. תזכורת תפעולית לכל אירוע שמתקיים מחר
+//  2. תזכורת פולואפ על הצעות שנשלחו ולא נחתמו (ביום ה-2 וביום ה-5)
+//     — מחקרי הצעות מראים שתזכורות מעלות סגירה ב-10–30%, ורוב המוכרים פשוט שוכחים.
 export async function GET(request: NextRequest) {
   // אימות secret
   const authHeader = request.headers.get('authorization')
@@ -80,12 +83,101 @@ export async function GET(request: NextRequest) {
     results.push({ leadId: event.id, sent, to })
   }
 
+  // ── פולואפ הצעות תקועות ──────────────────────────────
+  const followups = await sendQuoteFollowups()
+
   return NextResponse.json({
     ok: true,
     date: tomorrowStr,
     eventsFound: events.length,
     results,
+    followups,
   })
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000
+// שלבי הפולואפ: יום 2 (נגיעה ראשונה) ויום 5 (נגיעה שנייה) — אחר כך מפסיקים
+const FOLLOWUP_DAYS = [2, 5]
+
+async function sendQuoteFollowups(): Promise<{ due: number; sent: boolean }> {
+  const candidates = await db.lead.findMany({
+    where: {
+      status: 'quote_sent',
+      clientApprovedAt: null,
+      followupStage: { lt: FOLLOWUP_DAYS.length },
+    },
+    include: { location: true, quote: true, salesRep: true },
+  })
+
+  const now = Date.now()
+  const due = candidates.filter((lead) => {
+    const sentAt = (lead.quoteSentAt ?? lead.updatedAt).getTime()
+    return now - sentAt >= FOLLOWUP_DAYS[lead.followupStage] * DAY_MS
+  })
+
+  if (due.length === 0) return { due: 0, sent: false }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+  const recipients = new Set<string>()
+  if (process.env.ADMIN_EMAIL) recipients.add(process.env.ADMIN_EMAIL)
+  for (const lead of due) {
+    if (lead.salesRep?.email) recipients.add(lead.salesRep.email)
+  }
+  if (recipients.size === 0) return { due: due.length, sent: false }
+
+  const rows = due
+    .map((lead) => {
+      const daysWaiting = Math.floor((now - (lead.quoteSentAt ?? lead.updatedAt).getTime()) / DAY_MS)
+      const approveUrl = `${appUrl}/approve/${lead.signatureToken}`
+      const nudge = [
+        `היי ${lead.clientName}, רק מוודא שקיבלתם את הצעת המחיר לאירוע ב-${formatDate(lead.eventDate)} 🍦`,
+        `אשמח לענות על כל שאלה.`,
+        `לצפייה ואישור: ${approveUrl}`,
+      ].join('\n')
+      const waHref = `https://wa.me/${toWhatsAppNumber(lead.clientPhone)}?text=${encodeURIComponent(nudge)}`
+
+      return `
+        <tr>
+          <td style="padding:10px 8px;border-bottom:1px solid #eee;">
+            <strong>${lead.clientName}</strong><br>
+            <span style="color:#777;font-size:12px;">
+              ${formatDate(lead.eventDate)} · ${lead.location?.cityName ?? '—'}
+              ${lead.quote ? ` · ${formatNIS(lead.quote.totalPrice)}` : ''}
+            </span>
+          </td>
+          <td style="padding:10px 8px;border-bottom:1px solid #eee;font-size:13px;color:#555;">
+            ממתינה ${daysWaiting} ימים${lead.quoteViewedAt ? ' · 👀 נצפתה' : ' · טרם נצפתה'}
+          </td>
+          <td style="padding:10px 8px;border-bottom:1px solid #eee;white-space:nowrap;">
+            <a href="${waHref}" style="background:#4F7A43;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:13px;">תזכורת בוואטסאפ</a>
+            <a href="${appUrl}/leads/${lead.id}" style="color:#5E2A33;font-size:13px;margin-right:8px;">פתח ליד</a>
+          </td>
+        </tr>`
+    })
+    .join('')
+
+  const sent = await sendEmail({
+    to: Array.from(recipients),
+    subject: `⏰ ${due.length} הצעות מחיר מחכות לפולואפ`,
+    html: `
+      <div dir="rtl" style="font-family:Arial,sans-serif;padding:20px;text-align:right;">
+        <h2 style="margin:0 0 6px;">הצעות שנשלחו וטרם נחתמו</h2>
+        <p style="color:#666;margin:0 0 16px;font-size:14px;">
+          לקוח שקיבל תזכורת אחת סוגר משמעותית יותר — לחיצה אחת על הכפתור הירוק שולחת הודעת תזכורת מנוסחת מראש.
+        </p>
+        <table style="width:100%;border-collapse:collapse;">${rows}</table>
+      </div>
+    `,
+  })
+
+  if (sent) {
+    await db.lead.updateMany({
+      where: { id: { in: due.map((l) => l.id) } },
+      data: { followupStage: { increment: 1 } },
+    })
+  }
+
+  return { due: due.length, sent }
 }
 
 function renderReminderHtml(params: {

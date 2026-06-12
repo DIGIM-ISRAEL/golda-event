@@ -35,7 +35,16 @@ export async function PATCH(
     if (conflict) return NextResponse.json({ error: conflict }, { status: 409 })
   }
 
-  await db.lead.update({ where: { id }, data: { status } })
+  await db.lead.update({
+    where: { id },
+    data: {
+      status,
+      // מעבר ל"הצעה נשלחה" מניע את שעון הפולואפ האוטומטי
+      ...(status === 'quote_sent' && lead.status !== 'quote_sent'
+        ? { quoteSentAt: new Date(), followupStage: 0 }
+        : {}),
+    },
+  })
 
   // סנכרון Google Calendar — יוצר אירוע בסגירה, מוחק כשיוצאים מ"סגור"
   await syncLeadCalendar(id)

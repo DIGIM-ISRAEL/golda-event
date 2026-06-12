@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2, Eraser } from 'lucide-react'
+import DepositBox, { type DepositInfo } from '@/components/approve/DepositBox'
 
 // טופס החתימה בעמוד האישור הציבורי — שם מלא + חתימה בקנבס.
 // מוצג מתחת להצעת המחיר המלאה (רכיב שרת).
-export default function ApprovalForm({ token }: { token: string }) {
+export default function ApprovalForm({ token, deposit }: { token: string; deposit?: DepositInfo | null }) {
   const router = useRouter()
 
   const [name, setName] = useState('')
@@ -102,13 +103,18 @@ export default function ApprovalForm({ token }: { token: string }) {
 
   if (done) {
     return (
-      <div className="text-center py-6">
-        <div className="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-full bg-[#E7EDE4] text-[#4A6B41]">
-          <CheckCircle2 size={30} />
+      <div className="py-6">
+        <div className="text-center">
+          <div className="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-full bg-[#E7EDE4] text-[#4A6B41]">
+            <CheckCircle2 size={30} />
+          </div>
+          <h2 className="font-serif text-xl font-bold text-brand-ink mb-1.5">ההצעה אושרה בהצלחה!</h2>
+          <p className="text-brand-ink/80 text-sm">תודה {name} — קיבלנו את אישורך וחתימתך.</p>
+          <p className="text-brand-muted text-sm mt-1.5">
+            {deposit ? 'נשאר צעד אחד קטן לנעילת התאריך:' : 'נציג שלנו יצור קשר בקרוב להמשך התיאום. 🍦'}
+          </p>
         </div>
-        <h2 className="font-serif text-xl font-bold text-brand-ink mb-1.5">ההצעה אושרה בהצלחה!</h2>
-        <p className="text-brand-ink/80 text-sm">תודה {name} — קיבלנו את אישורך וחתימתך.</p>
-        <p className="text-brand-muted text-sm mt-1.5">נציג שלנו יצור קשר בקרוב להמשך התיאום. 🍦</p>
+        {deposit && <DepositBox deposit={deposit} />}
       </div>
     )
   }

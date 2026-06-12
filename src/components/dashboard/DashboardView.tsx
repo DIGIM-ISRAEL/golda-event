@@ -1,7 +1,7 @@
 // תצוגת לוח הבקרה — שכבת מצג טהורה (ללא DB), כדי שאפשר יהיה להשתמש בה
 // גם בעמוד השרת האמיתי וגם במסך התצוגה לעיצוב. רכיב שרת (ללא hooks).
 import Link from 'next/link'
-import { CalendarDays, CalendarClock, PenLine, ChevronLeft, Plus } from 'lucide-react'
+import { CalendarDays, CalendarClock, PenLine, ChevronLeft, Plus, Eye } from 'lucide-react'
 import { Card, CardHeader, PageHeader, StatCard, StatusBadge, ButtonLink } from '@/components/ui'
 import { formatDate, formatTime } from '@/lib/utils'
 
@@ -21,6 +21,7 @@ export interface DashLead {
   eventDate: string
   participants?: number
   status?: string
+  quoteViewedAt?: string | Date | null
   location: { cityName: string } | null
 }
 
@@ -103,9 +104,17 @@ export default function DashboardView({
                     {formatDate(lead.eventDate)} · {lead.location?.cityName ?? '—'}
                   </div>
                 </div>
-                <span className="flex items-center gap-0.5 text-xs font-semibold text-brand-gold-deep shrink-0">
-                  למעקב
-                  <ChevronLeft size={14} />
+                <span className="flex items-center gap-1.5 shrink-0">
+                  {lead.quoteViewedAt && (
+                    <span className="flex items-center gap-1 text-[11px] font-semibold bg-[#F8F0DF] text-brand-gold-deep px-2 py-0.5 rounded-full">
+                      <Eye size={11} />
+                      נצפתה
+                    </span>
+                  )}
+                  <span className="flex items-center gap-0.5 text-xs font-semibold text-brand-gold-deep">
+                    למעקב
+                    <ChevronLeft size={14} />
+                  </span>
                 </span>
               </>
             )}

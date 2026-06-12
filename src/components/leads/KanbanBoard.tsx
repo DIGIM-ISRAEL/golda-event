@@ -14,6 +14,7 @@ import { formatDate } from '@/lib/utils'
 interface KanbanLead {
   id: string
   clientName: string
+  clientPhone: string
   eventDate: string
   participants: number
   status: string
@@ -38,11 +39,13 @@ export default function KanbanBoard({ initialLeads }: Props) {
   const savedStatus = useRef<string | null>(null)
 
   const query = search.trim().toLowerCase()
+  const queryDigits = query.replace(/\D/g, '')
   function matchesSearch(lead: KanbanLead) {
     if (!query) return true
     return (
       lead.clientName.toLowerCase().includes(query) ||
-      (lead.location?.cityName ?? '').toLowerCase().includes(query)
+      (lead.location?.cityName ?? '').toLowerCase().includes(query) ||
+      (queryDigits.length >= 3 && lead.clientPhone.replace(/\D/g, '').includes(queryDigits))
     )
   }
 
@@ -93,7 +96,7 @@ export default function KanbanBoard({ initialLeads }: Props) {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="חיפוש לפי שם לקוח או עיר…"
+          placeholder="חיפוש לפי שם, עיר או טלפון…"
           className="w-full rounded-xl border border-brand-line bg-white pr-9 pl-3 py-2.5 text-sm text-brand-ink placeholder:text-brand-muted/50 focus:outline-none focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 transition"
         />
       </div>
