@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 interface AirtableFields {
+  'שם מלא'?: string
   phone_number?: string
   phone_my_user?: string
   phone_fundraiser?: string
@@ -35,13 +36,13 @@ function QualityStars({ score }: { score?: number }) {
 }
 
 export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
+  const canLoad = isAdmin || hasPhone
+
   const [leads, setLeads] = useState<AirtableLead[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(canLoad)
   const [error, setError] = useState('')
   const [callingId, setCallingId] = useState<string | null>(null)
   const [callResults, setCallResults] = useState<Record<string, { success: boolean; error?: string }>>({})
-
-  const canLoad = isAdmin || hasPhone
 
   const fetchLeads = useCallback(async () => {
     setLoading(true)
@@ -61,10 +62,27 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
     }
   }, [])
 
+  // טעינה ראשונית — כל עדכוני ה-state קורים אחרי await (callback אסינכרוני)
   useEffect(() => {
-    if (canLoad) fetchLeads()
-    else setLoading(false)
-  }, [canLoad, fetchLeads])
+    if (!canLoad) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/airtable/leads')
+        const data = await res.json()
+        if (cancelled) return
+        if (!res.ok) setError(data.error ?? 'שגיאה בטעינת לידים')
+        else setLeads(data)
+      } catch {
+        if (!cancelled) setError('שגיאת רשת')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [canLoad])
 
   async function handleCall(lead: AirtableLead) {
     const phone = lead.fields.phone_number
@@ -150,6 +168,9 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
             return (
               <div key={lead.id} className="bg-white rounded-2xl border border-brand-line p-4 shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)] flex flex-col gap-3">
                 <div>
+                  {f['שם מלא'] && (
+                    <div className="text-sm font-bold text-brand-ink mb-0.5">{f['שם מלא']}</div>
+                  )}
                   <div className="text-sm font-semibold text-brand-ink mb-1" dir="ltr">
                     {f.phone_number ?? '—'}
                   </div>
@@ -171,13 +192,21 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
                   </div>
                 )}
 
-                <button
-                  onClick={() => handleCall(lead)}
-                  disabled={isCalling || !f.phone_number}
-                  className="mt-auto w-full bg-brand-maroon text-white text-sm font-medium py-2 rounded-lg hover:bg-brand-maroon-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isCalling ? '📞 מחייג...' : '📞 חייג'}
-                </button>
+                <div className="mt-auto flex gap-2">
+                  <button
+                    onClick={() => handleCall(lead)}
+                    disabled={isCalling || !f.phone_number}
+                    className="flex-1 bg-brand-maroon text-white text-sm font-medium py-2 rounded-lg hover:bg-brand-maroon-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isCalling ? '📞 מחייג...' : '📞 חייג'}
+                  </button>
+                  <a
+                    href={`/leads/new?name=${encodeURIComponent(String(f['שם מלא'] ?? ''))}&phone=${encodeURIComponent(f.phone_number ?? '')}`}
+                    className="flex-1 text-center bg-white border border-brand-gold/40 text-brand-gold-deep text-sm font-medium py-2 rounded-lg hover:bg-brand-cream/60 transition-colors"
+                  >
+                    + צור ליד
+                  </a>
+                </div>
               </div>
             )
           })}

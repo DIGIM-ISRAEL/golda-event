@@ -1,3 +1,5 @@
+import { israelDateStr } from '@/lib/utils'
+
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY!
 const BASE_ID = 'app5pnaEc4UK3RUcP'
 const TABLE_ID = 'tblABFOvI4cQSz3sg'
@@ -52,7 +54,7 @@ export async function syncAirtableLeadsToDb(
 ): Promise<void> {
   if (phones.length === 0) return
   const leads = await getAirtableLeadsByPhones(phones)
-  const today = new Date().toISOString().split('T')[0]
+  const today = israelDateStr()
 
   for (const lead of leads) {
     const f = lead.fields

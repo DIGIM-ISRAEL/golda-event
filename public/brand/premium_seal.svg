@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="2200" viewBox="0 0 2200 2200">
+<rect width="2200" height="2200" fill="none"/>
+<circle cx="1100" cy="1100" r="920" stroke="#8C7F50" stroke-width="20" fill="none"/>
+<circle cx="1100" cy="1100" r="850" stroke="#8C7F50" stroke-width="8" fill="none"/>
+<polygon points="1100,648 1142,690 1100,732 1058,690" fill="#8C7F50"/>
+<polygon points="1100,1338 1142,1380 1100,1422 1058,1380" fill="#8C7F50"/>
+<text x="1100" y="980" text-anchor="middle" font-family="Georgia, serif" font-size="185" font-weight="700" letter-spacing="16" fill="#8C7F50">PREMIUM</text>
+<text x="1100" y="1195" text-anchor="middle" font-family="Georgia, serif" font-size="175" font-weight="700" letter-spacing="13" fill="#8C7F50">EXPERIENCE</text>
+</svg>

@@ -15,7 +15,7 @@ import {
 export async function syncLeadCalendar(leadId: string): Promise<void> {
   const lead = await db.lead.findUnique({
     where: { id: leadId },
-    include: { location: true },
+    include: { location: true, flavors: { include: { flavor: true } } },
   })
   if (!lead) return
 
@@ -25,10 +25,13 @@ export async function syncLeadCalendar(leadId: string): Promise<void> {
 
   const eventParams = {
     clientName: lead.clientName,
+    clientPhone: lead.clientPhone,
     cityName: lead.location?.cityName ?? '',
     eventDate: lead.eventDate,
     startTime: lead.startTime,
     endTime: lead.endTime,
+    participants: lead.participants,
+    flavors: lead.flavors.map((lf) => lf.flavor.name),
     notes: lead.notes,
   }
 

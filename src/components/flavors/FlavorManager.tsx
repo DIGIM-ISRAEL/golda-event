@@ -48,42 +48,6 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
     setAdding(false)
   }
 
-  function FlavorList({ list, title }: { list: Flavor[]; title: string }) {
-    return (
-      <div className="rounded-2xl border border-brand-line bg-white shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
-        <div className="px-5 py-4 border-b border-brand-line">
-          <h2 className="font-semibold text-brand-ink">{title}</h2>
-          <p className="text-xs text-brand-muted mt-0.5">
-            {list.filter((f) => f.is_in_stock).length} זמינים מתוך {list.length}
-          </p>
-        </div>
-        <div className="divide-y divide-brand-line">
-          {list.map((f) => (
-            <div key={f.id} className="flex items-center justify-between px-5 py-3">
-              <span className={`text-sm ${!f.is_in_stock ? 'line-through text-brand-muted' : 'text-brand-ink'}`}>
-                {f.name}
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => toggleStock(f.id, f.is_in_stock)}
-                  className={`relative inline-flex h-5 w-9 rounded-full transition-colors ${f.is_in_stock ? 'bg-[#4F7A43]' : 'bg-brand-line'}`}
-                >
-                  <span className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform ${f.is_in_stock ? 'translate-x-1' : 'translate-x-4'}`} />
-                </button>
-                <span className={`text-xs ${f.is_in_stock ? 'text-[#4A6B41]' : 'text-brand-muted'}`}>
-                  {f.is_in_stock ? 'במלאי' : 'אזל'}
-                </span>
-                {role === 'admin' && (
-                  <button onClick={() => deleteFlavor(f.id)} className="text-brand-maroon/70 hover:text-brand-maroon text-xs px-1">✕</button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       {role === 'admin' && (
@@ -115,8 +79,57 @@ export default function FlavorManager({ flavors: initial, role }: Props) {
           </div>
         </div>
       )}
-      <FlavorList list={parve} title="🌿 פרווה / סורבה / טבעוני" />
-      <FlavorList list={dairy} title="🥛 שמנת / חלבי" />
+      <FlavorList list={parve} title="🌿 פרווה / סורבה / טבעוני" role={role} onToggle={toggleStock} onDelete={deleteFlavor} />
+      <FlavorList list={dairy} title="🥛 שמנת / חלבי" role={role} onToggle={toggleStock} onDelete={deleteFlavor} />
+    </div>
+  )
+}
+
+// מחוץ לרכיב הראשי — רכיב מקונן נוצר מחדש בכל רינדור ומאבד state
+function FlavorList({
+  list,
+  title,
+  role,
+  onToggle,
+  onDelete,
+}: {
+  list: Flavor[]
+  title: string
+  role: 'admin' | 'sales'
+  onToggle: (id: string, current: boolean) => void
+  onDelete: (id: string) => void
+}) {
+  return (
+    <div className="rounded-2xl border border-brand-line bg-white shadow-[0_1px_2px_rgba(94,42,51,0.04),0_12px_32px_-22px_rgba(94,42,51,0.22)]">
+      <div className="px-5 py-4 border-b border-brand-line">
+        <h2 className="font-semibold text-brand-ink">{title}</h2>
+        <p className="text-xs text-brand-muted mt-0.5">
+          {list.filter((f) => f.is_in_stock).length} זמינים מתוך {list.length}
+        </p>
+      </div>
+      <div className="divide-y divide-brand-line">
+        {list.map((f) => (
+          <div key={f.id} className="flex items-center justify-between px-5 py-3">
+            <span className={`text-sm ${!f.is_in_stock ? 'line-through text-brand-muted' : 'text-brand-ink'}`}>
+              {f.name}
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onToggle(f.id, f.is_in_stock)}
+                className={`relative inline-flex h-5 w-9 rounded-full transition-colors ${f.is_in_stock ? 'bg-[#4F7A43]' : 'bg-brand-line'}`}
+              >
+                <span className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform ${f.is_in_stock ? 'translate-x-1' : 'translate-x-4'}`} />
+              </button>
+              <span className={`text-xs ${f.is_in_stock ? 'text-[#4A6B41]' : 'text-brand-muted'}`}>
+                {f.is_in_stock ? 'במלאי' : 'אזל'}
+              </span>
+              {role === 'admin' && (
+                <button onClick={() => onDelete(f.id)} className="text-brand-maroon/70 hover:text-brand-maroon text-xs px-1">✕</button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

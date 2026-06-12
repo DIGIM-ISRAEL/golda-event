@@ -1,15 +1,13 @@
 import { db } from '@/lib/db'
 import { LEAD_STATUS_DOTS } from '@/lib/constants'
+import { israelDateStr } from '@/lib/utils'
 import DashboardView from '@/components/dashboard/DashboardView'
 
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
-  const now = new Date()
-  const todayStr = now.toISOString().split('T')[0]
-  const tomorrow = new Date(now)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+  const todayStr = israelDateStr()
+  const tomorrowStr = israelDateStr(1)
 
   const [leads, allStatuses, todayEvents, tomorrowEvents, awaitingSignature] =
     await Promise.all([

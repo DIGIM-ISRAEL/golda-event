@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
+import { israelDateStr } from '@/lib/utils'
 import Link from 'next/link'
 import { LEAD_STATUS_COLORS, LEAD_STATUS_LABELS } from '@/lib/constants'
 import type { LeadStatus } from '@/lib/types'
@@ -22,9 +23,10 @@ export default async function CalendarPage({
 
   const { month: monthParam } = await searchParams
 
-  const now = new Date()
-  let year = now.getFullYear()
-  let month = now.getMonth() // 0-indexed
+  // היום בשעון ישראל — גם להדגשת "היום" וגם לחודש ברירת המחדל
+  const todayStr = israelDateStr()
+  let year = Number(todayStr.slice(0, 4))
+  let month = Number(todayStr.slice(5, 7)) - 1 // 0-indexed
 
   if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
     const [y, m] = monthParam.split('-').map(Number)
@@ -69,9 +71,8 @@ export default async function CalendarPage({
   ]
   while (cells.length % 7 !== 0) cells.push(null)
 
-  const todayStr = now.toISOString().split('T')[0]
   const currentMonthStr = `${year}-${String(month + 1).padStart(2, '0')}`
-  const nowMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const nowMonthStr = todayStr.slice(0, 7)
 
   return (
     <div className="p-4 h-full flex flex-col gap-3" dir="rtl">

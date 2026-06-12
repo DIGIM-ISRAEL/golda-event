@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3600" height="1200" viewBox="0 0 3600 1200">
+<rect width="3600" height="1200" fill="none"/>
+<polygon points="515,617 548,650 515,683 482,650" fill="#8C7F50"/>
+<polygon points="3085,617 3118,650 3085,683 3052,650" fill="#8C7F50"/>
+<text x="1800" y="705" text-anchor="middle" font-family="EB Garamond, Georgia, serif" font-size="430" letter-spacing="32" fill="#8C7F50">GOLDA</text>
+<g transform="translate(1800 245) scale(1.1)" stroke="#8C7F50" stroke-width="18" fill="none" stroke-linecap="round">
+<path d="M0 120 C0 70 0 35 0 0"/>
+<path d="M0 0 C-110 25 -185 70 -260 125"/>
+<path d="M0 0 C-80 -20 -145 -70 -205 -145"/>
+<path d="M0 0 C-40 -90 -35 -155 -5 -235"/>
+<path d="M0 0 C40 -90 35 -155 5 -235"/>
+<path d="M0 0 C80 -20 145 -70 205 -145"/>
+<path d="M0 0 C110 25 185 70 260 125"/>
+</g>
+</svg>

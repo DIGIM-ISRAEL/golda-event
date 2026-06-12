@@ -1,8 +1,15 @@
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import LeadForm from '@/components/leads/LeadForm'
 
-export default async function NewLeadPage() {
-  const [flavors, locations, settingsRows] = await Promise.all([
+export default async function NewLeadPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ name?: string; phone?: string }>
+}) {
+  const [{ name, phone }, session, flavors, locations, settingsRows] = await Promise.all([
+    searchParams,
+    getSession(),
     db.flavor.findMany({ orderBy: [{ category: 'asc' as const }, { sortOrder: 'asc' as const }] }),
     db.location.findMany({ orderBy: { cityName: 'asc' as const } }),
     db.settings.findMany(),
@@ -25,7 +32,14 @@ export default async function NewLeadPage() {
       <div className="bg-white border-b border-brand-line px-6 py-4">
         <h1 className="text-xl font-bold text-brand-ink">ליד חדש</h1>
       </div>
-      <LeadForm flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} />
+      <LeadForm
+        flavors={flavorsForForm}
+        locations={locationsForForm}
+        basketaCostNis={basketaCost}
+        role={session?.role ?? 'sales'}
+        initialName={name}
+        initialPhone={phone}
+      />
     </div>
   )
 }

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { timesOverlap } from '@/lib/utils'
 import { syncLeadCalendar } from '@/lib/calendar-sync'
-import nodemailer from 'nodemailer'
+import { findClosedConflict } from '@/lib/conflicts'
+import { sendEmail } from '@/lib/email'
+import { formatDate, formatTime } from '@/lib/utils'
+import { formatNIS } from '@/lib/pricing'
 
 export async function PATCH(
   request: NextRequest,
@@ -22,19 +24,15 @@ export async function PATCH(
 
   if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
+  // עגלה אחת בלבד — סגירה נחסמת אם קיים אירוע סגור חופף
   if (status === 'closed') {
-    const sameDayLeads = await db.lead.findMany({
-      where: { eventDate: lead.eventDate, status: 'closed', id: { not: id } },
-      include: { location: true },
+    const conflict = await findClosedConflict({
+      eventDate: lead.eventDate,
+      startTime: lead.startTime,
+      endTime: lead.endTime,
+      excludeLeadId: id,
     })
-
-    for (const other of sameDayLeads) {
-      if (timesOverlap(lead.startTime, lead.endTime, other.startTime, other.endTime)) {
-        return NextResponse.json({
-          error: `קיים אירוע חופף! ${other.clientName} — ${other.location?.cityName ?? ''} ${other.startTime.slice(0, 5)}–${other.endTime.slice(0, 5)}`,
-        }, { status: 409 })
-      }
-    }
+    if (conflict) return NextResponse.json({ error: conflict }, { status: 409 })
   }
 
   await db.lead.update({ where: { id }, data: { status } })
@@ -42,39 +40,29 @@ export async function PATCH(
   // סנכרון Google Calendar — יוצר אירוע בסגירה, מוחק כשיוצאים מ"סגור"
   await syncLeadCalendar(id)
 
-  if (status === 'closed') {
-    try {
-      const quote = await db.quote.findUnique({ where: { leadId: id } })
+  // התראה למנהל על עסקה שנסגרה
+  if (status === 'closed' && process.env.ADMIN_EMAIL) {
+    const quote = await db.quote.findUnique({ where: { leadId: id } })
 
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT ?? 587),
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      })
-
-      await transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to: process.env.ADMIN_EMAIL,
-        subject: `✅ עסקה נסגרה: ${lead.clientName}`,
-        html: `
-          <div dir="rtl" style="font-family:Arial;padding:20px">
-            <h2>עסקה חדשה נסגרה!</h2>
-            <p><strong>לקוח:</strong> ${lead.clientName}</p>
-            <p><strong>טלפון:</strong> ${lead.clientPhone}</p>
-            <p><strong>תאריך:</strong> ${lead.eventDate}</p>
-            <p><strong>מיקום:</strong> ${lead.location?.cityName ?? '—'}</p>
-            <p><strong>משתתפים:</strong> ${lead.participants}</p>
-            ${quote ? `<p><strong>סכום:</strong> ₪${quote.totalPrice.toLocaleString()}</p>` : ''}
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/leads/${id}"
-               style="background:#2563eb;color:white;padding:10px 20px;border-radius:8px;text-decoration:none">
-              פתח ליד במערכת
-            </a>
-          </div>
-        `,
-      })
-    } catch (e) {
-      console.error('Email error:', e)
-    }
+    await sendEmail({
+      to: process.env.ADMIN_EMAIL,
+      subject: `✅ עסקה נסגרה: ${lead.clientName}`,
+      html: `
+        <div dir="rtl" style="font-family:Arial,sans-serif;padding:20px;text-align:right;">
+          <h2 style="margin:0 0 12px;">עסקה חדשה נסגרה!</h2>
+          <p><strong>לקוח:</strong> ${lead.clientName}</p>
+          <p><strong>טלפון:</strong> ${lead.clientPhone}</p>
+          <p><strong>תאריך:</strong> ${formatDate(lead.eventDate)} · ${formatTime(lead.startTime)}–${formatTime(lead.endTime)}</p>
+          <p><strong>מיקום:</strong> ${lead.location?.cityName ?? '—'}</p>
+          <p><strong>משתתפים:</strong> ${lead.participants}</p>
+          ${quote ? `<p><strong>סכום:</strong> ${formatNIS(quote.totalPrice)}</p>` : ''}
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/leads/${id}"
+             style="display:inline-block;margin-top:10px;background:#5E2A33;color:#FAF4E9;padding:10px 20px;border-radius:8px;text-decoration:none;">
+            פתח ליד במערכת
+          </a>
+        </div>
+      `,
+    })
   }
 
   return NextResponse.json({ ok: true })

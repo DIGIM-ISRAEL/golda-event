@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
-import { CHECKLIST_ITEMS, CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
+import { CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
 import { calculateInventory } from '@/lib/inventory'
-import { formatDate, formatTime } from '@/lib/utils'
+import { formatDate, formatTime, israelDateStr } from '@/lib/utils'
 
 // Endpoint יורץ פעם ביום (Railway cron) ב-09:00.
 // מוצא את כל האירועים שמתקיימים מחר ושולח תזכורת.
@@ -15,10 +15,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // מחר בפורמט YYYY-MM-DD
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const tomorrowStr = tomorrow.toISOString().split('T')[0]
+  // מחר בפורמט YYYY-MM-DD (שעון ישראל — השרת רץ ב-UTC)
+  const tomorrowStr = israelDateStr(1)
 
   // מצא את כל האירועים של מחר שטרם נשלחה אליהם תזכורת
   const events = await db.lead.findMany({

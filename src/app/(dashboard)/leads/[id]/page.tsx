@@ -8,7 +8,8 @@ import {
   EVENT_TYPE_LABELS,
   OPERATIONAL_WARNING,
 } from '@/lib/constants'
-import { toWhatsAppNumber } from '@/lib/utils'
+import { toWhatsAppNumber, formatDate } from '@/lib/utils'
+import { formatNIS } from '@/lib/pricing'
 import LeadDetailView from '@/components/leads/LeadDetailView'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
@@ -73,6 +74,22 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
   const inventory = calculateInventory(lead.participants, basketaCost)
 
+  // הודעת וואטסאפ מוכנה — תקציר ההצעה + קישור לעמוד הצפייה/אישור/חתימה
+  const approveUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`
+  const quoteMessage = [
+    `שלום ${lead.clientName}! 🍦`,
+    `תודה על ההתעניינות בגולדה אירועים.`,
+    ``,
+    `הצעת המחיר לאירוע שלכם בתאריך ${formatDate(lead.eventDate)}${lead.location ? ` ב${lead.location.cityName}` : ''}:`,
+    `💰 סה"כ: ${formatNIS(pricing.totalPrice)}`,
+    ``,
+    `לצפייה בהצעה המלאה ואישור דיגיטלי:`,
+    approveUrl,
+    ``,
+    `נשמח לעמוד לרשותכם בכל שאלה!`,
+  ].join('\n')
+  const sendQuoteHref = `https://wa.me/${toWhatsAppNumber(lead.clientPhone)}?text=${encodeURIComponent(quoteMessage)}`
+
   return (
     <LeadDetailView
       id={id}
@@ -108,6 +125,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       editHref={`/leads/${id}/edit`}
       telHref={`tel:${lead.clientPhone}`}
       whatsappHref={`https://wa.me/${toWhatsAppNumber(lead.clientPhone)}`}
+      sendQuoteHref={sendQuoteHref}
       wazeHref={
         lead.location
           ? `https://waze.com/ul?q=${encodeURIComponent(lead.location.cityName)}`
@@ -127,9 +145,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           />
         ) : null
       }
-      signatureLink={
-        <SignatureLink url={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`} />
-      }
+      signatureLink={<SignatureLink url={approveUrl} />}
       checklist={
         <EventChecklist
           leadId={id}

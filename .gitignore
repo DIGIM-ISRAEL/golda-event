@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local workspace
+/.shots/
+/.claude/
+
+# brand source materials (not served by the app)
+/public/brand/XXXXX_Golda_ReBranding_PPT_055.pdf
+/public/brand/WhatsApp*.jpeg

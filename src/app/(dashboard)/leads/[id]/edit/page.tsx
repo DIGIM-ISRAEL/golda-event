@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import LeadForm from '@/components/leads/LeadForm'
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const session = await getSession()
 
   const [lead, flavors, locations, settingsRows] = await Promise.all([
     db.lead.findUnique({
@@ -77,7 +79,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
       <div className="bg-white border-b border-brand-line px-6 py-4">
         <h1 className="text-xl font-bold text-brand-ink">עריכת ליד — {lead.clientName}</h1>
       </div>
-      <LeadForm lead={leadForForm as Parameters<typeof LeadForm>[0]['lead']} flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} />
+      <LeadForm lead={leadForForm as Parameters<typeof LeadForm>[0]['lead']} flavors={flavorsForForm} locations={locationsForForm} basketaCostNis={basketaCost} role={session?.role ?? 'sales'} />
     </div>
   )
 }

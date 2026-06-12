@@ -12,6 +12,18 @@ export function formatTime(timeStr: string): string {
   return timeStr.slice(0, 5)
 }
 
+// תאריך בשעון ישראל בפורמט YYYY-MM-DD.
+// השרת (Railway) רץ ב-UTC — toISOString נותן יום שגוי בין חצות ל-02:00/03:00 שעון ישראל.
+export function israelDateStr(offsetDays = 0): string {
+  const d = new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000)
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jerusalem',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d)
+}
+
 // ממיר מספר טלפון ישראלי לפורמט בינלאומי ל-WhatsApp (972...)
 export function toWhatsAppNumber(phone: string): string {
   let digits = phone.replace(/\D/g, '')

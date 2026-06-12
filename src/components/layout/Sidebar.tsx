@@ -9,6 +9,7 @@ import {
   LogOut,
   LayoutDashboard,
   ClipboardList,
+  PhoneCall,
   CalendarDays,
   IceCream,
   MapPin,
@@ -35,6 +36,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'לוח בקרה', icon: LayoutDashboard },
+  { href: '/airtable-leads', label: 'לידים נכנסים', icon: PhoneCall },
   { href: '/leads', label: 'לידים', icon: ClipboardList },
   { href: '/calendar', label: 'לוח שנה', icon: CalendarDays },
   { href: '/flavors', label: 'טעמים', icon: IceCream },

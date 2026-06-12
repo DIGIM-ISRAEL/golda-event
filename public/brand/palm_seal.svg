@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3200" height="3200" viewBox="0 0 3200 3200">
+<rect width="3200" height="3200" fill="none"/>
+<circle cx="1600" cy="1600" r="1420" stroke="#8C7F50" stroke-width="24" fill="none"/>
+<circle cx="1600" cy="1600" r="1300" stroke="#8C7F50" stroke-width="12" fill="none"/>
+<polygon points="680,600 725,645 680,690 635,645" fill="#8C7F50"/>
+<polygon points="2520,600 2565,645 2520,690 2475,645" fill="#8C7F50"/>
+<text x="1600" y="590" text-anchor="middle" direction="rtl" unicode-bidi="bidi-override" font-family="Noto Serif Hebrew, serif" font-size="250" font-weight="700" fill="#8C7F50">גולדה</text>
+<text x="650" y="1350" text-anchor="middle" font-family="Georgia, serif" font-size="180" font-weight="700" fill="#8C7F50">E<tspan x="650" dy="220">S</tspan><tspan x="650" dy="220">T</tspan><tspan x="650" dy="220">B</tspan></text>
+<text x="2550" y="1350" text-anchor="middle" font-family="Georgia, serif" font-size="180" font-weight="700" fill="#8C7F50">2<tspan x="2550" dy="220">0</tspan><tspan x="2550" dy="220">1</tspan><tspan x="2550" dy="220">2</tspan></text>
+<text x="1600" y="2815" text-anchor="middle" direction="rtl" unicode-bidi="bidi-override" font-family="Noto Serif Hebrew, serif" font-size="145" font-weight="700" fill="#8C7F50">גלידה ישראלית</text>
+<g transform="translate(1600 1450) scale(2.5)" stroke="#8C7F50" stroke-width="16" fill="none" stroke-linecap="round">
+<path d="M0 -80 C0 80 0 240 0 430"/>
+<path d="M0 -80 C-190 -70 -340 10 -500 160"/>
+<path d="M0 -80 C-150 -190 -240 -340 -330 -530"/>
+<path d="M0 -80 C-60 -280 -40 -430 -5 -620"/>
+<path d="M0 -80 C60 -280 40 -430 5 -620"/>
+<path d="M0 -80 C150 -190 240 -340 330 -530"/>
+<path d="M0 -80 C190 -70 340 10 500 160"/>
+</g>
+</svg>

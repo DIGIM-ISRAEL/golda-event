@@ -66,6 +66,7 @@ export interface LeadDetailViewProps {
   editHref: string
   telHref: string
   whatsappHref: string
+  sendQuoteHref: string
   wazeHref?: string | null
   // slots — רכיבי קליינט
   statusChanger: React.ReactNode
@@ -101,6 +102,7 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
     editHref,
     telHref,
     whatsappHref,
+    sendQuoteHref,
     wazeHref,
     statusChanger,
     profitabilityPanel,
@@ -362,12 +364,24 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
               title={
                 <span className="flex items-center gap-2">
                   <PenLine size={15} className="text-brand-gold" />
-                  חתימה דיגיטלית
+                  שליחת הצעה ללקוח
                 </span>
               }
             />
             <div className="p-5">
-              <p className="text-xs text-brand-muted mb-3">שלח ללקוח לאישור ההצעה:</p>
+              <a
+                href={sendQuoteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-[#4F7A43] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#456B3A] transition-colors mb-3"
+              >
+                <MessageCircle size={16} />
+                שלח הצעה בוואטסאפ
+              </a>
+              <p className="text-xs text-brand-muted mb-2">
+                ההודעה כוללת את תקציר ההצעה וקישור לצפייה, אישור וחתימה דיגיטלית.
+              </p>
+              <p className="text-xs text-brand-muted mb-1.5">או העתק את הקישור ידנית:</p>
               {signatureLink}
             </div>
           </Card>

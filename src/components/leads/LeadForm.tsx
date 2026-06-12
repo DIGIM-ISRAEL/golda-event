@@ -13,14 +13,17 @@ interface LeadFormProps {
   locations: Location[]
   role?: 'admin' | 'sales'
   basketaCostNis: number
+  // מילוי מראש מליד נכנס (שיחת טלפון) — שם וטלפון
+  initialName?: string
+  initialPhone?: string
 }
 
-export default function LeadForm({ lead, flavors, locations, role = 'sales', basketaCostNis }: LeadFormProps) {
+export default function LeadForm({ lead, flavors, locations, role = 'sales', basketaCostNis, initialName, initialPhone }: LeadFormProps) {
   const router = useRouter()
   const isEdit = !!lead
 
-  const [clientName, setClientName] = useState(lead?.client_name ?? '')
-  const [clientPhone, setClientPhone] = useState(lead?.client_phone ?? '')
+  const [clientName, setClientName] = useState(lead?.client_name ?? initialName ?? '')
+  const [clientPhone, setClientPhone] = useState(lead?.client_phone ?? initialPhone ?? '')
   const [clientType, setClientType] = useState<ClientType>(lead?.client_type ?? 'institutional')
   const [eventType, setEventType] = useState<EventType>(lead?.event_type ?? 'dairy')
   const [eventDate, setEventDate] = useState(lead?.event_date ?? '')
@@ -124,7 +127,12 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
     }
   }
 
-  async function handleSave(status: string) {
+  // בעריכה לא שולחים סטטוס בכלל — שמירת שינויים לא מורידה עסקה סגורה חזרה לליד.
+  // הסטטוס משתנה רק מעמוד הליד (או בכפתורי היצירה).
+  async function handleSave(status?: string) {
+    if (!clientName.trim()) { setError('נא להזין שם לקוח'); return }
+    if (!clientPhone.trim()) { setError('נא להזין טלפון'); return }
+    if (!eventDate) { setError('נא לבחור תאריך אירוע'); return }
     setSaving(true)
     setError('')
 
@@ -138,7 +146,7 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
       endTime: endTime,
       locationId: locationId || null,
       participants,
-      status,
+      ...(status ? { status } : {}),
       notes,
       includedItems: includedItems.map((s) => s.trim()).filter(Boolean),
       managerIncluded,
@@ -480,14 +488,23 @@ export default function LeadForm({ lead, flavors, locations, role = 'sales', bas
           className="px-5 py-2.5 border border-brand-line rounded-xl text-sm text-brand-ink hover:bg-brand-cream/60">
           ביטול
         </button>
-        <button type="button" onClick={() => handleSave('lead')} disabled={saving}
-          className="px-5 py-2.5 bg-white border border-brand-gold/40 text-brand-gold-deep rounded-xl text-sm font-medium hover:bg-brand-cream/60 disabled:opacity-60">
-          שמור כליד
-        </button>
-        <button type="button" onClick={() => handleSave('quote_sent')} disabled={saving}
-          className="px-5 py-2.5 bg-brand-maroon text-brand-cream rounded-xl text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
-          {saving ? 'שומר...' : 'שמור ושלח הצעה'}
-        </button>
+        {isEdit ? (
+          <button type="button" onClick={() => handleSave()} disabled={saving}
+            className="px-5 py-2.5 bg-brand-maroon text-brand-cream rounded-xl text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
+            {saving ? 'שומר...' : 'שמור שינויים'}
+          </button>
+        ) : (
+          <>
+            <button type="button" onClick={() => handleSave('lead')} disabled={saving}
+              className="px-5 py-2.5 bg-white border border-brand-gold/40 text-brand-gold-deep rounded-xl text-sm font-medium hover:bg-brand-cream/60 disabled:opacity-60">
+              שמור כליד
+            </button>
+            <button type="button" onClick={() => handleSave('quote_sent')} disabled={saving}
+              className="px-5 py-2.5 bg-brand-maroon text-brand-cream rounded-xl text-sm font-medium hover:bg-brand-maroon-dark disabled:opacity-60">
+              {saving ? 'שומר...' : 'שמור ושלח הצעה'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
