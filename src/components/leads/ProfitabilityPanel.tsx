@@ -1,7 +1,7 @@
 'use client'
 
 import { Banknote, TriangleAlert } from 'lucide-react'
-import { calculateInventory, calculateProfitability } from '@/lib/inventory'
+import { calculateInventory, calculateProfitability, effectiveBasketaCost } from '@/lib/inventory'
 import { formatNIS } from '@/lib/pricing'
 import { MANAGER_COST, ASSISTANT_COST } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -14,6 +14,8 @@ interface Props {
   participants: number
   basketaCostNis: number
   profitWarningThreshold: number
+  // עלויות הייצור של הטעמים שנבחרו — מאפשרות חישוב עלות גלידה אמיתית
+  flavorCosts?: (number | null)[]
 }
 
 export default function ProfitabilityPanel({
@@ -24,8 +26,10 @@ export default function ProfitabilityPanel({
   participants,
   basketaCostNis,
   profitWarningThreshold,
+  flavorCosts = [],
 }: Props) {
-  const inventory = calculateInventory(participants, basketaCostNis)
+  const effective = effectiveBasketaCost(flavorCosts, basketaCostNis)
+  const inventory = calculateInventory(participants, effective.cost)
   const profitability = calculateProfitability(
     totalCustomerPrice,
     logisticsCost,
@@ -79,8 +83,13 @@ export default function ProfitabilityPanel({
           <span dir="ltr">−{formatNIS(logisticsCost)}</span>
         </div>
         <div className="flex justify-between text-brand-muted">
-          <span>גלידה ({inventory.basketasRequired} בסקטות)</span>
+          <span>גלידה ({inventory.basketasRequired} בסקטות × ₪{Math.round(effective.cost)})</span>
           <span dir="ltr">−{formatNIS(inventory.estimatedCost)}</span>
+        </div>
+        <div className="text-[11px] text-brand-muted/80 -mt-1">
+          {effective.fromFlavors
+            ? 'עלות בסקטה לפי ממוצע הטעמים שנבחרו (מאקסל העלויות)'
+            : 'עלות בסקטה לפי ברירת המחדל — בחר טעמים לחישוב מדויק'}
         </div>
         <div className="flex justify-between items-baseline font-bold border-t border-brand-line/70 pt-2">
           <span className="text-brand-ink">רווח נקי</span>

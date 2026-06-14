@@ -47,16 +47,26 @@ export async function POST(request: NextRequest) {
     })
     if (existing) {
       seenIds.add(existing.id)
-      if (existing.category !== entry.category || existing.sortOrder !== i) {
+      if (
+        existing.category !== entry.category ||
+        existing.sortOrder !== i ||
+        existing.costPerBasketa !== entry.costPerBasketa
+      ) {
         await db.flavor.update({
           where: { id: existing.id },
-          data: { category: entry.category, sortOrder: i },
+          data: { category: entry.category, sortOrder: i, costPerBasketa: entry.costPerBasketa },
         })
         updated++
       }
     } else {
       const f = await db.flavor.create({
-        data: { name: entry.name, category: entry.category, sortOrder: i, isInStock: true },
+        data: {
+          name: entry.name,
+          category: entry.category,
+          sortOrder: i,
+          isInStock: true,
+          costPerBasketa: entry.costPerBasketa,
+        },
       })
       seenIds.add(f.id)
       created.push(entry.name)
@@ -82,9 +92,23 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // עדכון אופציונלי של עלות ברירת המחדל לבסקטה (?setBasketaCost=133) —
+  // משמשת רק כשלא נבחרו טעמים לליד; עם טעמים — העלות מחושבת מהם ישירות
+  let basketaCostSet: number | null = null
+  const setBasketaCost = request.nextUrl.searchParams.get('setBasketaCost')
+  if (setBasketaCost && Number(setBasketaCost) > 0) {
+    basketaCostSet = Number(setBasketaCost)
+    await db.settings.upsert({
+      where: { key: 'basketa_cost_nis' },
+      update: { value: String(basketaCostSet) },
+      create: { key: 'basketa_cost_nis', value: String(basketaCostSet) },
+    })
+  }
+
   const total = await db.flavor.count()
 
   return NextResponse.json({
+    basketaCostSet,
     ok: true,
     summary: {
       catalogSize: FLAVOR_CATALOG.length,

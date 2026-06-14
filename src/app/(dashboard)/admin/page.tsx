@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { calculateInventory, calculateProfitability } from '@/lib/inventory'
+import { calculateInventory, calculateProfitability, effectiveBasketaCost } from '@/lib/inventory'
 import { formatNIS } from '@/lib/pricing'
 import { LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
@@ -16,7 +16,7 @@ export default async function AdminPage() {
   const [leads, settingsRows] = await Promise.all([
     db.lead.findMany({
       where: { status: { in: ['closed', 'quote_sent'] } },
-      include: { location: true, quote: true },
+      include: { location: true, quote: true, flavors: { include: { flavor: true } } },
       orderBy: { eventDate: 'asc' },
     }),
     db.settings.findMany(),
@@ -51,7 +51,11 @@ export default async function AdminPage() {
               {leads.map((lead) => {
                 const totalPrice = lead.quote?.totalPrice ?? 0
                 const logisticsCost = lead.location?.travelCostNis ?? 0
-                const inventory = calculateInventory(lead.participants, basketaCost)
+                const effective = effectiveBasketaCost(
+                  lead.flavors.map((lf) => lf.flavor.costPerBasketa),
+                  basketaCost,
+                )
+                const inventory = calculateInventory(lead.participants, effective.cost)
                 const profitability = calculateProfitability(
                   totalPrice, logisticsCost, lead.managerIncluded,
                   lead.assistantsCount, inventory.estimatedCost, profitThreshold,

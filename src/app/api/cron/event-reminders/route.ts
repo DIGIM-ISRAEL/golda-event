@@ -95,6 +95,8 @@ export async function GET(request: NextRequest) {
   })
 }
 
+// כושר ייצור גלידן: 9 בסקטות בשעה (מתוך אקסל העלויות, "36 קילו בשעה")
+const BASKETAS_PER_HOUR = 9
 const DAY_MS = 24 * 60 * 60 * 1000
 // שלבי הפולואפ: יום 2 (נגיעה ראשונה) ויום 5 (נגיעה שנייה) — אחר כך מפסיקים
 const FOLLOWUP_DAYS = [2, 5]
@@ -242,6 +244,7 @@ function renderReminderHtml(params: {
         <tr><td style="padding:4px 0;color:#6b7280;">מקום:</td><td>${params.cityName} · <a href="${wazeUrl}" style="color:#2563eb;">פתח בוויז 🗺️</a></td></tr>
         <tr><td style="padding:4px 0;color:#6b7280;">משתתפים:</td><td>${params.participants}</td></tr>
         <tr><td style="padding:4px 0;color:#6b7280;">בסקטות:</td><td><strong>${params.basketasRequired}</strong> (${params.basketasRequired * 4.5} ק"ג)</td></tr>
+        <tr><td style="padding:4px 0;color:#6b7280;">זמן ייצור משוער:</td><td><strong>~${Math.max(1, Math.ceil(params.basketasRequired / BASKETAS_PER_HOUR))} שעות</strong> (לפי 9 בסקטות בשעה)</td></tr>
       </table>
 
       ${params.notes ? `<div style="margin-top:16px;padding:12px;background:#fef3c7;border-right:3px solid #f59e0b;border-radius:6px;font-size:14px;"><strong>הערות:</strong> ${params.notes}</div>` : ''}

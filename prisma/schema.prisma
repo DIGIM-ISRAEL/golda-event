@@ -71,13 +71,14 @@ model Location {
 }
 
 model Flavor {
-  id          String         @id @default(cuid())
-  name        String
-  category    FlavorCategory
-  isInStock   Boolean        @default(true) @map("is_in_stock")
-  sortOrder   Int            @default(0) @map("sort_order")
-  createdAt   DateTime       @default(now()) @map("created_at")
-  leadFlavors LeadFlavor[]
+  id             String         @id @default(cuid())
+  name           String
+  category       FlavorCategory
+  isInStock      Boolean        @default(true) @map("is_in_stock")
+  sortOrder      Int            @default(0) @map("sort_order")
+  costPerBasketa Float?         @map("cost_per_basketa")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  leadFlavors    LeadFlavor[]
 
   @@map("flavors")
 }

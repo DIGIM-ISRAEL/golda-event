@@ -74,6 +74,7 @@ export interface LeadDetailViewProps {
   profitabilityPanel?: React.ReactNode
   signatureLink: React.ReactNode
   sendQuoteButton: React.ReactNode
+  waQuickSend?: React.ReactNode
   checklist: React.ReactNode
 }
 
@@ -110,6 +111,7 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
     profitabilityPanel,
     signatureLink,
     sendQuoteButton,
+    waQuickSend,
     checklist,
   } = props
 
@@ -389,6 +391,9 @@ export default function LeadDetailView(props: LeadDetailViewProps) {
               </p>
               <p className="text-xs text-brand-muted mb-1.5">או העתק את הקישור ידנית:</p>
               {signatureLink}
+              {waQuickSend && (
+                <div className="mt-4 pt-4 border-t border-brand-line/70">{waQuickSend}</div>
+              )}
             </div>
           </Card>
 

@@ -8,14 +8,16 @@ import {
   EVENT_TYPE_LABELS,
   OPERATIONAL_WARNING,
 } from '@/lib/constants'
-import { toWhatsAppNumber, formatDate } from '@/lib/utils'
+import { toWhatsAppNumber, formatDate, formatTime } from '@/lib/utils'
 import { formatNIS } from '@/lib/pricing'
 import LeadDetailView from '@/components/leads/LeadDetailView'
 import ProfitabilityPanel from '@/components/leads/ProfitabilityPanel'
 import StatusChanger from '@/components/leads/StatusChanger'
 import SignatureLink from '@/components/leads/SignatureLink'
 import SendQuoteButton from '@/components/leads/SendQuoteButton'
+import WaQuickSend from '@/components/leads/WaQuickSend'
 import EventChecklist from '@/components/leads/EventChecklist'
+import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -91,6 +93,20 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   ].join('\n')
   const sendQuoteHref = `https://wa.me/${toWhatsAppNumber(lead.clientPhone)}?text=${encodeURIComponent(quoteMessage)}`
 
+  // תבניות הודעה מהירות לוואטסאפ — מהגדרות (או ברירת מחדל), ממולאות לפי הליד
+  const waVars = {
+    name: lead.clientName,
+    dateLabel: formatDate(lead.eventDate),
+    timeLabel: formatTime(lead.startTime),
+    cityName: lead.location?.cityName ?? null,
+    priceLabel: formatNIS(pricing.totalPrice),
+    approveUrl,
+  }
+  const waMessages = parseWaTemplates(settingsMap['wa_templates']).map((t) => ({
+    title: t.title,
+    text: fillWaTemplate(t.body, waVars),
+  }))
+
   return (
     <LeadDetailView
       id={id}
@@ -143,6 +159,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             participants={lead.participants}
             basketaCostNis={basketaCost}
             profitWarningThreshold={profitThreshold}
+            flavorCosts={flavors.map((f) => f.costPerBasketa)}
           />
         ) : null
       }
@@ -150,6 +167,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       sendQuoteButton={
         <SendQuoteButton leadId={id} currentStatus={lead.status} sendQuoteHref={sendQuoteHref} />
       }
+      waQuickSend={<WaQuickSend waNumber={toWhatsAppNumber(lead.clientPhone)} messages={waMessages} />}
       checklist={
         <EventChecklist
           leadId={id}
