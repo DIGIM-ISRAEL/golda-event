@@ -1,6 +1,17 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { toWhatsAppNumber } from '@/lib/utils'
+import { INCOMING_GREETING } from '@/lib/wa-templates'
+
+// ברכת וואטסאפ לליד טרי — ממלא שם אם יש, אחרת ברכה גנרית
+function greetingHref(phone: string | undefined, name: string | undefined): string | null {
+  if (!phone) return null
+  const msg = name
+    ? INCOMING_GREETING.replace('{שם}', name)
+    : INCOMING_GREETING.replace('שלום {שם}!', 'שלום!')
+  return `https://wa.me/${toWhatsAppNumber(phone)}?text=${encodeURIComponent(msg)}`
+}
 
 interface AirtableFields {
   'שם מלא'?: string
@@ -207,6 +218,17 @@ export default function AirtableLeadsClient({ isAdmin, hasPhone }: Props) {
                     + צור ליד
                   </a>
                 </div>
+
+                {greetingHref(f.phone_number, f['שם מלא'] ? String(f['שם מלא']) : undefined) && (
+                  <a
+                    href={greetingHref(f.phone_number, f['שם מלא'] ? String(f['שם מלא']) : undefined)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-[#4F7A43] text-white text-sm font-medium py-2 rounded-lg hover:bg-[#456B3A] transition-colors"
+                  >
+                    💬 שלח ברכה בוואטסאפ
+                  </a>
+                )}
               </div>
             )
           })}

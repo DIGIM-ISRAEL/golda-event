@@ -10,6 +10,7 @@ import {
   EVENT_TYPE_LABELS,
 } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import LeadCardWa from '@/components/leads/LeadCardWa'
 
 interface KanbanLead {
   id: string
@@ -23,6 +24,8 @@ interface KanbanLead {
   airtableRecordId: string | null
   location: { cityName: string } | null
   quote: { totalPrice: number } | null
+  waNumber: string
+  waMessages: { title: string; text: string }[]
 }
 
 interface Props {
@@ -167,6 +170,7 @@ export default function KanbanBoard({ initialLeads }: Props) {
                       </span>
                     </div>
                   </Link>
+                  <LeadCardWa waNumber={lead.waNumber} messages={lead.waMessages} />
                 </div>
               ))}
 

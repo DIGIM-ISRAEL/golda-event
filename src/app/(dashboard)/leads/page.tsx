@@ -3,6 +3,9 @@ import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import { syncAirtableLeadsToDb } from '@/lib/airtable'
 import KanbanBoard from '@/components/leads/KanbanBoard'
+import { toWhatsAppNumber, formatDate, formatTime } from '@/lib/utils'
+import { formatNIS } from '@/lib/pricing'
+import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +32,12 @@ export default async function LeadsPage() {
     }
   }
 
+  // תבניות הודעה לוואטסאפ — מהגדרות (או ברירת מחדל), ממולאות לכל ליד
+  const settingsRows = await db.settings.findMany().catch(() => [] as { key: string; value: string }[])
+  const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
+  const templates = parseWaTemplates(settingsMap['wa_templates'])
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+
   let leads: {
     id: string
     clientName: string
@@ -41,6 +50,8 @@ export default async function LeadsPage() {
     airtableRecordId: string | null
     location: { cityName: string } | null
     quote: { totalPrice: number } | null
+    waNumber: string
+    waMessages: { title: string; text: string }[]
   }[] = []
 
   try {
@@ -50,22 +61,43 @@ export default async function LeadsPage() {
         clientName: true,
         clientPhone: true,
         eventDate: true,
+        startTime: true,
         participants: true,
         status: true,
         clientType: true,
         eventType: true,
         airtableRecordId: true,
+        signatureToken: true,
         location: { select: { cityName: true } },
         quote: { select: { totalPrice: true } },
       },
       orderBy: { createdAt: 'desc' },
     })
-    leads = raw.map((l) => ({
-      ...l,
-      status: l.status as string,
-      clientType: l.clientType as string,
-      eventType: l.eventType as string,
-    }))
+    leads = raw.map((l) => {
+      const vars = {
+        name: l.clientName,
+        dateLabel: formatDate(l.eventDate),
+        timeLabel: formatTime(l.startTime),
+        cityName: l.location?.cityName ?? null,
+        priceLabel: l.quote ? formatNIS(l.quote.totalPrice) : '',
+        approveUrl: `${appUrl}/approve/${l.signatureToken}`,
+      }
+      return {
+        id: l.id,
+        clientName: l.clientName,
+        clientPhone: l.clientPhone,
+        eventDate: l.eventDate,
+        participants: l.participants,
+        status: l.status as string,
+        clientType: l.clientType as string,
+        eventType: l.eventType as string,
+        airtableRecordId: l.airtableRecordId,
+        location: l.location,
+        quote: l.quote,
+        waNumber: toWhatsAppNumber(l.clientPhone),
+        waMessages: templates.map((t) => ({ title: t.title, text: fillWaTemplate(t.body, vars) })),
+      }
+    })
   } catch {
     // DB error — render empty board
   }
