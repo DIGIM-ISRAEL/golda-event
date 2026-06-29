@@ -50,11 +50,18 @@ export const GRAMS_PER_BASKETA = 4500
 export const BASKETAS_PER_HOUR = 9
 
 // כלי הגשה מתכלים — עלות ליחידה (₪) מאקסל העלויות, וכמות פר משתתף.
-// משמש לחישוב "כמה הכל עלה" בצד המנהל. כלים אינם נספרים בהחזרות (זניח).
-export const UTENSIL_COSTS: { key: string; label: string; perUnit: number; perParticipant: number }[] = [
-  { key: 'cup', label: 'גביע', perUnit: 0.247, perParticipant: 1 },
-  { key: 'spoon', label: 'כפית', perUnit: 0.052, perParticipant: 1 },
-  { key: 'napkin', label: 'מפית', perUnit: 0.03, perParticipant: 1 },
+// משמש לחישוב "כמה הכל עלה" בצד המנהל. ניתן לעריכה בהגדרות (key: supply_costs).
+// כלים אינם נספרים בהחזרות (זניח). אלו ברירות המחדל אם לא הוגדר אחרת.
+export interface SupplyItem {
+  label: string
+  unitCost: number // עלות ליחידה (₪)
+  qtyPerParticipant: number // כמה יחידות פר משתתף (אפשר עשרוני)
+}
+
+export const DEFAULT_SUPPLIES: SupplyItem[] = [
+  { label: 'גביע הגשה', unitCost: 0.247, qtyPerParticipant: 1 },
+  { label: 'כפית', unitCost: 0.052, qtyPerParticipant: 1 },
+  { label: 'מפית', unitCost: 0.03, qtyPerParticipant: 1 },
 ]
 
 export const MAX_FLAVORS = 6

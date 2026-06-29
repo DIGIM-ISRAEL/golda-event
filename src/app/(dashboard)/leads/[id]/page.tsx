@@ -18,7 +18,7 @@ import SendQuoteButton from '@/components/leads/SendQuoteButton'
 import WaQuickSend from '@/components/leads/WaQuickSend'
 import EventChecklistSection from '@/components/leads/EventChecklistSection'
 import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
-import { computeEventCost, type EventLog } from '@/lib/event-cost'
+import { computeEventCost, parseSupplies, type EventLog } from '@/lib/event-cost'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -79,11 +79,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const inventory = calculateInventory(lead.participants, basketaCost)
 
   // פירוק עלות האירוע (כולל יצא/חזר) — לפאנל הרווחיות
+  const supplies = parseSupplies(settingsMap['supply_costs'])
   const eventCost = computeEventCost({
     flavors: flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa })),
     participants: lead.participants,
     fallbackBasketaCost: basketaCost,
     eventLog: (lead.eventLog as EventLog | null) ?? null,
+    supplies,
   })
 
   // הודעת וואטסאפ מוכנה — תקציר ההצעה + קישור לעמוד הצפייה/אישור/חתימה
@@ -193,6 +195,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           managerIncluded={lead.managerIncluded}
           assistantsCount={lead.assistantsCount}
           logisticsCost={logisticsCost}
+          supplies={supplies}
         />
       }
     />

@@ -4,7 +4,9 @@ import { getSession } from '@/lib/session'
 import SettingsForm from '@/components/admin/SettingsForm'
 import FlavorSyncButton from '@/components/admin/FlavorSyncButton'
 import WaTemplatesForm from '@/components/admin/WaTemplatesForm'
+import SuppliesForm from '@/components/admin/SuppliesForm'
 import { parseWaTemplates } from '@/lib/wa-templates'
+import { parseSupplies } from '@/lib/event-cost'
 
 export default async function SettingsPage() {
   const session = await getSession()
@@ -24,6 +26,7 @@ export default async function SettingsPage() {
         depositInstructions={settingsMap['deposit_instructions'] ?? ''}
         depositLink={settingsMap['deposit_link'] ?? ''}
       />
+      <SuppliesForm initial={parseSupplies(settingsMap['supply_costs'])} />
       <WaTemplatesForm initial={parseWaTemplates(settingsMap['wa_templates'])} />
       <FlavorSyncButton />
     </div>

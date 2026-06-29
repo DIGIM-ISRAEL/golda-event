@@ -1,4 +1,25 @@
-import { GRAMS_PER_PORTION, GRAMS_PER_BASKETA, UTENSIL_COSTS } from '@/lib/constants'
+import { GRAMS_PER_PORTION, GRAMS_PER_BASKETA, DEFAULT_SUPPLIES, type SupplyItem } from '@/lib/constants'
+
+// קריאת רשימת כלי ההגשה מההגדרות (JSON), עם נפילה רכה לברירת המחדל.
+export function parseSupplies(raw: string | undefined | null): SupplyItem[] {
+  if (!raw) return DEFAULT_SUPPLIES
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      const clean = parsed
+        .filter(
+          (s): s is SupplyItem =>
+            s && typeof s.label === 'string' && typeof s.unitCost === 'number' && typeof s.qtyPerParticipant === 'number',
+        )
+        .map((s) => ({ label: s.label.trim(), unitCost: s.unitCost, qtyPerParticipant: s.qtyPerParticipant }))
+        .filter((s) => s.label && s.unitCost >= 0 && s.qtyPerParticipant >= 0)
+      return clean // מותר ריק — אם המשתמש מחק הכל, אין עלות כלים
+    }
+  } catch {
+    /* JSON פגום — ברירת מחדל */
+  }
+  return DEFAULT_SUPPLIES
+}
 
 // יומן האירוע — נשמר בשדה lead.eventLog (JSON). הכל אופציונלי:
 // ליד בלי eventLog מתנהג כמו "הכל יצא, כלום לא חזר" (ברירת מחדל = התנהגות היום).
@@ -34,7 +55,7 @@ export interface EventCostResult {
   iceCreamReturn: number
   iceCreamNet: number
   utensilsCost: number
-  utensilLines: { key: string; label: string; qty: number; unitCost: number; cost: number }[]
+  utensilLines: { label: string; qty: number; unitCost: number; cost: number }[]
   goodsCost: number // גלידה נטו + כלים
   hasReturns: boolean
 }
@@ -63,8 +84,10 @@ export function computeEventCost(params: {
   participants: number
   fallbackBasketaCost: number
   eventLog?: EventLog | null
+  supplies?: SupplyItem[]
 }): EventCostResult {
   const { flavors, participants, fallbackBasketaCost, eventLog } = params
+  const supplies = params.supplies ?? DEFAULT_SUPPLIES
   const basketasRequired = basketasRequiredFor(participants)
   const ids = flavors.map((f) => f.id)
   const defaultOut = defaultBasketaSplit(ids, basketasRequired)
@@ -98,9 +121,9 @@ export function computeEventCost(params: {
     }
   })
 
-  const utensilLines = UTENSIL_COSTS.map((u) => {
-    const qty = Math.round(participants * u.perParticipant)
-    return { key: u.key, label: u.label, qty, unitCost: u.perUnit, cost: qty * u.perUnit }
+  const utensilLines = supplies.map((u) => {
+    const qty = Math.round(participants * u.qtyPerParticipant)
+    return { label: u.label, qty, unitCost: u.unitCost, cost: qty * u.unitCost }
   })
   const utensilsCost = utensilLines.reduce((s, u) => s + u.cost, 0)
 

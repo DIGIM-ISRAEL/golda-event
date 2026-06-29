@@ -5,7 +5,7 @@ import { Minus, Plus, IceCreamCone, Wallet, PackageOpen, ClipboardList, Undo2 } 
 import EventChecklist from '@/components/leads/EventChecklist'
 import { computeEventCost, type EventLog, type FlavorCostInfo } from '@/lib/event-cost'
 import { formatNIS } from '@/lib/pricing'
-import { MANAGER_COST, ASSISTANT_COST } from '@/lib/constants'
+import { MANAGER_COST, ASSISTANT_COST, type SupplyItem } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -21,17 +21,18 @@ interface Props {
   managerIncluded: boolean
   assistantsCount: number
   logisticsCost: number
+  supplies: SupplyItem[]
 }
 
 export default function EventChecklistSection(props: Props) {
-  const { leadId, role, status, participants, flavors, fallbackBasketaCost } = props
+  const { leadId, role, status, participants, flavors, fallbackBasketaCost, supplies } = props
   const isAdmin = role === 'admin'
 
   const [tab, setTab] = useState<'worker' | 'manager'>('worker')
   const [eventLog, setEventLog] = useState<EventLog>(props.initialEventLog ?? {})
   const [, startTransition] = useTransition()
 
-  const cost = computeEventCost({ flavors, participants, fallbackBasketaCost, eventLog })
+  const cost = computeEventCost({ flavors, participants, fallbackBasketaCost, eventLog, supplies })
 
   function save(next: EventLog) {
     setEventLog(next)
@@ -286,7 +287,7 @@ function ManagerView({
         </h3>
         <div className="space-y-1">
           {cost.utensilLines.map((u) => (
-            <div key={u.key} className="flex items-center justify-between text-sm">
+            <div key={u.label} className="flex items-center justify-between text-sm">
               <span className="text-brand-muted">
                 {u.label} × {u.qty}
               </span>
