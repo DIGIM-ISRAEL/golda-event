@@ -49,11 +49,11 @@ export default function EventChecklistSection(props: Props) {
     })
   }
 
-  function setReturned(flavorId: string, value: number) {
+  function setReturnedKg(flavorId: string, value: number) {
     const line = cost.flavorLines.find((l) => l.id === flavorId)
-    const max = line ? line.out : 0
+    const max = line ? line.outKg : 0
     const v = Math.max(0, Math.min(value, max))
-    save({ ...eventLog, basketasReturned: { ...(eventLog.basketasReturned ?? {}), [flavorId]: v } })
+    save({ ...eventLog, returnedKg: { ...(eventLog.returnedKg ?? {}), [flavorId]: v } })
   }
 
   function setOut(flavorId: string, value: number) {
@@ -90,7 +90,7 @@ export default function EventChecklistSection(props: Props) {
             lines={cost.flavorLines}
             status={status}
             showCosts={false}
-            onReturn={setReturned}
+            onReturnKg={setReturnedKg}
           />
         </div>
       ) : (
@@ -102,7 +102,7 @@ export default function EventChecklistSection(props: Props) {
           logisticsCost={props.logisticsCost}
           status={status}
           onOut={setOut}
-          onReturn={setReturned}
+          onReturnKg={setReturnedKg}
         />
       )}
     </div>
@@ -168,21 +168,50 @@ function Stepper({
   )
 }
 
-/* ── בלוק החזרות (משותף, עם/בלי מחירים) ─────────────────────────────── */
+/* ── שדה משקל (ק"ג) ─────────────────────────────── */
+function KgInput({
+  value,
+  max,
+  onChange,
+}: {
+  value: number
+  max: number
+  onChange: (v: number) => void
+}) {
+  return (
+    <div className="flex items-center gap-1 shrink-0">
+      <input
+        type="number"
+        inputMode="decimal"
+        step="0.1"
+        min={0}
+        max={max}
+        value={value || ''}
+        placeholder="0"
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-16 text-center font-serif text-base font-bold text-brand-ink tabular-nums border border-brand-line bg-white rounded-lg px-2 py-1.5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
+        dir="ltr"
+      />
+      <span className="text-xs text-brand-muted">ק&quot;ג</span>
+    </div>
+  )
+}
+
+/* ── בלוק החזרות (משותף, עם/בלי מחירים) — לפי משקל ─────────────────────────────── */
 function ReturnsBlock({
   lines,
   status,
   showCosts,
-  onReturn,
+  onReturnKg,
 }: {
   lines: ReturnType<typeof computeEventCost>['flavorLines']
   status: string
   showCosts: boolean
-  onReturn: (flavorId: string, value: number) => void
+  onReturnKg: (flavorId: string, value: number) => void
 }) {
   const isDone = status === 'closed' || status === 'done'
   const [open, setOpen] = useState(isDone)
-  const totalReturned = lines.reduce((s, l) => s + l.returned, 0)
+  const totalReturnedKg = lines.reduce((s, l) => s + l.returnedKg, 0)
 
   if (lines.length === 0) return null
 
@@ -194,17 +223,17 @@ function ReturnsBlock({
       >
         <span className="flex items-center gap-2 font-semibold text-brand-ink text-sm">
           <Undo2 size={15} className="text-brand-gold-deep" />
-          חזרה מאירוע — בסקטות שחזרו שלמות
+          חזרה מאירוע — משקל שחזר לכל טעם
         </span>
         <span className="text-xs text-brand-muted">
-          {totalReturned > 0 ? `${totalReturned} חזרו` : open ? 'סגור' : 'פתח'}
+          {totalReturnedKg > 0 ? `${totalReturnedKg.toFixed(1)} ק"ג חזרו` : open ? 'סגור' : 'פתח'}
         </span>
       </button>
 
       {open && (
         <div className="px-4 pb-4 pt-1">
           <p className="text-xs text-brand-muted mb-3 leading-relaxed">
-            רשמו כמה בסקטות <b>שלמות / לא נפתחו</b> חזרו מכל טעם. בסקטה שנפתחה — נחשבת כנצרכה.
+            שִקלו את מה שחזר והזינו <b>ק&quot;ג לכל טעם</b>. בסקטה מלאה = 4.5 ק&quot;ג. הזיכוי מחושב יחסית למשקל.
           </p>
           <div className="space-y-1.5">
             {lines.map((l) => (
@@ -212,13 +241,13 @@ function ReturnsBlock({
                 <div className="min-w-0">
                   <div className="text-sm text-brand-ink truncate">{l.name}</div>
                   <div className="text-[11px] text-brand-muted">
-                    יצא {l.out}
-                    {showCosts && l.returned > 0 && (
+                    יצא {l.outKg.toFixed(1)} ק&quot;ג
+                    {showCosts && l.returnedKg > 0 && (
                       <span className="text-[#3D5A30] font-medium"> · זיכוי {formatNIS(l.returnCredit)}</span>
                     )}
                   </div>
                 </div>
-                <Stepper value={l.returned} max={l.out} onChange={(v) => onReturn(l.id, v)} />
+                <KgInput value={l.returnedKg} max={l.outKg} onChange={(v) => onReturnKg(l.id, v)} />
               </div>
             ))}
           </div>
@@ -237,7 +266,7 @@ function ManagerView({
   logisticsCost,
   status,
   onOut,
-  onReturn,
+  onReturnKg,
 }: {
   cost: ReturnType<typeof computeEventCost>
   participants: number
@@ -246,7 +275,7 @@ function ManagerView({
   logisticsCost: number
   status: string
   onOut: (flavorId: string, value: number) => void
-  onReturn: (flavorId: string, value: number) => void
+  onReturnKg: (flavorId: string, value: number) => void
 }) {
   const grandTotal = cost.goodsCost + managerCost + assistantsCost + logisticsCost
 
@@ -265,7 +294,7 @@ function ManagerView({
                 <div className="text-sm text-brand-ink truncate">{l.name}</div>
                 <div className="text-[11px] text-brand-muted">
                   {formatNIS(l.unitCost)} לבסקטה{l.estimated && ' (משוער)'}
-                  {l.returned > 0 && <span className="text-[#3D5A30]"> · חזרו {l.returned}</span>}
+                  {l.returnedKg > 0 && <span className="text-[#3D5A30]"> · חזרו {l.returnedKg.toFixed(1)} ק&quot;ג</span>}
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
@@ -300,7 +329,7 @@ function ManagerView({
       </div>
 
       {/* רישום החזרות — עם מחירים */}
-      <ReturnsBlock lines={cost.flavorLines} status={status} showCosts onReturn={onReturn} />
+      <ReturnsBlock lines={cost.flavorLines} status={status} showCosts onReturnKg={onReturnKg} />
 
       {/* סיכום */}
       <div className="rounded-xl bg-[#EAF1E3] border border-[#C8DABA] p-4 space-y-2 text-sm">

@@ -25,9 +25,13 @@ export function parseSupplies(raw: string | undefined | null): SupplyItem[] {
 // ליד בלי eventLog מתנהג כמו "הכל יצא, כלום לא חזר" (ברירת מחדל = התנהגות היום).
 export interface EventLog {
   basketasOut?: Record<string, number> // כמה בסקטות יצאו, פר flavorId
-  basketasReturned?: Record<string, number> // כמה חזרו שלמות, פר flavorId
+  returnedKg?: Record<string, number> // כמה ק"ג חזרו (שקילה), פר flavorId
+  basketasReturned?: Record<string, number> // legacy — בסקטות שלמות שחזרו (תאימות אחורה)
   returnedAt?: string // ISO — מתי תועדו ההחזרות
 }
+
+// משקל בסקטה אחת בק"ג (4.5)
+export const KG_PER_BASKETA = GRAMS_PER_BASKETA / 1000
 
 export interface FlavorCostInfo {
   id: string
@@ -40,11 +44,12 @@ export interface EventFlavorLine {
   name: string
   unitCost: number // עלות בסקטה אפקטיבית (אמיתית או fallback)
   estimated: boolean // true אם נופלים ל-fallback (אין costPerBasketa לטעם)
-  out: number
-  returned: number
-  consumed: number // out − returned
+  out: number // בסקטות שיצאו
+  outKg: number // משקל שיצא (out × 4.5)
+  returnedKg: number // משקל שחזר (שקילה)
+  consumedKg: number // outKg − returnedKg
   outCost: number
-  returnCredit: number
+  returnCredit: number // יחסי למשקל שחזר
   netCost: number
 }
 
@@ -100,11 +105,20 @@ export function computeEventCost(params: {
     const hasCost = typeof f.costPerBasketa === 'number' && f.costPerBasketa > 0
     const unitCost = hasCost ? (f.costPerBasketa as number) : fallbackBasketaCost
     const out = eventLog?.basketasOut?.[f.id] ?? defaultOut[f.id] ?? 0
-    const returned = eventLog?.basketasReturned?.[f.id] ?? 0
-    if (returned > 0) anyReturn = true
-    const consumed = Math.max(0, out - returned)
+    const outKg = out * KG_PER_BASKETA
+
+    // משקל שחזר: עדיפות לשקילה (returnedKg); תאימות אחורה לבסקטות שלמות שנספרו פעם
+    let returnedKg = eventLog?.returnedKg?.[f.id]
+    if (returnedKg == null && eventLog?.basketasReturned?.[f.id] != null) {
+      returnedKg = eventLog.basketasReturned[f.id] * KG_PER_BASKETA
+    }
+    returnedKg = Math.max(0, Math.min(returnedKg ?? 0, outKg))
+    if (returnedKg > 0) anyReturn = true
+
+    const consumedKg = outKg - returnedKg
+    const unitCostPerKg = unitCost / KG_PER_BASKETA
     const outCost = out * unitCost
-    const returnCredit = returned * unitCost
+    const returnCredit = returnedKg * unitCostPerKg
     iceCreamOut += outCost
     iceCreamReturn += returnCredit
     return {
@@ -113,8 +127,9 @@ export function computeEventCost(params: {
       unitCost,
       estimated: !hasCost,
       out,
-      returned,
-      consumed,
+      outKg,
+      returnedKg,
+      consumedKg,
       outCost,
       returnCredit,
       netCost: outCost - returnCredit,

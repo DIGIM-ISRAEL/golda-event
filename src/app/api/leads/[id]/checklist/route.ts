@@ -2,15 +2,31 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { basketasRequiredFor, type EventLog } from '@/lib/event-cost'
+import {
+  basketasRequiredFor,
+  defaultBasketaSplit,
+  KG_PER_BASKETA,
+  type EventLog,
+} from '@/lib/event-cost'
 
-// ולידציה של מפת בסקטות (flavorId → מספר אי-שלילי שלם)
-function cleanBasketaMap(raw: unknown): Record<string, number> {
+// מפת מספרים שלמים אי-שליליים (בסקטות)
+function cleanIntMap(raw: unknown): Record<string, number> {
   if (!raw || typeof raw !== 'object') return {}
   const out: Record<string, number> = {}
   for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
     const n = Number(v)
     if (Number.isFinite(n) && n >= 0) out[k] = Math.floor(n)
+  }
+  return out
+}
+
+// מפת מספרים עשרוניים אי-שליליים (ק"ג)
+function cleanFloatMap(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const n = Number(v)
+    if (Number.isFinite(n) && n >= 0) out[k] = Math.round(n * 100) / 100
   }
   return out
 }
@@ -34,7 +50,7 @@ export async function PATCH(
     data.checkedItems = body.checkedItems
   }
 
-  // יומן האירוע — בסקטות שיצאו/חזרו. כל אחד מאומת מול הטעמים והבסקטות הנדרשות.
+  // יומן האירוע — בסקטות שיצאו (שלם) + משקל שחזר (ק"ג). מאומת מול הטעמים.
   if (body.eventLog !== undefined) {
     const lead = await db.lead.findUnique({
       where: { id },
@@ -42,28 +58,30 @@ export async function PATCH(
     })
     if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
-    const validIds = new Set(lead.flavors.map((lf) => lf.flavorId))
+    const ids = lead.flavors.map((lf) => lf.flavorId)
+    const validIds = new Set(ids)
     const basketasRequired = basketasRequiredFor(lead.participants)
+    const defaultOut = defaultBasketaSplit(ids, basketasRequired)
 
-    const rawOut = cleanBasketaMap(body.eventLog?.basketasOut)
-    const rawReturned = cleanBasketaMap(body.eventLog?.basketasReturned)
+    const rawOut = cleanIntMap(body.eventLog?.basketasOut)
+    const rawReturnedKg = cleanFloatMap(body.eventLog?.returnedKg)
 
-    // השאר רק טעמים ששייכים לליד
     const basketasOut: Record<string, number> = {}
-    const basketasReturned: Record<string, number> = {}
+    const returnedKg: Record<string, number> = {}
     for (const fid of validIds) {
       if (rawOut[fid] !== undefined) basketasOut[fid] = Math.min(rawOut[fid], basketasRequired)
-      if (rawReturned[fid] !== undefined) {
-        // אי אפשר להחזיר יותר ממה שיצא (אם לא הוגדר "יצא" — תקרה = כל הנדרש)
-        const cap = basketasOut[fid] ?? rawOut[fid] ?? basketasRequired
-        basketasReturned[fid] = Math.min(rawReturned[fid], cap)
+      if (rawReturnedKg[fid] !== undefined) {
+        // אי אפשר להחזיר יותר ממה שיצא במשקל
+        const outBaskets = basketasOut[fid] ?? rawOut[fid] ?? defaultOut[fid] ?? 0
+        const outKg = outBaskets * KG_PER_BASKETA
+        returnedKg[fid] = Math.min(rawReturnedKg[fid], outKg)
       }
     }
 
     const eventLog: EventLog = {}
     if (Object.keys(basketasOut).length > 0) eventLog.basketasOut = basketasOut
-    if (Object.keys(basketasReturned).length > 0) {
-      eventLog.basketasReturned = basketasReturned
+    if (Object.keys(returnedKg).length > 0) {
+      eventLog.returnedKg = returnedKg
       eventLog.returnedAt = new Date().toISOString()
     }
     data.eventLog = eventLog as unknown as Prisma.InputJsonValue
