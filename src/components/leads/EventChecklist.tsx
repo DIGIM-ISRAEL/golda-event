@@ -10,6 +10,7 @@ interface Props {
   initialCheckedItems: string[]
   basketasRequired: number
   flavors: { name: string; category: string }[]
+  embedded?: boolean // כשמוטמע בתוך סקשן — בלי מסגרת/צל חיצוניים
 }
 
 export default function EventChecklist({
@@ -17,6 +18,7 @@ export default function EventChecklist({
   initialCheckedItems,
   basketasRequired,
   flavors,
+  embedded = false,
 }: Props) {
   const [checked, setChecked] = useState<Set<string>>(new Set(initialCheckedItems))
   const [pending, startTransition] = useTransition()
@@ -60,7 +62,14 @@ export default function EventChecklist({
   const progress = Math.round((allCheckedCount / totalWithComputed) * 100)
 
   return (
-    <div className="bg-white rounded-2xl border border-brand-line shadow-[0_1px_2px_rgba(93,42,49,0.04),0_12px_32px_-22px_rgba(93,42,49,0.22)] overflow-hidden">
+    <div
+      className={cn(
+        'overflow-hidden',
+        embedded
+          ? 'rounded-xl border border-brand-line/60'
+          : 'bg-white rounded-2xl border border-brand-line shadow-[0_1px_2px_rgba(93,42,49,0.04),0_12px_32px_-22px_rgba(93,42,49,0.22)]',
+      )}
+    >
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full px-5 py-4 flex items-center justify-between hover:bg-brand-cream/50 transition-colors"

@@ -113,6 +113,7 @@ model Lead {
   airtableRecordId       String?    @unique @map("airtable_record_id")
   checkedItems           String[]   @default([]) @map("checked_items")
   includedItems          String[]   @default([]) @map("included_items")
+  eventLog               Json?      @map("event_log")
   reminderSentAt         DateTime?  @map("reminder_sent_at")
   createdAt              DateTime   @default(now()) @map("created_at")
   updatedAt              DateTime   @updatedAt @map("updated_at")

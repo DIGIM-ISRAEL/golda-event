@@ -46,6 +46,17 @@ export const ASSISTANT_COST = 300
 export const GRAMS_PER_PORTION = 120
 export const GRAMS_PER_BASKETA = 4500
 
+// כושר ייצור גלידן: 9 בסקטות בשעה (מאקסל העלויות, "36 קילו בשעה")
+export const BASKETAS_PER_HOUR = 9
+
+// כלי הגשה מתכלים — עלות ליחידה (₪) מאקסל העלויות, וכמות פר משתתף.
+// משמש לחישוב "כמה הכל עלה" בצד המנהל. כלים אינם נספרים בהחזרות (זניח).
+export const UTENSIL_COSTS: { key: string; label: string; perUnit: number; perParticipant: number }[] = [
+  { key: 'cup', label: 'גביע', perUnit: 0.247, perParticipant: 1 },
+  { key: 'spoon', label: 'כפית', perUnit: 0.052, perParticipant: 1 },
+  { key: 'napkin', label: 'מפית', perUnit: 0.03, perParticipant: 1 },
+]
+
 export const MAX_FLAVORS = 6
 
 export const OPERATIONAL_WARNING =

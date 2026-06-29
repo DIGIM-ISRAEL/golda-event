@@ -16,6 +16,9 @@ interface Props {
   profitWarningThreshold: number
   // עלויות הייצור של הטעמים שנבחרו — מאפשרות חישוב עלות גלידה אמיתית
   flavorCosts?: (number | null)[]
+  // עלות גלידה נטו מצ'קליסט המנהל (אחרי החזרות) — גובר על האומדן כשקיים
+  iceCreamNetCost?: number | null
+  hasReturns?: boolean
 }
 
 export default function ProfitabilityPanel({
@@ -27,15 +30,18 @@ export default function ProfitabilityPanel({
   basketaCostNis,
   profitWarningThreshold,
   flavorCosts = [],
+  iceCreamNetCost = null,
+  hasReturns = false,
 }: Props) {
   const effective = effectiveBasketaCost(flavorCosts, basketaCostNis)
   const inventory = calculateInventory(participants, effective.cost)
+  const iceCreamCost = iceCreamNetCost != null ? iceCreamNetCost : inventory.estimatedCost
   const profitability = calculateProfitability(
     totalCustomerPrice,
     logisticsCost,
     managerIncluded,
     assistantsCount,
-    inventory.estimatedCost,
+    iceCreamCost,
     profitWarningThreshold,
   )
 
@@ -83,13 +89,20 @@ export default function ProfitabilityPanel({
           <span dir="ltr">−{formatNIS(logisticsCost)}</span>
         </div>
         <div className="flex justify-between text-brand-muted">
-          <span>גלידה ({inventory.basketasRequired} בסקטות × ₪{Math.round(effective.cost)})</span>
-          <span dir="ltr">−{formatNIS(inventory.estimatedCost)}</span>
+          <span>
+            גלידה{' '}
+            {iceCreamNetCost != null && hasReturns
+              ? '(נטו אחרי החזרות)'
+              : `(${inventory.basketasRequired} בסקטות × ₪${Math.round(effective.cost)})`}
+          </span>
+          <span dir="ltr">−{formatNIS(iceCreamCost)}</span>
         </div>
         <div className="text-[11px] text-brand-muted/80 -mt-1">
-          {effective.fromFlavors
-            ? 'עלות בסקטה לפי ממוצע הטעמים שנבחרו (מאקסל העלויות)'
-            : 'עלות בסקטה לפי ברירת המחדל — בחר טעמים לחישוב מדויק'}
+          {iceCreamNetCost != null && hasReturns
+            ? 'עלות גלידה אחרי קיזוז בסקטות שחזרו (מצ׳קליסט המנהל)'
+            : effective.fromFlavors
+              ? 'עלות בסקטה לפי ממוצע הטעמים שנבחרו (מאקסל העלויות)'
+              : 'עלות בסקטה לפי ברירת המחדל — בחר טעמים לחישוב מדויק'}
         </div>
         <div className="flex justify-between items-baseline font-bold border-t border-brand-line/70 pt-2">
           <span className="text-brand-ink">רווח נקי</span>

@@ -16,8 +16,9 @@ import StatusChanger from '@/components/leads/StatusChanger'
 import SignatureLink from '@/components/leads/SignatureLink'
 import SendQuoteButton from '@/components/leads/SendQuoteButton'
 import WaQuickSend from '@/components/leads/WaQuickSend'
-import EventChecklist from '@/components/leads/EventChecklist'
+import EventChecklistSection from '@/components/leads/EventChecklistSection'
 import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
+import { computeEventCost, type EventLog } from '@/lib/event-cost'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -76,6 +77,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       })
 
   const inventory = calculateInventory(lead.participants, basketaCost)
+
+  // פירוק עלות האירוע (כולל יצא/חזר) — לפאנל הרווחיות
+  const eventCost = computeEventCost({
+    flavors: flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa })),
+    participants: lead.participants,
+    fallbackBasketaCost: basketaCost,
+    eventLog: (lead.eventLog as EventLog | null) ?? null,
+  })
 
   // הודעת וואטסאפ מוכנה — תקציר ההצעה + קישור לעמוד הצפייה/אישור/חתימה
   const approveUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`
@@ -160,6 +169,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             basketaCostNis={basketaCost}
             profitWarningThreshold={profitThreshold}
             flavorCosts={flavors.map((f) => f.costPerBasketa)}
+            iceCreamNetCost={flavors.length > 0 ? eventCost.iceCreamNet : null}
+            hasReturns={eventCost.hasReturns}
           />
         ) : null
       }
@@ -169,11 +180,19 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       }
       waQuickSend={<WaQuickSend waNumber={toWhatsAppNumber(lead.clientPhone)} messages={waMessages} />}
       checklist={
-        <EventChecklist
+        <EventChecklistSection
           leadId={id}
+          role={session.role}
+          status={lead.status}
+          participants={lead.participants}
+          flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa }))}
+          flavorsForPrep={flavors.map((f) => ({ name: f.name, category: f.category }))}
           initialCheckedItems={lead.checkedItems ?? []}
-          basketasRequired={inventory.basketasRequired}
-          flavors={flavors.map((f) => ({ name: f.name, category: f.category }))}
+          initialEventLog={(lead.eventLog as EventLog | null) ?? null}
+          fallbackBasketaCost={basketaCost}
+          managerIncluded={lead.managerIncluded}
+          assistantsCount={lead.assistantsCount}
+          logisticsCost={logisticsCost}
         />
       }
     />
