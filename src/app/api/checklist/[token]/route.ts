@@ -14,7 +14,7 @@ export async function PATCH(
   const body = await request.json()
 
   const lead = await db.lead.findUnique({
-    where: { checklistToken: token },
+    where: { signatureToken: token },
     select: { id: true, participants: true, flavors: { select: { flavorId: true } } },
   })
   if (!lead) return NextResponse.json({ error: 'קישור לא תקף' }, { status: 404 })

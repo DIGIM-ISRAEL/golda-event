@@ -197,7 +197,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           assistantsCount={lead.assistantsCount}
           logisticsCost={logisticsCost}
           supplies={supplies}
-          checklistUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/checklist/${lead.checklistToken}`}
+          checklistUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/checklist/${lead.signatureToken}`}
         />
       }
     />

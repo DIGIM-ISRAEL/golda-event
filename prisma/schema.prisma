@@ -102,7 +102,6 @@ model Lead {
   priceOverride          Float?     @map("price_override")
   pricePerPersonOverride Float?     @map("price_per_person_override")
   signatureToken         String     @unique @default(cuid()) @map("signature_token")
-  checklistToken         String     @unique @default(cuid()) @map("checklist_token")
   clientApprovedAt       DateTime?  @map("client_approved_at")
   clientApprovedName     String?    @map("client_approved_name")
   clientApprovedIp       String?    @map("client_approved_ip")

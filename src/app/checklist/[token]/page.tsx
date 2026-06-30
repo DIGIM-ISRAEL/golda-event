@@ -14,7 +14,7 @@ export default async function PublicChecklistPage({ params }: { params: Promise<
   const [lead, settingsRows] = await Promise.all([
     db.lead
       .findUnique({
-        where: { checklistToken: token },
+        where: { signatureToken: token },
         include: { location: true, flavors: { include: { flavor: true } } },
       })
       .catch(() => null),
