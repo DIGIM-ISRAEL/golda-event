@@ -5,7 +5,8 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // /api/admin/sync-flavors מאמת בעצמו (סשן אדמין או CRON_SECRET) — כמו /api/cron
-  const publicPaths = ['/login', '/approve', '/api/auth', '/api/approve', '/api/setup', '/api/cron', '/api/admin/sync-flavors', '/brand']
+  // /checklist ו-/api/checklist נגישים דרך טוקן ייחודי (לעובד בשטח, בלי התחברות)
+  const publicPaths = ['/login', '/approve', '/checklist', '/api/auth', '/api/approve', '/api/checklist', '/api/setup', '/api/cron', '/api/admin/sync-flavors', '/brand']
   const isPublic = publicPaths.some((p) => pathname.startsWith(p))
 
   const token = request.cookies.get('session')?.value

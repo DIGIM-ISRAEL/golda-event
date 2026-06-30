@@ -190,12 +190,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa }))}
           flavorsForPrep={flavors.map((f) => ({ name: f.name, category: f.category }))}
           initialCheckedItems={lead.checkedItems ?? []}
+          initialCustomItems={lead.customChecklistItems ?? []}
           initialEventLog={(lead.eventLog as EventLog | null) ?? null}
           fallbackBasketaCost={basketaCost}
           managerIncluded={lead.managerIncluded}
           assistantsCount={lead.assistantsCount}
           logisticsCost={logisticsCost}
           supplies={supplies}
+          checklistUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/checklist/${lead.checklistToken}`}
         />
       }
     />

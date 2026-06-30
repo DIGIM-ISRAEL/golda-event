@@ -1,26 +1,36 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Check, ChevronRight, ListChecks } from 'lucide-react'
+import { Check, ChevronRight, ListChecks, Plus, X } from 'lucide-react'
 import { CHECKLIST_ITEMS, CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
 import { cn } from '@/lib/utils'
 
 interface Props {
   leadId: string
   initialCheckedItems: string[]
+  initialCustomItems?: string[]
   basketasRequired: number
   flavors: { name: string; category: string }[]
   embedded?: boolean // כשמוטמע בתוך סקשן — בלי מסגרת/צל חיצוניים
+  saveUrl?: string // ברירת מחדל: /api/leads/[id]/checklist; לטוקן ציבורי — /api/checklist/[token]
 }
+
+// פריט אד-הוק מקבל מזהה ייציב לפי הטקסט, כדי לעקוב אחרי הסימון שלו
+const customKey = (label: string) => `custom:${label}`
 
 export default function EventChecklist({
   leadId,
   initialCheckedItems,
+  initialCustomItems = [],
   basketasRequired,
   flavors,
   embedded = false,
+  saveUrl,
 }: Props) {
+  const url = saveUrl ?? `/api/leads/${leadId}/checklist`
   const [checked, setChecked] = useState<Set<string>>(new Set(initialCheckedItems))
+  const [customItems, setCustomItems] = useState<string[]>(initialCustomItems)
+  const [newItem, setNewItem] = useState('')
   const [pending, startTransition] = useTransition()
   const [expanded, setExpanded] = useState(true)
 
@@ -30,31 +40,68 @@ export default function EventChecklist({
   const basketasChecked = checked.has('__basketas__')
   const flavorsChecked = checked.has('__flavors__')
 
-  // Total includes the 2 computed items
+  // Total includes the 2 computed items + custom items
   const computedItemsTotal = 2
-  const totalWithComputed = CHECKLIST_ITEMS.length + computedItemsTotal
+  const totalWithComputed = CHECKLIST_ITEMS.length + computedItemsTotal + customItems.length
   const allCheckedCount = checked.size
 
-  function toggle(itemId: string) {
-    const newChecked = new Set(checked)
-    if (newChecked.has(itemId)) {
-      newChecked.delete(itemId)
-    } else {
-      newChecked.add(itemId)
-    }
-    setChecked(newChecked)
-
+  function saveChecked(newChecked: Set<string>) {
     startTransition(async () => {
       try {
-        await fetch(`/api/leads/${leadId}/checklist`, {
+        await fetch(url, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ checkedItems: Array.from(newChecked) }),
         })
       } catch (err) {
-        // החזר את המצב במקרה של שגיאה
         console.error('Failed to update checklist:', err)
         setChecked(checked)
+      }
+    })
+  }
+
+  function toggle(itemId: string) {
+    const newChecked = new Set(checked)
+    if (newChecked.has(itemId)) newChecked.delete(itemId)
+    else newChecked.add(itemId)
+    setChecked(newChecked)
+    saveChecked(newChecked)
+  }
+
+  function addCustom() {
+    const label = newItem.trim()
+    if (!label || customItems.includes(label)) return
+    const updated = [...customItems, label]
+    setCustomItems(updated)
+    setNewItem('')
+    startTransition(async () => {
+      try {
+        await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customChecklistItems: updated }),
+        })
+      } catch {
+        /* רך */
+      }
+    })
+  }
+
+  function removeCustom(label: string) {
+    const updated = customItems.filter((c) => c !== label)
+    setCustomItems(updated)
+    const newChecked = new Set(checked)
+    newChecked.delete(customKey(label))
+    setChecked(newChecked)
+    startTransition(async () => {
+      try {
+        await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customChecklistItems: updated, checkedItems: Array.from(newChecked) }),
+        })
+      } catch {
+        /* רך */
       }
     })
   }
@@ -153,6 +200,49 @@ export default function EventChecklist({
               </div>
             </div>
           ))}
+
+          {/* פריטים אד-הוק לאירוע הזה */}
+          <div>
+            <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wide mb-2">
+              מיוחד לאירוע
+            </h3>
+            <div className="space-y-1.5">
+              {customItems.map((label) => (
+                <div key={label} className="flex items-center gap-1">
+                  <div className="flex-1">
+                    <ChecklistRow
+                      checked={checked.has(customKey(label))}
+                      onToggle={() => toggle(customKey(label))}
+                      label={<span className="font-medium">{label}</span>}
+                    />
+                  </div>
+                  <button
+                    onClick={() => removeCustom(label)}
+                    className="shrink-0 p-1.5 text-brand-maroon/50 hover:text-brand-maroon"
+                    aria-label="מחק פריט"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1">
+                <input
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addCustom()}
+                  placeholder="הוסף פריט לאירוע (שלט יום הולדת, עגלה שנייה…)"
+                  className="flex-1 border border-brand-line bg-brand-cream/50 text-brand-ink rounded-lg px-3 py-2 text-sm placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
+                />
+                <button
+                  onClick={addCustom}
+                  className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-white border border-brand-gold/40 text-brand-gold-deep px-3 text-sm font-semibold hover:bg-brand-cream/60"
+                >
+                  <Plus size={15} />
+                  הוסף
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

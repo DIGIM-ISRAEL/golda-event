@@ -69,6 +69,61 @@ export function basketasRequiredFor(participants: number): number {
   return Math.ceil((participants * GRAMS_PER_PORTION) / GRAMS_PER_BASKETA)
 }
 
+function cleanIntMap(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const n = Number(v)
+    if (Number.isFinite(n) && n >= 0) out[k] = Math.floor(n)
+  }
+  return out
+}
+
+function cleanFloatMap(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const n = Number(v)
+    if (Number.isFinite(n) && n >= 0) out[k] = Math.round(n * 100) / 100
+  }
+  return out
+}
+
+// מנקה ומאמת eventLog נכנס מול הטעמים של הליד והבסקטות הנדרשות.
+// משותף לראוט המחובר ולראוט הציבורי (טוקן).
+export function sanitizeEventLog(params: {
+  flavorIds: string[]
+  participants: number
+  basketasOut?: unknown
+  returnedKg?: unknown
+}): EventLog {
+  const { flavorIds, participants } = params
+  const validIds = new Set(flavorIds)
+  const basketasRequired = basketasRequiredFor(participants)
+  const defaultOut = defaultBasketaSplit(flavorIds, basketasRequired)
+
+  const rawOut = cleanIntMap(params.basketasOut)
+  const rawReturnedKg = cleanFloatMap(params.returnedKg)
+
+  const basketasOut: Record<string, number> = {}
+  const returnedKg: Record<string, number> = {}
+  for (const fid of validIds) {
+    if (rawOut[fid] !== undefined) basketasOut[fid] = Math.min(rawOut[fid], basketasRequired)
+    if (rawReturnedKg[fid] !== undefined) {
+      const outBaskets = basketasOut[fid] ?? rawOut[fid] ?? defaultOut[fid] ?? 0
+      returnedKg[fid] = Math.min(rawReturnedKg[fid], outBaskets * KG_PER_BASKETA)
+    }
+  }
+
+  const eventLog: EventLog = {}
+  if (Object.keys(basketasOut).length > 0) eventLog.basketasOut = basketasOut
+  if (Object.keys(returnedKg).length > 0) {
+    eventLog.returnedKg = returnedKg
+    eventLog.returnedAt = new Date().toISOString()
+  }
+  return eventLog
+}
+
 // חלוקה שווה של מספר הבסקטות בין הטעמים, עם פיזור השארית לטעמים הראשונים.
 export function defaultBasketaSplit(flavorIds: string[], basketasRequired: number): Record<string, number> {
   const n = flavorIds.length

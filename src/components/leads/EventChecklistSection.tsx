@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Minus, Plus, IceCreamCone, Wallet, PackageOpen, ClipboardList, Undo2 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { IceCreamCone, Wallet, PackageOpen, ClipboardList, Pencil, Send, CheckCircle2 } from 'lucide-react'
 import EventChecklist from '@/components/leads/EventChecklist'
-import { computeEventCost, type EventLog, type FlavorCostInfo } from '@/lib/event-cost'
+import { Stepper, ReturnsBlock } from '@/components/leads/EventReturns'
+import SignatureLink from '@/components/leads/SignatureLink'
+import { computeEventCost, type EventCostResult, type EventLog, type FlavorCostInfo } from '@/lib/event-cost'
 import { formatNIS } from '@/lib/pricing'
 import { MANAGER_COST, ASSISTANT_COST, type SupplyItem } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -16,20 +20,25 @@ interface Props {
   flavors: FlavorCostInfo[]
   flavorsForPrep: { name: string; category: string }[]
   initialCheckedItems: string[]
+  initialCustomItems: string[]
   initialEventLog: EventLog | null
   fallbackBasketaCost: number
   managerIncluded: boolean
   assistantsCount: number
   logisticsCost: number
   supplies: SupplyItem[]
+  checklistUrl: string // לינק ציבורי לעובד
 }
 
 export default function EventChecklistSection(props: Props) {
   const { leadId, role, status, participants, flavors, fallbackBasketaCost, supplies } = props
   const isAdmin = role === 'admin'
+  const router = useRouter()
 
   const [tab, setTab] = useState<'worker' | 'manager'>('worker')
   const [eventLog, setEventLog] = useState<EventLog>(props.initialEventLog ?? {})
+  const [finalizing, setFinalizing] = useState(false)
+  const [finalized, setFinalized] = useState(false)
   const [, startTransition] = useTransition()
 
   const cost = computeEventCost({ flavors, participants, fallbackBasketaCost, eventLog, supplies })
@@ -47,6 +56,24 @@ export default function EventChecklistSection(props: Props) {
         /* שמירה רכה — לא מפילה את הממשק */
       }
     })
+  }
+
+  async function finalize() {
+    if (!confirm('לסיים את האירוע ולשלוח דוח עלויות לבדיקה? הליד יעבור ל"בוצע".')) return
+    setFinalizing(true)
+    try {
+      await fetch(`/api/leads/${leadId}/checklist`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ finalize: true }),
+      })
+      setFinalized(true)
+      router.refresh()
+    } catch {
+      /* ignore */
+    } finally {
+      setFinalizing(false)
+    }
   }
 
   function setReturnedKg(flavorId: string, value: number) {
@@ -77,10 +104,11 @@ export default function EventChecklistSection(props: Props) {
 
       {tab === 'worker' ? (
         <div className="p-1">
-          {/* צ'קליסט ההכנה הקיים */}
+          {/* צ'קליסט ההכנה — כולל פריטים אד-הוק */}
           <EventChecklist
             leadId={leadId}
             initialCheckedItems={props.initialCheckedItems}
+            initialCustomItems={props.initialCustomItems}
             basketasRequired={cost.basketasRequired}
             flavors={props.flavorsForPrep}
             embedded
@@ -105,6 +133,43 @@ export default function EventChecklistSection(props: Props) {
           onReturnKg={setReturnedKg}
         />
       )}
+
+      {/* פעולות אירוע — עריכה, לינק לעובד, וסיום */}
+      <div className="border-t border-brand-line p-4 space-y-3 bg-brand-cream/30">
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/leads/${leadId}/edit`}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-brand-gold/40 text-brand-gold-deep px-3.5 py-2 text-sm font-semibold hover:bg-brand-cream/60 transition-colors"
+          >
+            <Pencil size={15} />
+            ערוך אירוע / טעמים
+          </Link>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-1.5 text-xs text-brand-muted mb-1.5">
+            <Send size={13} className="text-[#4F7A43]" />
+            לינק צ&apos;קליסט לעובד (ממלא בשטח, בלי מחירים):
+          </div>
+          <SignatureLink url={props.checklistUrl} />
+        </div>
+
+        {finalized || status === 'done' ? (
+          <div className="flex items-center justify-center gap-2 rounded-xl bg-[#EAF1E3] border border-[#C8DABA] py-3 text-sm font-semibold text-[#3D5A30]">
+            <CheckCircle2 size={17} />
+            האירוע סוכם ודוח עלויות נשלח
+          </div>
+        ) : (
+          <button
+            onClick={finalize}
+            disabled={finalizing}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-maroon text-brand-cream py-3 text-sm font-semibold hover:bg-brand-maroon-dark disabled:opacity-60 transition-colors"
+          >
+            <CheckCircle2 size={17} />
+            {finalizing ? 'מסכם…' : 'סיימתי — שלח דוח עלויות'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -135,128 +200,6 @@ function TabButton({
   )
 }
 
-/* ── סטפר +/− ─────────────────────────────── */
-function Stepper({
-  value,
-  onChange,
-  max,
-}: {
-  value: number
-  onChange: (v: number) => void
-  max: number
-}) {
-  return (
-    <div className="flex items-center gap-1 shrink-0">
-      <button
-        onClick={() => onChange(value - 1)}
-        disabled={value <= 0}
-        className="grid place-items-center w-8 h-8 rounded-lg border border-brand-line bg-white text-brand-ink disabled:opacity-30 hover:bg-brand-cream/60"
-        aria-label="הפחת"
-      >
-        <Minus size={15} />
-      </button>
-      <span className="w-7 text-center font-serif text-lg font-bold text-brand-ink tabular-nums">{value}</span>
-      <button
-        onClick={() => onChange(value + 1)}
-        disabled={value >= max}
-        className="grid place-items-center w-8 h-8 rounded-lg border border-brand-line bg-white text-brand-ink disabled:opacity-30 hover:bg-brand-cream/60"
-        aria-label="הוסף"
-      >
-        <Plus size={15} />
-      </button>
-    </div>
-  )
-}
-
-/* ── שדה משקל (ק"ג) ─────────────────────────────── */
-function KgInput({
-  value,
-  max,
-  onChange,
-}: {
-  value: number
-  max: number
-  onChange: (v: number) => void
-}) {
-  return (
-    <div className="flex items-center gap-1 shrink-0">
-      <input
-        type="number"
-        inputMode="decimal"
-        step="0.1"
-        min={0}
-        max={max}
-        value={value || ''}
-        placeholder="0"
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-16 text-center font-serif text-base font-bold text-brand-ink tabular-nums border border-brand-line bg-white rounded-lg px-2 py-1.5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 focus:outline-none"
-        dir="ltr"
-      />
-      <span className="text-xs text-brand-muted">ק&quot;ג</span>
-    </div>
-  )
-}
-
-/* ── בלוק החזרות (משותף, עם/בלי מחירים) — לפי משקל ─────────────────────────────── */
-function ReturnsBlock({
-  lines,
-  status,
-  showCosts,
-  onReturnKg,
-}: {
-  lines: ReturnType<typeof computeEventCost>['flavorLines']
-  status: string
-  showCosts: boolean
-  onReturnKg: (flavorId: string, value: number) => void
-}) {
-  const isDone = status === 'closed' || status === 'done'
-  const [open, setOpen] = useState(isDone)
-  const totalReturnedKg = lines.reduce((s, l) => s + l.returnedKg, 0)
-
-  if (lines.length === 0) return null
-
-  return (
-    <div className="m-2 rounded-xl border border-brand-gold/30 bg-[#FCF7EE] overflow-hidden">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-right"
-      >
-        <span className="flex items-center gap-2 font-semibold text-brand-ink text-sm">
-          <Undo2 size={15} className="text-brand-gold-deep" />
-          חזרה מאירוע — משקל שחזר לכל טעם
-        </span>
-        <span className="text-xs text-brand-muted">
-          {totalReturnedKg > 0 ? `${totalReturnedKg.toFixed(1)} ק"ג חזרו` : open ? 'סגור' : 'פתח'}
-        </span>
-      </button>
-
-      {open && (
-        <div className="px-4 pb-4 pt-1">
-          <p className="text-xs text-brand-muted mb-3 leading-relaxed">
-            שִקלו את מה שחזר והזינו <b>ק&quot;ג לכל טעם</b>. בסקטה מלאה = 4.5 ק&quot;ג. הזיכוי מחושב יחסית למשקל.
-          </p>
-          <div className="space-y-1.5">
-            {lines.map((l) => (
-              <div key={l.id} className="flex items-center justify-between gap-2 py-1">
-                <div className="min-w-0">
-                  <div className="text-sm text-brand-ink truncate">{l.name}</div>
-                  <div className="text-[11px] text-brand-muted">
-                    יצא {l.outKg.toFixed(1)} ק&quot;ג
-                    {showCosts && l.returnedKg > 0 && (
-                      <span className="text-[#3D5A30] font-medium"> · זיכוי {formatNIS(l.returnCredit)}</span>
-                    )}
-                  </div>
-                </div>
-                <KgInput value={l.returnedKg} max={l.outKg} onChange={(v) => onReturnKg(l.id, v)} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 /* ── תצוגת מנהל — עלויות + סיכום ─────────────────────────────── */
 function ManagerView({
   cost,
@@ -268,7 +211,7 @@ function ManagerView({
   onOut,
   onReturnKg,
 }: {
-  cost: ReturnType<typeof computeEventCost>
+  cost: EventCostResult
   participants: number
   managerCost: number
   assistantsCost: number

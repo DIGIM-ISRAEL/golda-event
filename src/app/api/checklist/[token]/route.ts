@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { getSession } from '@/lib/session'
 import { sanitizeEventLog } from '@/lib/event-cost'
 import { finalizeEventAndReport } from '@/lib/cost-report'
 
+// עדכון צ'קליסט דרך לינק ציבורי (טוקן) — לעובד שאינו מחובר.
+// תצוגת עובד בלבד: צ'קליסט הכנה + החזרות במשקל. בלי עלויות.
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ token: string }> },
 ) {
-  const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { id } = await params
+  const { token } = await params
   const body = await request.json()
+
+  const lead = await db.lead.findUnique({
+    where: { checklistToken: token },
+    select: { id: true, participants: true, flavors: { select: { flavorId: true } } },
+  })
+  if (!lead) return NextResponse.json({ error: 'קישור לא תקף' }, { status: 404 })
 
   const data: {
     checkedItems?: string[]
@@ -25,13 +29,7 @@ export async function PATCH(
   if (Array.isArray(body.customChecklistItems)) {
     data.customChecklistItems = body.customChecklistItems.map((s: unknown) => String(s)).filter(Boolean)
   }
-
   if (body.eventLog !== undefined) {
-    const lead = await db.lead.findUnique({
-      where: { id },
-      select: { participants: true, flavors: { select: { flavorId: true } } },
-    })
-    if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     const eventLog = sanitizeEventLog({
       flavorIds: lead.flavors.map((lf) => lf.flavorId),
       participants: lead.participants,
@@ -42,17 +40,12 @@ export async function PATCH(
   }
 
   if (Object.keys(data).length > 0) {
-    await db.lead.update({ where: { id }, data })
+    await db.lead.update({ where: { id: lead.id }, data })
   }
 
-  // סיום אירוע ושליחת דוח עלויות
   if (body.finalize === true) {
-    const res = await finalizeEventAndReport(id)
+    const res = await finalizeEventAndReport(lead.id)
     return NextResponse.json({ ok: true, movedToDone: res.movedToDone })
-  }
-
-  if (Object.keys(data).length === 0) {
-    return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
   }
 
   return NextResponse.json({ ok: true })
