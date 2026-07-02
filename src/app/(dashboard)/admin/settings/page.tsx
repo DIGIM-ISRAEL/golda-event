@@ -5,8 +5,10 @@ import SettingsForm from '@/components/admin/SettingsForm'
 import FlavorSyncButton from '@/components/admin/FlavorSyncButton'
 import WaTemplatesForm from '@/components/admin/WaTemplatesForm'
 import SuppliesForm from '@/components/admin/SuppliesForm'
+import ChecklistTemplateForm from '@/components/admin/ChecklistTemplateForm'
 import { parseWaTemplates } from '@/lib/wa-templates'
 import { parseSupplies } from '@/lib/event-cost'
+import { parseChecklistTemplate } from '@/lib/checklist'
 
 export default async function SettingsPage() {
   const session = await getSession()
@@ -26,6 +28,7 @@ export default async function SettingsPage() {
         depositInstructions={settingsMap['deposit_instructions'] ?? ''}
         depositLink={settingsMap['deposit_link'] ?? ''}
       />
+      <ChecklistTemplateForm initial={parseChecklistTemplate(settingsMap['checklist_template'])} />
       <SuppliesForm initial={parseSupplies(settingsMap['supply_costs'])} />
       <WaTemplatesForm initial={parseWaTemplates(settingsMap['wa_templates'])} />
       <FlavorSyncButton />

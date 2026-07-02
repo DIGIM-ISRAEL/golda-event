@@ -5,6 +5,7 @@ import { CheckCircle2 } from 'lucide-react'
 import EventChecklist from '@/components/leads/EventChecklist'
 import { ReturnsBlock } from '@/components/leads/EventReturns'
 import { computeEventCost, type EventLog, type FlavorCostInfo } from '@/lib/event-cost'
+import type { ChecklistSection } from '@/lib/checklist'
 
 interface Props {
   token: string
@@ -16,6 +17,7 @@ interface Props {
   initialCustomItems: string[]
   initialEventLog: EventLog | null
   fallbackBasketaCost: number
+  template: ChecklistSection[]
 }
 
 // תצוגת עובד דרך לינק ציבורי — צ'קליסט הכנה + החזרות במשקל. בלי מחירים.
@@ -87,6 +89,7 @@ export default function PublicEventChecklist(props: Props) {
         initialCustomItems={props.initialCustomItems}
         basketasRequired={cost.basketasRequired}
         flavors={props.flavorsForPrep}
+        template={props.template}
         embedded
       />
       <ReturnsBlock lines={cost.flavorLines} status={status} showCosts={false} onReturnKg={setReturnedKg} />

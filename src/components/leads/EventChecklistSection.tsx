@@ -10,6 +10,7 @@ import SignatureLink from '@/components/leads/SignatureLink'
 import { computeEventCost, type EventCostResult, type EventLog, type FlavorCostInfo } from '@/lib/event-cost'
 import { formatNIS } from '@/lib/pricing'
 import { MANAGER_COST, ASSISTANT_COST, type SupplyItem } from '@/lib/constants'
+import type { ChecklistSection } from '@/lib/checklist'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -27,6 +28,7 @@ interface Props {
   assistantsCount: number
   logisticsCost: number
   supplies: SupplyItem[]
+  template: ChecklistSection[]
   checklistUrl: string // לינק ציבורי לעובד
 }
 
@@ -111,6 +113,7 @@ export default function EventChecklistSection(props: Props) {
             initialCustomItems={props.initialCustomItems}
             basketasRequired={cost.basketasRequired}
             flavors={props.flavorsForPrep}
+            template={props.template}
             embedded
           />
           {/* רישום החזרות — בלי מחירים */}

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Check, ChevronRight, ListChecks, Plus, X } from 'lucide-react'
-import { CHECKLIST_ITEMS, CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
+import { DEFAULT_CHECKLIST_TEMPLATE, allTemplateItems, type ChecklistSection } from '@/lib/checklist'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
   initialCustomItems?: string[]
   basketasRequired: number
   flavors: { name: string; category: string }[]
+  template?: ChecklistSection[]
   embedded?: boolean // כשמוטמע בתוך סקשן — בלי מסגרת/צל חיצוניים
   saveUrl?: string // ברירת מחדל: /api/leads/[id]/checklist; לטוקן ציבורי — /api/checklist/[token]
 }
@@ -24,25 +25,25 @@ export default function EventChecklist({
   initialCustomItems = [],
   basketasRequired,
   flavors,
+  template,
   embedded = false,
   saveUrl,
 }: Props) {
   const url = saveUrl ?? `/api/leads/${leadId}/checklist`
+  const sections = template ?? DEFAULT_CHECKLIST_TEMPLATE
   const [checked, setChecked] = useState<Set<string>>(new Set(initialCheckedItems))
   const [customItems, setCustomItems] = useState<string[]>(initialCustomItems)
   const [newItem, setNewItem] = useState('')
   const [pending, startTransition] = useTransition()
   const [expanded, setExpanded] = useState(true)
 
-  const groups = groupedItems()
-
   // Special "basketas" item is also tracked
   const basketasChecked = checked.has('__basketas__')
   const flavorsChecked = checked.has('__flavors__')
 
-  // Total includes the 2 computed items + custom items
+  // Total includes the 2 computed items + template items + custom items
   const computedItemsTotal = 2
-  const totalWithComputed = CHECKLIST_ITEMS.length + computedItemsTotal + customItems.length
+  const totalWithComputed = allTemplateItems(sections).length + computedItemsTotal + customItems.length
   const allCheckedCount = checked.size
 
   function saveChecked(newChecked: Set<string>) {
@@ -182,19 +183,19 @@ export default function EventChecklist({
             </div>
           </div>
 
-          {/* פריטים לפי קטגוריה */}
-          {Object.entries(groups).map(([category, items]) => (
-            <div key={category}>
+          {/* פריטים לפי מדור (מהתבנית הניתנת לעריכה בהגדרות) */}
+          {sections.map((section) => (
+            <div key={section.title}>
               <h3 className="text-xs font-bold text-brand-muted uppercase tracking-wide mb-2">
-                {CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
+                {section.title}
               </h3>
               <div className="space-y-1.5">
-                {items.map((item) => (
+                {section.items.map((label) => (
                   <ChecklistRow
-                    key={item.id}
-                    checked={checked.has(item.id)}
-                    onToggle={() => toggle(item.id)}
-                    label={<span className="font-medium">{item.label}</span>}
+                    key={label}
+                    checked={checked.has(label)}
+                    onToggle={() => toggle(label)}
+                    label={<span className="font-medium">{label}</span>}
                   />
                 ))}
               </div>

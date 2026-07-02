@@ -19,6 +19,7 @@ import WaQuickSend from '@/components/leads/WaQuickSend'
 import EventChecklistSection from '@/components/leads/EventChecklistSection'
 import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
 import { computeEventCost, parseSupplies, type EventLog } from '@/lib/event-cost'
+import { parseChecklistTemplate } from '@/lib/checklist'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -197,6 +198,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           assistantsCount={lead.assistantsCount}
           logisticsCost={logisticsCost}
           supplies={supplies}
+          template={parseChecklistTemplate(settingsMap['checklist_template'])}
           checklistUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/checklist/${lead.signatureToken}`}
         />
       }

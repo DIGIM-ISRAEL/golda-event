@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { formatDate, formatTime } from '@/lib/utils'
 import StripeBar from '@/components/brand/StripeBar'
 import PublicEventChecklist from '@/components/leads/PublicEventChecklist'
+import { parseChecklistTemplate } from '@/lib/checklist'
 import type { EventLog } from '@/lib/event-cost'
 
 export const dynamic = 'force-dynamic'
@@ -67,6 +68,7 @@ export default async function PublicChecklistPage({ params }: { params: Promise<
           initialCustomItems={lead.customChecklistItems ?? []}
           initialEventLog={(lead.eventLog as EventLog | null) ?? null}
           fallbackBasketaCost={basketaCost}
+          template={parseChecklistTemplate(settingsMap['checklist_template'])}
         />
       </div>
     </Shell>

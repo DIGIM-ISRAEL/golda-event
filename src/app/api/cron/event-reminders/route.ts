@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
-import { CATEGORY_LABELS, groupedItems } from '@/lib/checklist'
+import { parseChecklistTemplate, type ChecklistSection } from '@/lib/checklist'
 import { calculateInventory } from '@/lib/inventory'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime, israelDateStr, toWhatsAppNumber } from '@/lib/utils'
@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
   const settingsRows = await db.settings.findMany().catch(() => [])
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
   const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
+  const checklistTemplate = parseChecklistTemplate(settingsMap['checklist_template'])
 
   const results: { leadId: string; sent: boolean; to: string }[] = []
 
@@ -64,6 +65,7 @@ export async function GET(request: NextRequest) {
       flavors: flavors.map((f) => ({ name: f.name, category: f.category })),
       notes: event.notes,
       leadId: event.id,
+      checklistTemplate,
     })
 
     const to = Array.from(recipients).join(', ')
@@ -194,21 +196,21 @@ function renderReminderHtml(params: {
   flavors: { name: string; category: string }[]
   notes: string | null
   leadId: string
+  checklistTemplate: ChecklistSection[]
 }) {
-  const groups = groupedItems()
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(params.cityName)}`
 
-  const checklistHtml = Object.entries(groups)
-    .map(([category, items]) => {
-      const rows = items
+  const checklistHtml = params.checklistTemplate
+    .map((section) => {
+      const rows = section.items
         .map(
           (item) =>
-            `<tr><td style="padding:4px 0;">☐</td><td style="padding:4px 8px;">${item.label}</td></tr>`,
+            `<tr><td style="padding:4px 0;">☐</td><td style="padding:4px 8px;">${item}</td></tr>`,
         )
         .join('')
       return `
-        <tr><td colspan="2" style="padding-top:12px;font-weight:bold;color:#555;font-size:13px;">${CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}</td></tr>
+        <tr><td colspan="2" style="padding-top:12px;font-weight:bold;color:#555;font-size:13px;">${section.title}</td></tr>
         ${rows}
       `
     })
