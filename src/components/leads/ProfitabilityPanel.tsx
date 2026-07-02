@@ -19,6 +19,8 @@ interface Props {
   // עלות גלידה נטו מצ'קליסט המנהל (אחרי החזרות) — גובר על האומדן כשקיים
   iceCreamNetCost?: number | null
   hasReturns?: boolean
+  // כלי הגשה מתכלים (גביעים, כפיות, מפיות…) — כדי שהרווח כאן יתאים לדוח העלויות
+  utensilsCost?: number
 }
 
 export default function ProfitabilityPanel({
@@ -32,6 +34,7 @@ export default function ProfitabilityPanel({
   flavorCosts = [],
   iceCreamNetCost = null,
   hasReturns = false,
+  utensilsCost = 0,
 }: Props) {
   const effective = effectiveBasketaCost(flavorCosts, basketaCostNis)
   const inventory = calculateInventory(participants, effective.cost)
@@ -45,7 +48,9 @@ export default function ProfitabilityPanel({
     profitWarningThreshold,
   )
 
-  const warn = profitability.isWarning
+  // רווח נקי כולל גם כלים מתכלים — אותו חישוב כמו בדוח העלויות ובדשבורד
+  const netProfit = profitability.netProfit - utensilsCost
+  const warn = netProfit < profitWarningThreshold
 
   return (
     <div
@@ -93,7 +98,9 @@ export default function ProfitabilityPanel({
             גלידה{' '}
             {iceCreamNetCost != null && hasReturns
               ? '(נטו אחרי החזרות)'
-              : `(${inventory.basketasRequired} בסקטות × ₪${Math.round(effective.cost)})`}
+              : iceCreamNetCost != null
+                ? `(${inventory.basketasRequired} בסקטות לפי הטעמים)`
+                : `(${inventory.basketasRequired} בסקטות × ₪${Math.round(effective.cost)})`}
           </span>
           <span dir="ltr">−{formatNIS(iceCreamCost)}</span>
         </div>
@@ -101,16 +108,22 @@ export default function ProfitabilityPanel({
           {iceCreamNetCost != null && hasReturns
             ? 'עלות גלידה אחרי קיזוז בסקטות שחזרו (מצ׳קליסט המנהל)'
             : effective.fromFlavors
-              ? 'עלות בסקטה לפי ממוצע הטעמים שנבחרו (מאקסל העלויות)'
+              ? 'עלות לפי הטעמים שנבחרו (מאקסל העלויות)'
               : 'עלות בסקטה לפי ברירת המחדל — בחר טעמים לחישוב מדויק'}
         </div>
+        {utensilsCost > 0 && (
+          <div className="flex justify-between text-brand-muted">
+            <span>כלים מתכלים (גביעים, כפיות…)</span>
+            <span dir="ltr">−{formatNIS(utensilsCost)}</span>
+          </div>
+        )}
         <div className="flex justify-between items-baseline font-bold border-t border-brand-line/70 pt-2">
           <span className="text-brand-ink">רווח נקי</span>
           <span
             dir="ltr"
             className={cn('font-serif text-lg', warn ? 'text-[#B0473A]' : 'text-[#3D5A30]')}
           >
-            {formatNIS(profitability.netProfit)}
+            {formatNIS(netProfit)}
           </span>
         </div>
       </div>

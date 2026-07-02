@@ -12,10 +12,11 @@ export const dynamic = 'force-dynamic'
 export default async function PublicChecklistPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
 
+  // חיפוש לפי טוקן הצ'קליסט הייעודי — לא לפי טוקן האישור שנמצא אצל הלקוח
   const [lead, settingsRows] = await Promise.all([
     db.lead
       .findUnique({
-        where: { signatureToken: token },
+        where: { checklistToken: token },
         include: { location: true, flavors: { include: { flavor: true } } },
       })
       .catch(() => null),
@@ -34,7 +35,6 @@ export default async function PublicChecklistPage({ params }: { params: Promise<
   }
 
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
-  const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
   const flavors = lead.flavors.map((lf) => lf.flavor)
 
   return (
@@ -62,12 +62,14 @@ export default async function PublicChecklistPage({ params }: { params: Promise<
           token={token}
           status={lead.status}
           participants={lead.participants}
-          flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa }))}
+          // בלי עלויות ייצור ב-payload הציבורי — העובד צריך רק כמויות (ק"ג),
+          // וכל ערך שנשלח לקומפוננטת client מוטמע ב-HTML וגלוי ב-view-source.
+          flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: null }))}
           flavorsForPrep={flavors.map((f) => ({ name: f.name, category: f.category }))}
           initialCheckedItems={lead.checkedItems ?? []}
           initialCustomItems={lead.customChecklistItems ?? []}
           initialEventLog={(lead.eventLog as EventLog | null) ?? null}
-          fallbackBasketaCost={basketaCost}
+          fallbackBasketaCost={0}
           template={parseChecklistTemplate(settingsMap['checklist_template'])}
         />
       </div>

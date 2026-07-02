@@ -6,6 +6,7 @@ import { findClosedConflict } from '@/lib/conflicts'
 import { sendEmail } from '@/lib/email'
 import { formatDate, formatTime } from '@/lib/utils'
 import { formatNIS } from '@/lib/pricing'
+import { getAppUrl } from '@/lib/app-url'
 
 export async function PATCH(
   request: NextRequest,
@@ -65,7 +66,7 @@ export async function PATCH(
           <p><strong>מיקום:</strong> ${lead.location?.cityName ?? '—'}</p>
           <p><strong>משתתפים:</strong> ${lead.participants}</p>
           ${quote ? `<p><strong>סכום:</strong> ${formatNIS(quote.totalPrice)}</p>` : ''}
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/leads/${id}"
+          <a href="${getAppUrl()}/leads/${id}"
              style="display:inline-block;margin-top:10px;background:#5E2A33;color:#FAF4E9;padding:10px 20px;border-radius:8px;text-decoration:none;">
             פתח ליד במערכת
           </a>

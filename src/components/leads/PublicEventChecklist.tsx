@@ -55,20 +55,23 @@ export default function PublicEventChecklist(props: Props) {
     if (!confirm('לסיים את האירוע ולשלוח דוח למנהל?')) return
     setFinalizing(true)
     try {
-      await fetch(url, {
+      // שולחים את היומן הנוכחי יחד עם הסיום — כדי שהחזרה שהוקלדה רגע לפני
+      // לא תפסיד את המרוץ מול בקשת השמירה שבדרך
+      const res = await fetch(url, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ finalize: true }),
+        body: JSON.stringify({ eventLog, finalize: true }),
       })
+      if (!res.ok) throw new Error('finalize failed')
       setFinalized(true)
     } catch {
-      /* רך */
+      alert('שליחת הדוח נכשלה — בדקו חיבור ונסו שוב, או פנו למנהל.')
     } finally {
       setFinalizing(false)
     }
   }
 
-  if (finalized) {
+  if (finalized || status === 'done') {
     return (
       <div className="text-center py-8">
         <div className="mx-auto mb-4 grid place-items-center w-14 h-14 rounded-full bg-[#E7EDE4] text-[#4A6B41]">
@@ -94,14 +97,17 @@ export default function PublicEventChecklist(props: Props) {
       />
       <ReturnsBlock lines={cost.flavorLines} status={status} showCosts={false} onReturnKg={setReturnedKg} />
 
-      <button
-        onClick={finalize}
-        disabled={finalizing}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-maroon text-brand-cream py-3 text-sm font-semibold hover:bg-brand-maroon-dark disabled:opacity-60 transition-colors mt-2"
-      >
-        <CheckCircle2 size={17} />
-        {finalizing ? 'מסכם…' : 'סיימתי — שמור ושלח למנהל'}
-      </button>
+      {/* סיום ושליחת דוח — רק כשהאירוע סגור (שריין תאריך); לפני כן אין מה לסכם */}
+      {status === 'closed' && (
+        <button
+          onClick={finalize}
+          disabled={finalizing}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-maroon text-brand-cream py-3 text-sm font-semibold hover:bg-brand-maroon-dark disabled:opacity-60 transition-colors mt-2"
+        >
+          <CheckCircle2 size={17} />
+          {finalizing ? 'מסכם…' : 'סיימתי — שמור ושלח למנהל'}
+        </button>
+      )}
     </div>
   )
 }

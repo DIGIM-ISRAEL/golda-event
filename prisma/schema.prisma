@@ -102,6 +102,9 @@ model Lead {
   priceOverride          Float?     @map("price_override")
   pricePerPersonOverride Float?     @map("price_per_person_override")
   signatureToken         String     @unique @default(cuid()) @map("signature_token")
+  // טוקן נפרד לצ'קליסט העובד — נוצר עצלנית בקוד (nullable ⇒ בטוח ל-db push על שורות קיימות).
+  // חייב להיות שונה מ-signatureToken: הלקוח מחזיק את טוקן האישור ואסור שיפתח את צ'קליסט התפעול.
+  checklistToken         String?    @unique @map("checklist_token")
   clientApprovedAt       DateTime?  @map("client_approved_at")
   clientApprovedName     String?    @map("client_approved_name")
   clientApprovedIp       String?    @map("client_approved_ip")

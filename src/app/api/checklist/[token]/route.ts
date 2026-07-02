@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
-import { sanitizeEventLog } from '@/lib/event-cost'
+import { sanitizeEventLog, type EventLog } from '@/lib/event-cost'
 import { finalizeEventAndReport } from '@/lib/cost-report'
 
 // עדכון צ'קליסט דרך לינק ציבורי (טוקן) — לעובד שאינו מחובר.
 // תצוגת עובד בלבד: צ'קליסט הכנה + החזרות במשקל. בלי עלויות.
+// חשוב: טוקן צ'קליסט ייעודי (checklistToken) — לא טוקן האישור שנמצא אצל הלקוח.
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> },
@@ -14,8 +15,14 @@ export async function PATCH(
   const body = await request.json()
 
   const lead = await db.lead.findUnique({
-    where: { signatureToken: token },
-    select: { id: true, participants: true, flavors: { select: { flavorId: true } } },
+    where: { checklistToken: token },
+    select: {
+      id: true,
+      status: true,
+      participants: true,
+      eventLog: true,
+      flavors: { select: { flavorId: true } },
+    },
   })
   if (!lead) return NextResponse.json({ error: 'קישור לא תקף' }, { status: 404 })
 
@@ -35,6 +42,7 @@ export async function PATCH(
       participants: lead.participants,
       basketasOut: body.eventLog?.basketasOut,
       returnedKg: body.eventLog?.returnedKg,
+      existing: (lead.eventLog as EventLog | null) ?? null,
     })
     data.eventLog = eventLog as unknown as Prisma.InputJsonValue
   }
@@ -44,8 +52,12 @@ export async function PATCH(
   }
 
   if (body.finalize === true) {
+    // סיום מהלינק הציבורי — רק לאירוע בסטטוס "סגור" (מונע דוחות מוקדמים/כפולים)
+    if (lead.status !== 'closed') {
+      return NextResponse.json({ error: 'האירוע אינו בסטטוס סגור' }, { status: 409 })
+    }
     const res = await finalizeEventAndReport(lead.id)
-    return NextResponse.json({ ok: true, movedToDone: res.movedToDone })
+    return NextResponse.json({ ok: true, movedToDone: res.movedToDone, alreadySent: res.alreadySent ?? false })
   }
 
   return NextResponse.json({ ok: true })

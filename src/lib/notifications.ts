@@ -1,6 +1,7 @@
 import { sendEmail } from '@/lib/email'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, toWhatsAppNumber } from '@/lib/utils'
+import { getAppUrl } from '@/lib/app-url'
 
 // התראת "הלקוח פתח את ההצעה" — הרגע הכי חם במכירה.
 // 42.5% מהעסקאות שנסגרות — נסגרות תוך 24 שעות מהפתיחה הראשונה (Proposify 2024).
@@ -17,7 +18,7 @@ export async function notifyQuoteViewed(params: {
   if (params.salesRepEmail) recipients.add(params.salesRepEmail)
   if (recipients.size === 0) return
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+  const appUrl = getAppUrl()
   const waLink = `https://wa.me/${toWhatsAppNumber(params.clientPhone)}`
 
   await sendEmail({

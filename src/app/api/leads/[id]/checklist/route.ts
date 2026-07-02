@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { sanitizeEventLog } from '@/lib/event-cost'
+import { sanitizeEventLog, type EventLog } from '@/lib/event-cost'
 import { finalizeEventAndReport } from '@/lib/cost-report'
 
 export async function PATCH(
@@ -14,6 +14,17 @@ export async function PATCH(
 
   const { id } = await params
   const body = await request.json()
+
+  const lead = await db.lead.findUnique({
+    where: { id },
+    select: {
+      status: true,
+      participants: true,
+      eventLog: true,
+      flavors: { select: { flavorId: true } },
+    },
+  })
+  if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
   const data: {
     checkedItems?: string[]
@@ -27,16 +38,12 @@ export async function PATCH(
   }
 
   if (body.eventLog !== undefined) {
-    const lead = await db.lead.findUnique({
-      where: { id },
-      select: { participants: true, flavors: { select: { flavorId: true } } },
-    })
-    if (!lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     const eventLog = sanitizeEventLog({
       flavorIds: lead.flavors.map((lf) => lf.flavorId),
       participants: lead.participants,
       basketasOut: body.eventLog?.basketasOut,
       returnedKg: body.eventLog?.returnedKg,
+      existing: (lead.eventLog as EventLog | null) ?? null,
     })
     data.eventLog = eventLog as unknown as Prisma.InputJsonValue
   }
@@ -45,10 +52,13 @@ export async function PATCH(
     await db.lead.update({ where: { id }, data })
   }
 
-  // סיום אירוע ושליחת דוח עלויות
+  // סיום אירוע ושליחת דוח עלויות — רק כשהאירוע בסטטוס "סגור"
   if (body.finalize === true) {
+    if (lead.status !== 'closed') {
+      return NextResponse.json({ error: 'האירוע אינו בסטטוס סגור' }, { status: 409 })
+    }
     const res = await finalizeEventAndReport(id)
-    return NextResponse.json({ ok: true, movedToDone: res.movedToDone })
+    return NextResponse.json({ ok: true, movedToDone: res.movedToDone, alreadySent: res.alreadySent ?? false })
   }
 
   if (Object.keys(data).length === 0) {

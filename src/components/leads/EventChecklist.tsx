@@ -41,10 +41,18 @@ export default function EventChecklist({
   const basketasChecked = checked.has('__basketas__')
   const flavorsChecked = checked.has('__flavors__')
 
-  // Total includes the 2 computed items + template items + custom items
+  // Total includes the 2 computed items + template items + custom items.
+  // סופרים רק סימונים שקיימים ברשימה הנוכחית — סימונים ישנים (מרשימה שהוחלפה) לא נספרים.
   const computedItemsTotal = 2
-  const totalWithComputed = allTemplateItems(sections).length + computedItemsTotal + customItems.length
-  const allCheckedCount = checked.size
+  const templateItems = allTemplateItems(sections)
+  const totalWithComputed = templateItems.length + computedItemsTotal + customItems.length
+  const inScope = new Set<string>([
+    '__basketas__',
+    '__flavors__',
+    ...templateItems,
+    ...customItems.map(customKey),
+  ])
+  const allCheckedCount = Array.from(checked).filter((k) => inScope.has(k)).length
 
   function saveChecked(newChecked: Set<string>) {
     startTransition(async () => {

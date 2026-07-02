@@ -3,12 +3,15 @@ import { sendEmail } from '@/lib/email'
 import { computeEventCost, parseSupplies } from '@/lib/event-cost'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime } from '@/lib/utils'
+import { getAppUrl } from '@/lib/app-url'
 import { MANAGER_COST, ASSISTANT_COST } from '@/lib/constants'
 
 // סוגר אירוע: מעביר מ"סגור" ל"בוצע" (אם רלוונטי), מחשב דוח עלויות מלא,
 // ושולח אותו במייל לאדמין ולנציג לבדיקה/אישור/תיקון.
 // קריא גם מהאפליקציה (מחובר) וגם מהלינק הציבורי (טוקן).
-export async function finalizeEventAndReport(leadId: string): Promise<{ ok: boolean; movedToDone: boolean }> {
+export async function finalizeEventAndReport(
+  leadId: string,
+): Promise<{ ok: boolean; movedToDone: boolean; alreadySent?: boolean }> {
   const [lead, settingsRows] = await Promise.all([
     db.lead.findUnique({
       where: { id: leadId },
@@ -17,6 +20,9 @@ export async function finalizeEventAndReport(leadId: string): Promise<{ ok: bool
     db.settings.findMany().catch(() => [] as { key: string; value: string }[]),
   ])
   if (!lead) return { ok: false, movedToDone: false }
+
+  // אידמפוטנטי — הדוח כבר נשלח? לא שולחים שוב (מונע כפילויות מייל וספאם מהלינק הציבורי)
+  if (lead.costReportSentAt) return { ok: true, movedToDone: false, alreadySent: true }
 
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
   const basketaCost = Number(settingsMap['basketa_cost_nis'] ?? 150)
@@ -54,7 +60,7 @@ export async function finalizeEventAndReport(leadId: string): Promise<{ ok: bool
       const assistantsCost = lead.assistantsCount * ASSISTANT_COST
       const logisticsCost = lead.location?.travelCostNis ?? 0
       const grandTotal = cost.goodsCost + managerCost + assistantsCost + logisticsCost
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+      const appUrl = getAppUrl()
 
       const flavorRows = cost.flavorLines
         .map(

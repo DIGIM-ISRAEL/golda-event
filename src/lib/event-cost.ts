@@ -91,19 +91,31 @@ function cleanFloatMap(raw: unknown): Record<string, number> {
 
 // מנקה ומאמת eventLog נכנס מול הטעמים של הליד והבסקטות הנדרשות.
 // משותף לראוט המחובר ולראוט הציבורי (טוקן).
+// ממזג על גבי היומן הקיים (existing) — כדי ששמירה חלקית (למשל עובד ששולח רק
+// החזרות) לא תמחק את מה שמנהל קבע במקביל, ושנתוני legacy לא יאבדו בשקט.
 export function sanitizeEventLog(params: {
   flavorIds: string[]
   participants: number
   basketasOut?: unknown
   returnedKg?: unknown
+  existing?: EventLog | null
 }): EventLog {
-  const { flavorIds, participants } = params
+  const { flavorIds, participants, existing } = params
   const validIds = new Set(flavorIds)
   const basketasRequired = basketasRequiredFor(participants)
   const defaultOut = defaultBasketaSplit(flavorIds, basketasRequired)
 
-  const rawOut = cleanIntMap(params.basketasOut)
-  const rawReturnedKg = cleanFloatMap(params.returnedKg)
+  // בסיס: היומן הקיים, כולל המרת legacy (בסקטות שלמות שחזרו) לק"ג
+  const existingOut = cleanIntMap(existing?.basketasOut)
+  const existingKg = cleanFloatMap(existing?.returnedKg)
+  const legacyReturned = cleanFloatMap(existing?.basketasReturned)
+  for (const [fid, baskets] of Object.entries(legacyReturned)) {
+    if (existingKg[fid] === undefined) existingKg[fid] = baskets * KG_PER_BASKETA
+  }
+
+  // הערכים הנכנסים גוברים, מפתח-מפתח; מה שלא נשלח — נשמר מהקיים
+  const rawOut = { ...existingOut, ...cleanIntMap(params.basketasOut) }
+  const rawReturnedKg = { ...existingKg, ...cleanFloatMap(params.returnedKg) }
 
   const basketasOut: Record<string, number> = {}
   const returnedKg: Record<string, number> = {}
@@ -119,7 +131,9 @@ export function sanitizeEventLog(params: {
   if (Object.keys(basketasOut).length > 0) eventLog.basketasOut = basketasOut
   if (Object.keys(returnedKg).length > 0) {
     eventLog.returnedKg = returnedKg
-    eventLog.returnedAt = new Date().toISOString()
+    // חותמת זמן חדשה רק כשבאמת נשלחו החזרות; אחרת שומרים את המקורית
+    eventLog.returnedAt =
+      params.returnedKg !== undefined ? new Date().toISOString() : (existing?.returnedAt ?? new Date().toISOString())
   }
   return eventLog
 }

@@ -4,6 +4,7 @@ import { sendEmail } from '@/lib/email'
 import { syncLeadCalendar } from '@/lib/calendar-sync'
 import { timesOverlap, formatDate, formatTime } from '@/lib/utils'
 import { formatNIS } from '@/lib/pricing'
+import { getAppUrl } from '@/lib/app-url'
 
 // אישור הצעה על ידי הלקוח (ציבורי, דרך טוקן ייחודי):
 //  1. מתעד שם, חתימה, IP וזמן אישור
@@ -82,7 +83,7 @@ export async function POST(
     if (lead.salesRep?.email) recipients.add(lead.salesRep.email)
 
     if (recipients.size > 0) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+      const appUrl = getAppUrl()
       const statusLine = autoClosed
         ? '<p style="color:#3D5A30;font-weight:bold;">✅ העסקה נסגרה אוטומטית ונוספה ליומן.</p>'
         : conflictNote

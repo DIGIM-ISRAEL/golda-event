@@ -6,6 +6,7 @@ import KanbanBoard from '@/components/leads/KanbanBoard'
 import { toWhatsAppNumber, formatDate, formatTime } from '@/lib/utils'
 import { formatNIS } from '@/lib/pricing'
 import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
+import { getAppUrl } from '@/lib/app-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +37,7 @@ export default async function LeadsPage() {
   const settingsRows = await db.settings.findMany().catch(() => [] as { key: string; value: string }[])
   const settingsMap = Object.fromEntries(settingsRows.map((s) => [s.key, s.value]))
   const templates = parseWaTemplates(settingsMap['wa_templates'])
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+  const appUrl = getAppUrl()
 
   let leads: {
     id: string

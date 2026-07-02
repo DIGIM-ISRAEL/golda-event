@@ -64,15 +64,17 @@ export default function EventChecklistSection(props: Props) {
     if (!confirm('לסיים את האירוע ולשלוח דוח עלויות לבדיקה? הליד יעבור ל"בוצע".')) return
     setFinalizing(true)
     try {
-      await fetch(`/api/leads/${leadId}/checklist`, {
+      // היומן הנוכחי נשלח יחד עם הסיום — מנצח כל שמירה שעדיין בדרך
+      const res = await fetch(`/api/leads/${leadId}/checklist`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ finalize: true }),
+        body: JSON.stringify({ eventLog, finalize: true }),
       })
+      if (!res.ok) throw new Error('finalize failed')
       setFinalized(true)
       router.refresh()
     } catch {
-      /* ignore */
+      alert('שליחת הדוח נכשלה — נסה שוב.')
     } finally {
       setFinalizing(false)
     }
@@ -162,7 +164,7 @@ export default function EventChecklistSection(props: Props) {
             <CheckCircle2 size={17} />
             האירוע סוכם ודוח עלויות נשלח
           </div>
-        ) : (
+        ) : status === 'closed' ? (
           <button
             onClick={finalize}
             disabled={finalizing}
@@ -171,6 +173,10 @@ export default function EventChecklistSection(props: Props) {
             <CheckCircle2 size={17} />
             {finalizing ? 'מסכם…' : 'סיימתי — שלח דוח עלויות'}
           </button>
+        ) : (
+          <div className="text-center text-xs text-brand-muted/80 py-1.5">
+            סיכום ודוח עלויות יהיו זמינים כשהאירוע יעבור לסטטוס &quot;סגור / שמור&quot;
+          </div>
         )}
       </div>
     </div>

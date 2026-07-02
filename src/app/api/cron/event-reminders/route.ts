@@ -5,6 +5,7 @@ import { parseChecklistTemplate, type ChecklistSection } from '@/lib/checklist'
 import { calculateInventory } from '@/lib/inventory'
 import { formatNIS } from '@/lib/pricing'
 import { formatDate, formatTime, israelDateStr, toWhatsAppNumber } from '@/lib/utils'
+import { getAppUrl } from '@/lib/app-url'
 
 // Endpoint יורץ פעם ביום (Railway cron) ב-09:00. שתי עבודות:
 //  1. תזכורת תפעולית לכל אירוע שמתקיים מחר
@@ -121,7 +122,7 @@ async function sendQuoteFollowups(): Promise<{ due: number; sent: boolean }> {
 
   if (due.length === 0) return { due: 0, sent: false }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+  const appUrl = getAppUrl()
   const recipients = new Set<string>()
   if (process.env.ADMIN_EMAIL) recipients.add(process.env.ADMIN_EMAIL)
   for (const lead of due) {
@@ -198,7 +199,7 @@ function renderReminderHtml(params: {
   leadId: string
   checklistTemplate: ChecklistSection[]
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const appUrl = getAppUrl()
   const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(params.cityName)}`
 
   const checklistHtml = params.checklistTemplate

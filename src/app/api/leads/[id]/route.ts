@@ -30,7 +30,16 @@ export async function PATCH(
     if (conflict) return NextResponse.json({ error: conflict }, { status: 409 })
   }
 
-  await db.lead.update({ where: { id }, data: leadData })
+  // מעבר ל"הצעה נשלחה" דרך טופס העריכה מניע את שעון הפולואפ —
+  // בדיוק כמו בראוט הסטטוס; בלי זה הפולואפ נשען על updatedAt שמתאפס מכל שמירה.
+  const becameQuoteSent = leadData.status === 'quote_sent' && existing.status !== 'quote_sent'
+  await db.lead.update({
+    where: { id },
+    data: {
+      ...leadData,
+      ...(becameQuoteSent ? { quoteSentAt: new Date(), followupStage: 0 } : {}),
+    },
+  })
 
   if (flavors !== undefined) {
     await db.leadFlavor.deleteMany({ where: { leadId: id } })

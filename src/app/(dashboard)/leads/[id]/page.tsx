@@ -20,6 +20,8 @@ import EventChecklistSection from '@/components/leads/EventChecklistSection'
 import { parseWaTemplates, fillWaTemplate } from '@/lib/wa-templates'
 import { computeEventCost, parseSupplies, type EventLog } from '@/lib/event-cost'
 import { parseChecklistTemplate } from '@/lib/checklist'
+import { getAppUrl } from '@/lib/app-url'
+import { randomUUID } from 'crypto'
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -39,6 +41,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   ])
 
   if (!lead) notFound()
+
+  const isAdmin = session.role === 'admin'
+
+  // טוקן צ'קליסט ייעודי — נוצר עצלנית בפעם הראשונה שהעמוד נטען.
+  // נפרד מטוקן האישור שנשלח ללקוח, כדי שהלקוח לא יוכל לפתוח את צ'קליסט התפעול.
+  let checklistToken = lead.checklistToken
+  if (!checklistToken) {
+    checklistToken = randomUUID().replace(/-/g, '')
+    await db.lead.update({ where: { id }, data: { checklistToken } })
+  }
 
   // אזהרת התנגשות רכה — אירועים נוספים באותו יום (זמן נסיעה בין מיקומים)
   const sameDayEvents = await db.lead.findMany({
@@ -90,7 +102,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   })
 
   // הודעת וואטסאפ מוכנה — תקציר ההצעה + קישור לעמוד הצפייה/אישור/חתימה
-  const approveUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/approve/${lead.signatureToken}`
+  const approveUrl = `${getAppUrl()}/approve/${lead.signatureToken}`
   const quoteMessage = [
     `שלום ${lead.clientName}! 🍦`,
     `תודה על ההתעניינות בגולדה אירועים.`,
@@ -162,7 +174,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       }
       statusChanger={<StatusChanger leadId={id} currentStatus={lead.status} />}
       profitabilityPanel={
-        session.role === 'admin' ? (
+        isAdmin ? (
           <ProfitabilityPanel
             totalCustomerPrice={pricing.totalPrice}
             logisticsCost={logisticsCost}
@@ -174,6 +186,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             flavorCosts={flavors.map((f) => f.costPerBasketa)}
             iceCreamNetCost={flavors.length > 0 ? eventCost.iceCreamNet : null}
             hasReturns={eventCost.hasReturns}
+            utensilsCost={eventCost.utensilsCost}
           />
         ) : null
       }
@@ -188,18 +201,20 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           role={session.role}
           status={lead.status}
           participants={lead.participants}
-          flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: f.costPerBasketa }))}
+          // עלויות ייצור נשלחות לדפדפן רק לאדמין — לנציג מכירות טאב המנהל מוסתר,
+          // אבל בלי זה הערכים עדיין היו מוטמעים ב-HTML וגלויים ב-view-source.
+          flavors={flavors.map((f) => ({ id: f.id, name: f.name, costPerBasketa: isAdmin ? f.costPerBasketa : null }))}
           flavorsForPrep={flavors.map((f) => ({ name: f.name, category: f.category }))}
           initialCheckedItems={lead.checkedItems ?? []}
           initialCustomItems={lead.customChecklistItems ?? []}
           initialEventLog={(lead.eventLog as EventLog | null) ?? null}
-          fallbackBasketaCost={basketaCost}
+          fallbackBasketaCost={isAdmin ? basketaCost : 0}
           managerIncluded={lead.managerIncluded}
           assistantsCount={lead.assistantsCount}
           logisticsCost={logisticsCost}
           supplies={supplies}
           template={parseChecklistTemplate(settingsMap['checklist_template'])}
-          checklistUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? ''}/checklist/${lead.signatureToken}`}
+          checklistUrl={`${getAppUrl()}/checklist/${checklistToken}`}
         />
       }
     />
